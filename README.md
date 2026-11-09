@@ -24,7 +24,7 @@ El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con u
 ## Guardado en la nube (Supabase)
 - Configuración en `data/nube.js` (URL del proyecto y clave pública «anon»). Si la clave está vacía, todo funciona solo en el equipo.
 - Instalación de la base: ejecutar `supabase/instalar.sql` en el SQL Editor (crea solo la tabla `diapo_cambios` y el bucket `diapositivas`).
-- Usuarios que pueden editar: Supabase → Authentication → Users → Add user.
+- Usuarios que pueden editar: deben tener cuenta en Supabase (Authentication → Users) **y** estar en la tabla `diapo_editores` (Table Editor → diapo_editores → Insert row con su correo).
 - En la presentación: **🔑 Ingresar** → desde ahí, cada edición e imagen se guarda en la nube y todos la ven al abrir. Sin sesión se puede ver y presentar, pero no guardar para todos.
 
 ## Presentar con proyector (HDMI)

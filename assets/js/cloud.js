@@ -33,6 +33,8 @@
     f.onsubmit = async ev => { ev.preventDefault(); const err = m.querySelector('.lg-err'); err.textContent = 'Ingresando…';
       const { data, error } = await sb.auth.signInWithPassword({ email: f.e.value.trim(), password: f.p.value });
       if (error) { err.textContent = 'No se pudo ingresar: revise correo y contraseña.'; return; }
+      const ok = await sb.from('diapo_editores').select('email').maybeSingle();
+      if (!ok.data) { await sb.auth.signOut(); err.textContent = 'Esta cuenta no tiene permiso para editar las presentaciones.'; return; }
       user = data.user; m.classList.remove('on'); paint(); D.toast('Sesión iniciada: sus cambios se guardan en la nube'); if (localStorage.getItem(DIRTY)) push(); };
   }
   function askLogout() {
@@ -75,7 +77,7 @@
   const done = () => document.documentElement.classList.remove('nube-cargando');
   setTimeout(done, 3500);
   (async () => {
-    try { const { data } = await sb.auth.getSession(); user = data.session ? data.session.user : null; } catch (e) { }
+    try { const { data } = await sb.auth.getSession(); user = data.session ? data.session.user : null; if (user) { const ok = await sb.from('diapo_editores').select('email').maybeSingle(); if (!ok.data) user = null; } } catch (e) { }
     paint();
     try {
       const { data, error } = await sb.from(TABLE).select('data,updated_at').eq('deck_id', id).maybeSingle();

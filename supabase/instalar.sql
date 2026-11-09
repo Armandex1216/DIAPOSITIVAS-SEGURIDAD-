@@ -42,3 +42,14 @@ create policy "diapo_img_subir" on storage.objects
 drop policy if exists "diapo_img_cambiar" on storage.objects;
 create policy "diapo_img_cambiar" on storage.objects
   for update to authenticated using (bucket_id = 'diapositivas') with check (bucket_id = 'diapositivas');
+
+-- 3) Solo editores autorizados pueden guardar (las cuentas de otras apps del proyecto no)
+create table if not exists public.diapo_editores (email text primary key);
+alter table public.diapo_editores enable row level security;
+create policy "diapo_editores_propio" on public.diapo_editores for select to authenticated using (lower(email) = lower(auth.jwt()->>'email'));
+create or replace function public.diapo_es_editor() returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.diapo_editores where lower(email) = lower(auth.jwt()->>'email')); $$;
+revoke all on function public.diapo_es_editor() from public, anon;
+grant execute on function public.diapo_es_editor() to authenticated;
+-- (las políticas de insertar/actualizar usan public.diapo_es_editor())
+-- Para agregar un editor:  insert into public.diapo_editores(email) values ('correo@empresa.com');
