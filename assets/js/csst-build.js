@@ -20,12 +20,14 @@
     ['Enfermedades ocupacionales leves', '#7cbd4a', 0, 0],
     ['Enfermedades ocupacionales', '#3fa58e', 0, 0]
   ];
-  const evt = (sel, col) => { $(sel).innerHTML = `<p class="h">Evento</p><p class="h">Octubre</p><p class="h">Acumulado 2026</p>` +
-    EV.map((e, i) => { const n = e[0], c = e[1], a = col ? 0 : e[2], b = col ? 0 : e[3];
-      return `<div class="row ${a || b ? '' : 'zero'}"><div class="lab" style="background:${c}" data-a="left" data-gap=".06"><span class="edit">${n}</span></div>` +
-      `<div class="hx" style="background:${c}" data-a="pop" data-gap=".03"><span data-count="${a}" data-pad="1" data-cd="${.6 + i * .08}">0</span></div>` +
-      `<div class="hx" style="background:${c};filter:saturate(.85) brightness(.92)" data-a="pop" data-gap=".03"><span data-count="${b}" data-pad="1" data-cd="${.8 + i * .08}">0</span></div></div>`; }).join(''); };
-  evt('#evt', 0); evt('#evt-sel', 1);
+  // Pallancata: [mes, acumulado]; Selene: todo en 0
+  const SEL = EV.map(() => [0, 0]);
+  const hx = (c, v, d, dim) => `<div class="hx" style="background:${c}${dim ? ';filter:saturate(.85) brightness(.92)' : ''}" data-a="pop" data-gap=".02"><span data-count="${v}" data-pad="1" data-cd="${d}">0</span></div>`;
+  $('#evt').innerHTML = `<span></span><p class="grp p">Pallancata</p><p class="grp s">Selene</p>` +
+    `<p class="h" style="text-align:left">Evento</p><p class="h">Octubre</p><p class="h">Acum. 2026</p><p class="h">Octubre</p><p class="h">Acum. 2026</p>` +
+    EV.map((e, i) => { const [n, c, a, b] = e, [sa, sb] = SEL[i];
+      return `<div class="row ${a || b || sa || sb ? '' : 'zero'}"><div class="lab" style="background:${c}" data-a="left" data-gap=".05"><span class="edit">${n}</span></div>` +
+        hx(c, a, .6 + i * .07) + hx(c, b, .75 + i * .07, 1) + hx(c, sa, .9 + i * .07) + hx(c, sb, 1.05 + i * .07, 1) + '</div>'; }).join('');
 
   // --- pedidos del CSST (acta anterior)
   const AC = [

@@ -10,7 +10,7 @@ window.CATALOGO = [
   { id: 'mensaje', nombre: 'MENSAJE DE SEGURIDAD', portada: '', items: [] },
   { id: 'certificados', nombre: 'Certificados', portada: '', items: [] },
   { id: 'csst', nombre: 'REUNIÓN CSST', portada: 'assets/img/portada.jpg', items: [
-    { titulo: 'Reunión ordinaria CSST', fecha: 'Noviembre 2026 · resultados de octubre', archivo: 'csst-noviembre-2026.html', laminas: 17, portada: 'assets/img/portada.jpg' }
+    { titulo: 'Reunión ordinaria CSST', fecha: 'Noviembre 2026 · resultados de octubre', archivo: 'csst-noviembre-2026.html', laminas: 16, portada: 'assets/img/portada.jpg' }
   ] },
   { id: 'gerencial-ec', nombre: 'Reunión Gerencial E.C.', portada: '', items: [] },
   { id: 'reconocimiento-oto', nombre: 'RECONOCIMIENTO OTO', portada: '', items: [] },
