@@ -302,6 +302,26 @@
   addEventListener('resize', drawSel);
   D.toggleMove = toggleMove;
 
+  /* ---------- seguro para proyector (HDMI) ---------- */
+  // pantalla negra / blanca: B o . (control remoto) · W o ,
+  const curtain = document.createElement('div'); curtain.className = 'curtain'; document.body.appendChild(curtain);
+  curtain.onclick = () => curtain.className = 'curtain';
+  addEventListener('keydown', e => {
+    if (e.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (e.key === 'F5' || (e.shiftKey && e.key === 'F5')) { e.preventDefault(); toggleFs(); return; } // F5 de los controles remotos: no recargar
+    if (curtain.className !== 'curtain' && !['b', 'B', '.', 'w', 'W', ','].includes(e.key)) { curtain.className = 'curtain'; e.stopImmediatePropagation(); e.preventDefault(); return; }
+    if (['b', 'B', '.'].includes(e.key)) { curtain.className = curtain.classList.contains('black') ? 'curtain' : 'curtain on black'; }
+    else if (['w', 'W', ','].includes(e.key)) { curtain.className = curtain.classList.contains('white') ? 'curtain' : 'curtain on white'; }
+  }, true);
+  // que la pantalla no se apague ni entre el protector mientras se presenta
+  let lock = null; const keepAwake = async () => { try { if ('wakeLock' in navigator && document.visibilityState === 'visible') lock = await navigator.wakeLock.request('screen'); } catch (e) { } };
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+  addEventListener('pointerdown', () => { if (!lock || lock.released) keepAwake(); }, { once: false, passive: true }); addEventListener('keydown', () => { if (!lock || lock.released) keepAwake(); }, { passive: true }); keepAwake();
+  // al conectar el proyector o cambiar a pantalla completa, reajustar escala y gráficos
+  const refit = () => { fit(); setTimeout(() => { fit(); if (window.HC) Object.values(HC.charts).forEach(c => { try { c.resize(); } catch (e) { } }); }, 120); };
+  document.addEventListener('fullscreenchange', refit); if (window.matchMedia) { try { matchMedia('(resolution: ' + devicePixelRatio + 'dppx)').addEventListener('change', refit); } catch (e) { } }
+  if (screen.orientation) screen.orientation.addEventListener && screen.orientation.addEventListener('change', refit);
+
   loadEdits(); loadLayout(); applyHidden(); initSlots(); initBoxes();
   slides.forEach(s => resetSlide(s));
   let start = Math.min(slides.length - 1, Math.max(0, (parseInt(location.hash.slice(1)) || 1) - 1));

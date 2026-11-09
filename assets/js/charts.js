@@ -3,6 +3,8 @@
   if (!window.Chart) return;
   Chart.register(ChartDataLabels);
   Chart.defaults.font.family = 'Montserrat, system-ui, sans-serif';
+  // nitidez en proyectores y pantallas grandes: el escenario 1920×1080 se escala, así que se dibuja con más resolución
+  Chart.defaults.devicePixelRatio = Math.max(2, (window.devicePixelRatio || 1) * Math.max(1, Math.min(innerWidth / 1920, innerHeight / 1080)) );
   Chart.defaults.font.size = 20; Chart.defaults.color = '#4c4a46';
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
   Chart.defaults.plugins.tooltip.backgroundColor = '#1a1917'; Chart.defaults.plugins.tooltip.padding = 14;

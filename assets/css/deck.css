@@ -188,3 +188,8 @@ body.moving [data-editable]{outline:none!important}
 .sel-bar{position:absolute;left:0;top:-58px;display:flex;gap:8px;pointer-events:auto}
 .sel-bar button{font:800 17px Montserrat,sans-serif;padding:8px 14px;border-radius:10px;border:0;background:#1a1917;color:#f2e6c8;cursor:pointer!important;white-space:nowrap}
 @media print{.sel-box{display:none!important}}
+
+/* proyector: cursor oculto al presentar, cortina negra/blanca */
+body:not(.ui-on):not(.editing):not(.printing) .viewport{cursor:none}
+.curtain{position:fixed;inset:0;z-index:200;display:none}.curtain.on{display:block}.curtain.black{background:#000}.curtain.white{background:#fff}
+@media (prefers-reduced-motion:reduce){.slide *{transition-duration:.01s!important}}

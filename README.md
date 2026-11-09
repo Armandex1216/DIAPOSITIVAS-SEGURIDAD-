@@ -21,6 +21,15 @@ La página de inicio muestra carpetas; cada carpeta agrupa sus presentaciones. P
 
 El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con un clic saluda.
 
+## Presentar con proyector (HDMI)
+1. Conectar el HDMI y pulsar **Windows + P** → **Duplicar** (lo más seguro: se ve lo mismo en la laptop y el proyector).
+   Si usa **Extender**, arrastre la ventana del navegador a la pantalla del proyector antes de pulsar F.
+2. Abrir la presentación y pulsar **F** (o F5 del control remoto) para pantalla completa.
+3. Se adapta sola a cualquier resolución (1024×768, 1280×800, 1366×768, 1920×1080, 4K): si el proyector es 4:3 aparecen franjas negras arriba y abajo, sin cortar nada.
+4. Control remoto (clicker): avanza con Av Pág / Re Pág o flechas. **B** o **.** = pantalla negra, **W** = pantalla blanca; cualquier tecla vuelve.
+5. El cursor y la barra se ocultan solos; la pantalla no se apaga mientras la presentación está abierta.
+6. Funciona sin internet. Probado también con la computadora a 1/4 de su velocidad: las animaciones siguen fluidas.
+
 ## Llevarla en USB para presentar
 1. Copiar **toda la carpeta `presentaciones`** al USB (no solo el .html: necesita `assets/` y `data/`).
 2. En la otra PC: abrir el USB y doble clic en `index.html` o en `csst-noviembre-2026.html`. No necesita internet ni instalar nada.
