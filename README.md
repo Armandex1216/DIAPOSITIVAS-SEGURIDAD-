@@ -27,6 +27,11 @@ El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con u
 - Sin internet sigue funcionando con lo guardado en el equipo y sube los cambios cuando vuelve la conexión.
 - Configuración en `data/nube.js`; estructura de la base en `supabase/instalar.sql`.
 
+## Sin internet en el dominio
+- Al abrir el sitio una vez con internet, se guarda todo en el navegador (páginas, gráficos, fuentes, imágenes y la última versión de la nube).
+- Si luego se va el internet, el mismo link sigue abriendo y se puede presentar y editar; los cambios se suben solos al volver la conexión.
+- Al subir cambios al repositorio: ejecutar `python3 tools/gen-sw.py` para actualizar la lista de archivos (sw.js).
+
 ## Presentar con proyector (HDMI)
 1. Conectar el HDMI y pulsar **Windows + P** → **Duplicar** (lo más seguro: se ve lo mismo en la laptop y el proyector).
    Si usa **Extender**, arrastre la ventana del navegador a la pantalla del proyector antes de pulsar F.

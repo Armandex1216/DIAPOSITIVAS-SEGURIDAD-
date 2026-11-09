@@ -20,7 +20,7 @@
   /* ---------- botón de sesión ---------- */
   const btn = document.createElement('button'); btn.dataset.k = 'nube'; btn.title = 'Los cambios se guardan en la nube para todos · versiones anteriores';
   ui && ui.insertBefore(btn, ui.querySelector('[data-k=save]'));
-  const paint = st => { btn.textContent = st === 'sync' ? '☁ Guardando…' : st === 'err' ? '☁ Sin conexión' : '☁ Guardado'; btn.classList.toggle('on', st !== 'err'); };
+  const paint = st => { btn.textContent = st === 'sync' ? '☁ Guardando…' : st === 'err' ? '☁ Sin internet · guardado en el equipo' : '☁ Guardado'; btn.classList.toggle('on', st !== 'err'); };
   btn.onclick = e => { e.stopPropagation(); versions(); };
 
   function modal(html) { let m = document.querySelector('.modal.nube'); if (!m) { m = document.createElement('div'); m.className = 'modal nube'; document.body.appendChild(m); } m.innerHTML = `<div class="mbox" style="width:min(460px,92vw)">${html}</div>`; m.classList.add('on'); m.onclick = ev => { if (ev.target === m) m.classList.remove('on'); }; return m; }
@@ -69,11 +69,12 @@
       const { error } = await sb.from(TABLE).upsert({ deck_id: id, data: D.store, updated_at: now, updated_by: 'web' });
       if (error) throw error;
       localStorage.removeItem(DIRTY); localStorage.setItem(STAMP, now); paint();
-    } catch (e) { console.error(e); paint('err'); D.toast('No se pudo guardar en la nube; queda guardado en este equipo y se reintentará', 3800); setTimeout(push, 15000); }
+    } catch (e) { console.warn(e); paint('err'); if (navigator.onLine) { D.toast('No se pudo guardar en la nube; queda guardado en este equipo y se reintentará', 3800); setTimeout(push, 15000); } else D.toast('Sin internet: los cambios quedan en este equipo y se suben solos al volver la conexión', 4000); }
     busy = false; if (again) { again = false; push(); }
   }
   D.onPersist = () => { localStorage.setItem(DIRTY, '1'); if (!user) return; clearTimeout(t); t = setTimeout(push, 1200); };
-  addEventListener('online', () => { if (user && localStorage.getItem(DIRTY)) push(); });
+  addEventListener('online', () => { paint(); if (user && localStorage.getItem(DIRTY)) push(); });
+  addEventListener('offline', () => paint('err')); if (!navigator.onLine) setTimeout(() => paint('err'), 0);
 
   /* ---------- bajar: al abrir, traer la última versión ---------- */
   const done = () => document.documentElement.classList.remove('nube-cargando');

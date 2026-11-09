@@ -84,5 +84,6 @@ h1 span{color:#c39531}
   addEventListener('hashchange', () => { $('#q').value = ''; render(); scrollTo(0, 0); }); $('#q').addEventListener('input', render); render();
 })();
 </script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
 </body>
 </html>
