@@ -22,10 +22,10 @@ La página de inicio muestra carpetas; cada carpeta agrupa sus presentaciones. P
 El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con un clic saluda.
 
 ## Guardado en la nube (Supabase)
-- Configuración en `data/nube.js` (URL del proyecto y clave pública «anon»). Si la clave está vacía, todo funciona solo en el equipo.
-- Instalación de la base: ejecutar `supabase/instalar.sql` en el SQL Editor (crea solo la tabla `diapo_cambios` y el bucket `diapositivas`).
-- Usuarios que pueden editar: deben tener cuenta en Supabase (Authentication → Users) **y** estar en la tabla `diapo_editores` (Table Editor → diapo_editores → Insert row con su correo).
-- En la presentación: **🔑 Ingresar** → desde ahí, cada edición e imagen se guarda en la nube y todos la ven al abrir. Sin sesión se puede ver y presentar, pero no guardar para todos.
+- Edición libre: no hay inicio de sesión. Todo lo que se edita (textos, cifras, gráficos, imágenes, posiciones, láminas ocultas) se guarda solo en la nube y todos lo ven al abrir.
+- Botón **☁ Guardado**: muestra el estado y permite **restaurar una versión anterior** (se guardan las últimas 300 por presentación).
+- Sin internet sigue funcionando con lo guardado en el equipo y sube los cambios cuando vuelve la conexión.
+- Configuración en `data/nube.js`; estructura de la base en `supabase/instalar.sql`.
 
 ## Presentar con proyector (HDMI)
 1. Conectar el HDMI y pulsar **Windows + P** → **Duplicar** (lo más seguro: se ve lo mismo en la laptop y el proyector).

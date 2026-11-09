@@ -198,3 +198,6 @@ html.nube-cargando .stage{visibility:hidden}
 html.nube-cargando .viewport::after{content:"Cargando la última versión…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#e8c97f;font:700 18px Montserrat,sans-serif;letter-spacing:.08em}
 .lg-f{display:flex;flex-direction:column;gap:10px}.lg-f input{font:600 15px Montserrat,sans-serif;border:1px solid #e2d8c2;border-radius:10px;padding:11px 13px}
 .lg-err{min-height:18px;font-size:13px;color:#b02a2a;font-weight:600}
+.vers{max-height:46vh;overflow:auto;border:1px solid #eee5d2;border-radius:10px;font-size:14px;font-weight:600}
+.ver{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f1ebdd}.ver:last-child{border:0}
+.ver button{font:700 13px Montserrat,sans-serif;border:1px solid #e2d8c2;background:#fff;border-radius:8px;padding:5px 12px;cursor:pointer}

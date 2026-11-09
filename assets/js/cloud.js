@@ -1,7 +1,8 @@
 /* ==========================================================
    Guardado en la nube (Supabase)
    - Cualquiera que abra la presentación ve la última versión guardada.
-   - Solo los usuarios con cuenta (☁ Ingresar) guardan cambios en la nube.
+   - Edición libre: cualquier cambio se guarda en la nube para todos (sin iniciar sesión).
+   - Historial: cada guardado deja la versión anterior en diapo_historial (botón ☁ → Versiones).
    - Sin internet sigue funcionando con lo guardado en el equipo.
    Configuración: data/nube.js  →  window.NUBE = { url, key }
    Tabla: public.diapo_cambios (deck_id, data, updated_at, updated_by)
@@ -11,37 +12,33 @@
   'use strict';
   const D = window.DECK, cfg = window.NUBE || {};
   if (!D || !cfg.url || !cfg.key || !window.supabase) { document.documentElement.classList.remove('nube-cargando'); return; }
-  const sb = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, storageKey: 'diapo-auth' } });
+  const sb = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: false } });
   const TABLE = 'diapo_cambios', BUCKET = 'diapositivas', id = D.deckId;
   const DIRTY = D.LSK + ':pendiente', STAMP = D.LSK + ':nube';
-  const ui = document.querySelector('.ui'); let user = null;
+  const ui = document.querySelector('.ui'); const user = { email: 'libre' };
 
   /* ---------- botón de sesión ---------- */
-  const btn = document.createElement('button'); btn.dataset.k = 'nube'; btn.title = 'Guardar los cambios en la nube para todos';
+  const btn = document.createElement('button'); btn.dataset.k = 'nube'; btn.title = 'Los cambios se guardan en la nube para todos · versiones anteriores';
   ui && ui.insertBefore(btn, ui.querySelector('[data-k=save]'));
-  const paint = st => { btn.textContent = user ? (st === 'sync' ? '☁ Guardando…' : st === 'err' ? '☁ Sin conexión' : '☁ En la nube') : '🔑 Ingresar'; btn.classList.toggle('on', !!user && st !== 'err'); };
-  ui && ui.addEventListener('click', e => { const b = e.target.closest('[data-k=edit],[data-k=move]'); if (b && !user && !D.editing()) setTimeout(() => D.toast('Para que sus cambios se guarden en la nube para todos: «🔑 Ingresar»', 4200), 2700); });
-  btn.onclick = e => { e.stopPropagation(); user ? askLogout() : login(); };
+  const paint = st => { btn.textContent = st === 'sync' ? '☁ Guardando…' : st === 'err' ? '☁ Sin conexión' : '☁ Guardado'; btn.classList.toggle('on', st !== 'err'); };
+  btn.onclick = e => { e.stopPropagation(); versions(); };
 
-  function modal(html) { let m = document.querySelector('.modal.nube'); if (!m) { m = document.createElement('div'); m.className = 'modal nube'; document.body.appendChild(m); } m.innerHTML = `<div class="mbox" style="width:min(420px,92vw)">${html}</div>`; m.classList.add('on'); m.onclick = ev => { if (ev.target === m) m.classList.remove('on'); }; return m; }
-  function login() {
-    const m = modal(`<h4>Ingresar para editar</h4><p>Con su cuenta, lo que edite (textos, cifras, gráficos, imágenes, posiciones) queda guardado en la nube y todos lo ven.</p>
-      <form class="lg-f"><input name="e" type="email" placeholder="Correo" autocomplete="username" required><input name="p" type="password" placeholder="Contraseña" autocomplete="current-password" required><div class="lg-err"></div>
-      <div class="macts"><span style="flex:1"></span><button type="button" data-m="cancel">Cancelar</button><button class="ok" type="submit">Ingresar</button></div></form>`);
-    const f = m.querySelector('form'); f.e.focus();
-    m.querySelector('[data-m=cancel]').onclick = () => m.classList.remove('on');
-    f.onsubmit = async ev => { ev.preventDefault(); const err = m.querySelector('.lg-err'); err.textContent = 'Ingresando…';
-      const { data, error } = await sb.auth.signInWithPassword({ email: f.e.value.trim(), password: f.p.value });
-      if (error) { err.textContent = 'No se pudo ingresar: revise correo y contraseña.'; return; }
-      const ok = await sb.from('diapo_editores').select('email').maybeSingle();
-      if (!ok.data) { await sb.auth.signOut(); err.textContent = 'Esta cuenta no tiene permiso para editar las presentaciones.'; return; }
-      user = data.user; m.classList.remove('on'); paint(); D.toast('Sesión iniciada: sus cambios se guardan en la nube'); if (localStorage.getItem(DIRTY)) push(); };
-  }
-  function askLogout() {
-    const m = modal(`<h4>Sesión iniciada</h4><p>${(user.email || '').replace(/</g, '&lt;')}<br>Los cambios se guardan en la nube automáticamente.</p><div class="macts"><button data-m="pull">Traer la última versión</button><span style="flex:1"></span><button data-m="out">Cerrar sesión</button><button class="ok" data-m="cancel">Listo</button></div>`);
+  function modal(html) { let m = document.querySelector('.modal.nube'); if (!m) { m = document.createElement('div'); m.className = 'modal nube'; document.body.appendChild(m); } m.innerHTML = `<div class="mbox" style="width:min(460px,92vw)">${html}</div>`; m.classList.add('on'); m.onclick = ev => { if (ev.target === m) m.classList.remove('on'); }; return m; }
+  const fmt = t => new Date(t).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  async function versions() {
+    const m = modal(`<h4>Guardado en la nube</h4><p>Todo lo que se edita aquí se guarda solo y lo ven todos. Si alguien borró algo por error, restaure una versión anterior.</p><div class="vers">Cargando versiones…</div><div class="macts"><button data-m="pull">Traer la última versión</button><span style="flex:1"></span><button class="ok" data-m="cancel">Listo</button></div>`);
     m.querySelector('[data-m=cancel]').onclick = () => m.classList.remove('on');
     m.querySelector('[data-m=pull]').onclick = () => { localStorage.removeItem(DIRTY); localStorage.removeItem(STAMP); sessionStorage.removeItem(STAMP); location.reload(); };
-    m.querySelector('[data-m=out]').onclick = async () => { await sb.auth.signOut(); user = null; paint(); m.classList.remove('on'); D.toast('Sesión cerrada'); };
+    const { data, error } = await sb.from('diapo_historial').select('id,guardado').eq('deck_id', id).order('id', { ascending: false }).limit(25);
+    const box = m.querySelector('.vers');
+    if (error || !data || !data.length) { box.textContent = error ? 'No se pudo cargar el historial.' : 'Aún no hay versiones anteriores.'; return; }
+    box.innerHTML = data.map(v => `<div class="ver"><span>${fmt(v.guardado)}</span><button data-v="${v.id}">Restaurar</button></div>`).join('');
+    box.onclick = async ev => { const b = ev.target.closest('[data-v]'); if (!b) return; b.textContent = 'Restaurando…';
+      const r = await sb.from('diapo_historial').select('data').eq('id', +b.dataset.v).single();
+      if (r.error) { b.textContent = 'Error'; return; }
+      const now = new Date().toISOString(); const up = await sb.from(TABLE).upsert({ deck_id: id, data: r.data.data, updated_at: now, updated_by: 'restaurado' });
+      if (up.error) { b.textContent = 'Error'; return; }
+      localStorage.setItem(D.LSK, JSON.stringify(r.data.data)); localStorage.setItem(STAMP, now); localStorage.removeItem(DIRTY); sessionStorage.setItem(STAMP, now); location.reload(); };
   }
 
   /* ---------- subir: imágenes al bucket y cambios a la tabla ---------- */
@@ -64,7 +61,7 @@
       await uploadImages();
       localStorage.setItem(D.LSK, JSON.stringify(D.store));
       const now = new Date().toISOString();
-      const { error } = await sb.from(TABLE).upsert({ deck_id: id, data: D.store, updated_at: now, updated_by: user.email });
+      const { error } = await sb.from(TABLE).upsert({ deck_id: id, data: D.store, updated_at: now, updated_by: 'web' });
       if (error) throw error;
       localStorage.removeItem(DIRTY); localStorage.setItem(STAMP, now); paint();
     } catch (e) { console.error(e); paint('err'); D.toast('No se pudo guardar en la nube; queda guardado en este equipo y se reintentará', 3800); setTimeout(push, 15000); }
@@ -77,7 +74,6 @@
   const done = () => document.documentElement.classList.remove('nube-cargando');
   setTimeout(done, 3500);
   (async () => {
-    try { const { data } = await sb.auth.getSession(); user = data.session ? data.session.user : null; if (user) { const ok = await sb.from('diapo_editores').select('email').maybeSingle(); if (!ok.data) user = null; } } catch (e) { }
     paint();
     try {
       const { data, error } = await sb.from(TABLE).select('data,updated_at').eq('deck_id', id).maybeSingle();
