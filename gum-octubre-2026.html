@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reunión GUM · Gestión de Seguridad · Octubre 2026</title>
+<link rel="stylesheet" href="assets/css/deck.css?v=20261109c">
+<style>
+#g-portada .bg{position:absolute;inset:-40px;background:url(assets/img/portada.jpg) 70% 30%/cover;filter:saturate(.9) brightness(.55)}
+#g-portada .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,16,12,.96) 0%,rgba(18,16,12,.7) 50%,rgba(18,16,12,.25) 100%)}
+#g-portada .ttl{position:absolute;left:110px;top:300px;width:1100px;color:#fff}
+#g-portada .ttl .kick{font-size:26px;letter-spacing:.42em;font-weight:700;color:var(--gold-l)}
+#g-portada .ttl h1{font-size:116px;line-height:.98;margin:22px 0 0;font-weight:900;letter-spacing:-.02em}
+#g-portada .ttl h1 span{display:block;color:var(--gold)}
+#g-portada .ttl .date{margin-top:40px;display:inline-flex;align-items:center;gap:22px;font-size:34px;font-weight:600}
+#g-portada .ttl .date i{display:block;width:90px;height:5px;background:var(--gold);border-radius:4px}
+#g-portada .logo{position:absolute;left:110px;top:0;background:#fff;border-radius:0 0 26px 26px;padding:26px 34px}
+#g-portada .chips{position:absolute;left:110px;bottom:90px;display:flex;gap:18px}
+#g-portada .chips span{padding:14px 26px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#f2e6c8;font-weight:600;font-size:22px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.kpi{padding:34px 38px 30px;position:relative}
+.kpi .sub{margin-bottom:6px}
+.kpi .big{font-size:104px}
+.kpi .d{font-size:21px;color:var(--ink2);font-weight:600;margin-top:12px;line-height:1.35}
+.kpi .tag{position:absolute;right:28px;top:28px}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c,#c39531)}
+.two{display:grid;grid-template-columns:1.35fr .65fr;gap:40px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:14px}
+.cal .dn{font-size:18px;font-weight:800;color:var(--muted);text-align:center;letter-spacing:.12em}
+.cal .day{height:98px;border-radius:18px;background:#fff;border:1px solid #efe7d6;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .25s}
+.cal .day:hover{transform:scale(1.08);z-index:2}
+.cal .day b{font-size:40px;font-weight:900;line-height:1}
+.cal .day small{position:absolute;left:12px;top:8px;font-size:15px;font-weight:700;color:var(--muted)}
+.cal .day.z{background:#fdeaea;border-color:#f3c4c4}.cal .day.z b{color:var(--bad)}
+.cal .day.empty{background:transparent;border:0}
+.prog{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+.prog .card{padding:36px 40px;display:grid;grid-template-columns:280px 1fr;gap:34px;align-items:center}
+.donut{width:280px;height:280px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.donut .c b{font-size:64px;font-weight:900;display:block;line-height:1}.donut .c span{font-size:17px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+.names{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.names span{padding:8px 16px;border-radius:99px;background:#fbe1e1;color:#9e1f1f;font-weight:700;font-size:19px}
+.names.gray span{background:#eeeae1;color:#5a574f}
+.q4{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.q4 .card{padding:46px 40px 40px;min-height:330px}
+.q4 .big{font-size:120px}
+.plan .row{display:grid;grid-template-columns:90px 1fr 300px 240px;gap:30px;align-items:center;background:#fff;border:1px solid #efe7d6;border-radius:22px;padding:30px 36px;margin-bottom:22px;box-shadow:0 14px 40px -24px rgba(70,50,10,.4)}
+.plan .row b.n{font-size:54px;font-weight:900;color:var(--gold)}
+.plan .row .a{font-size:30px;font-weight:800}.plan .row .a small{display:block;font-size:22px;font-weight:500;color:var(--ink2);margin-top:4px}
+.plan .row .m{font-size:24px;font-weight:700;color:var(--ink2)}
+#g-cierre .lg{position:absolute;left:150px;top:210px;width:560px}
+#g-cierre .q{position:absolute;left:150px;top:660px;width:880px;font-size:46px;font-weight:800;line-height:1.25;color:#fff}
+#g-cierre .q b{color:var(--gold-l)}
+</style>
+</head>
+<body data-deck="gum-2026-10" data-transition="push">
+<div class="viewport"><div class="stage">
+
+<section class="slide dark" id="g-portada" data-transition="zoom" data-title="Portada">
+  <div class="bg" id="gkb"></div><div class="shade"></div><div class="hexbg"></div>
+  <div class="logo" data-a="down"><img src="assets/img/logo-hochschild.png" alt="Hochschild" style="height:96px;display:block"></div>
+  <div class="ttl">
+    <div class="kick" data-a="left">REUNIÓN GUM · SEGURIDAD</div>
+    <h1 data-a="up">Hallazgos y<span>OTO</span></h1>
+    <div class="date" data-a="left"><i></i>Octubre 2026</div>
+  </div>
+  <div class="chips" data-a="up"><span>U.M. Pallancata – Selene</span><span>Fuente: Safety HOC</span><span id="g-corte"></span></div>
+  <div class="miner" data-miner="wave" data-face="-0.5" style="right:80px;bottom:0;width:560px;height:880px"></div>
+</section>
+
+<section class="slide light" id="g-resumen" data-title="Resumen ejecutivo">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Resumen ejecutivo</div><h2 data-a="up">Octubre en <em>seis cifras</em></h2></div>
+  <div class="body" style="top:250px"><div class="kpis" id="kpis"></div></div>
+  <div class="foot"><span id="g-foot1"></span><span>Reunión GUM · Octubre 2026</span></div>
+</section>
+
+<section class="slide light" id="g-tendencia" data-transition="rise" data-title="Tendencia mensual">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Hallazgos</div><h2 data-a="up">Tendencia mensual <em>por zona</em></h2></div>
+  <div class="body two" style="top:250px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-tend"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-tend"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-donde" data-transition="cube" data-title="Dónde se reporta">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Hallazgos · octubre</div><h2 data-a="up">¿Dónde se <em>reporta</em>?</h2></div>
+  <div class="body two" style="top:250px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-donde"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-donde"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-riesgo" data-title="Riesgo por zona">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Hallazgos · octubre</div><h2 data-a="up">Nivel de riesgo <em>por zona</em></h2></div>
+  <div class="body two" style="top:250px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-riesgo"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-riesgo"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-abiertos" data-transition="zoom" data-title="Hallazgos abiertos">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Seguimiento</div><h2 data-a="up">Hallazgos <em>abiertos</em></h2></div>
+  <div class="body" style="top:250px;display:grid;grid-template-columns:1fr 1fr .8fr;gap:32px">
+    <div class="card pad" data-a="up"><div class="sub">Por zona y nivel</div><div class="chartbox" style="height:600px"><canvas id="c-ab-zona"></canvas></div></div>
+    <div class="card pad" data-a="up" data-d=".1"><div class="sub">Antigüedad (días desde el evento)</div><div class="chartbox" style="height:600px"><canvas id="c-ab-edad"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-ab"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-retraso" data-transition="rise" data-title="Oportunidad del registro">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Oportunidad</div><h2 data-a="up">¿Cuándo se <em>registra</em>?</h2></div>
+  <div class="body two" style="top:250px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-ret"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-ret"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-diario" data-title="Reportes diarios">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Oportunidad</div><h2 data-a="up">Hallazgos <em>día a día</em></h2></div>
+  <div class="body" style="top:250px;display:grid;grid-template-rows:1fr auto;gap:28px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:520px"><canvas id="c-dia"></canvas></div></div>
+    <div class="insight" data-a="up" data-d=".2" id="ins-dia"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-meta" data-transition="cube" data-title="Meta individual de hallazgos">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Reportabilidad</div><h2 data-a="up">Meta de <em>4 hallazgos</em> por persona</h2></div>
+  <div class="body two" style="top:240px;bottom:70px">
+    <div class="card pad" data-a="up" style="padding:24px 30px"><div class="chartbox" style="height:740px"><canvas id="c-meta"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-meta"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-otoprog" data-transition="zoom" data-title="Programa OTO">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Observación de tareas (OTO)</div><h2 data-a="up">Cumplimiento del <em>programa OTO</em></h2></div>
+  <div class="body" style="top:250px"><div class="prog" id="prog"></div>
+    <div class="insight" data-a="up" data-d=".3" id="ins-prog" style="margin-top:34px"></div></div>
+</section>
+
+<section class="slide light" id="g-otozona" data-title="OTO por zona">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Observación de tareas (OTO)</div><h2 data-a="up">Resultado de las OTO</h2></div>
+  <div class="body" style="top:250px;display:grid;grid-template-columns:1fr 1fr .75fr;gap:32px">
+    <div class="card pad" data-a="up"><div class="sub">Por zona · octubre</div><div class="chartbox" style="height:600px"><canvas id="c-oto-zona"></canvas></div></div>
+    <div class="card pad" data-a="up" data-d=".1"><div class="sub">OTO por mes · 2026</div><div class="chartbox" style="height:600px"><canvas id="c-oto-mes"></canvas></div></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-otoz"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-calendario" data-transition="flip" data-title="Calendario OTO">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Observación de tareas (OTO)</div><h2 data-a="up">Calendario de <em>OTO</em> · octubre</h2></div>
+  <div class="body two" style="top:240px">
+    <div class="cal" id="cal" data-noedit></div>
+    <div class="insight" data-a="right" data-d=".2" id="ins-cal"></div>
+  </div>
+</section>
+
+<section class="slide light" id="g-calidad" data-title="Calidad del registro">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Calidad del dato</div><h2 data-a="up">Lo que el sistema <em>no muestra</em></h2></div>
+  <div class="body" style="top:270px"><div class="q4" id="q4"></div>
+    <div class="insight" data-a="up" data-d=".4" style="margin-top:40px">Corregir estos campos en origen hace confiables todos los indicadores. Propuesta: <b>revisión semanal de calidad por Seguridad</b> y campos obligatorios en Safety HOC (zona, usuario designado y riesgo crítico para medio/alto).</div></div>
+</section>
+
+<section class="slide light" id="g-plan" data-transition="rise" data-title="Plan de acción">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Compromisos</div><h2 data-a="up">Plan de <em>acción</em></h2></div>
+  <div class="body plan" style="top:250px" id="plan"></div>
+</section>
+
+<section class="slide dark" id="g-cierre" data-transition="zoom" data-title="Cierre">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div>
+  <div class="lg" data-a="blur"><img src="assets/img/logo-hochschild-blanco.png" alt="Hochschild" style="width:100%;display:block"></div>
+  <div class="q" data-a="up" data-d=".3">Reportar es cuidar.<br><b>Cada hallazgo a tiempo es un accidente que no ocurre.</b></div>
+  <div class="miner" data-miner="thumbs" data-face="-0.4" style="right:120px;bottom:20px;width:620px;height:960px"></div>
+</section>
+
+</div></div>
+<script src="data/gum-data.js"></script>
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/three.min.js"></script>
+<script src="assets/lib/chart.umd.min.js"></script>
+<script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
+<script src="assets/js/gum-build.js?v=20261109c"></script>
+<script src="data/gum-2026-10-cambios.js" onerror="void 0"></script>
+<script src="assets/js/deck.js?v=20261109c"></script>
+<script src="assets/js/charts.js?v=20261109c"></script>
+<script src="assets/js/miner3d.js?v=20261109c"></script>
+<script src="assets/js/gum.js?v=20261109c"></script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reunión Ordinaria CSST · Noviembre 2026 (resultados de octubre)</title>
+<link rel="stylesheet" href="assets/css/deck.css?v=20261109c">
+<style>
+/* ---------- portada ---------- */
+#s-portada .bg{position:absolute;inset:-40px;background:url(assets/img/portada.jpg) center 30%/cover}
+#s-portada .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,16,12,.92) 0%,rgba(18,16,12,.55) 48%,rgba(18,16,12,.05) 75%),linear-gradient(0deg,rgba(18,16,12,.7),transparent 45%)}
+#s-portada .ttl{position:absolute;left:110px;top:310px;width:1050px;color:#fff}
+#s-portada .ttl .kick{font-size:26px;letter-spacing:.42em;font-weight:700;color:var(--gold-l)}
+#s-portada .ttl h1{font-size:118px;line-height:.98;margin:22px 0 0;font-weight:900;letter-spacing:-.02em}
+#s-portada .ttl h1 span{display:block;color:var(--gold)}
+#s-portada .ttl .date{margin-top:40px;display:inline-flex;align-items:center;gap:22px;font-size:34px;font-weight:600}
+#s-portada .ttl .date i{display:block;width:90px;height:5px;background:var(--gold);border-radius:4px}
+#s-portada .logo{position:absolute;left:110px;top:70px;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45))}
+#s-portada .chips{position:absolute;left:110px;bottom:90px;display:flex;gap:18px}
+#s-portada .chips p{margin:0;padding:14px 26px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#f2e6c8;font-weight:600;font-size:22px;backdrop-filter:blur(6px)}
+/* ---------- rol mensual ---------- */
+.months{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.mo{background:#fff;border:1px solid #eee5d2;border-radius:20px;padding:22px 24px 26px;position:relative;box-shadow:0 10px 30px -18px rgba(70,50,10,.35);min-height:170px}
+.mo .m{font-size:17px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.mo .r{font-size:23px;font-weight:700;margin-top:8px;line-height:1.22;color:var(--ink)}
+.mo .n{position:absolute;right:18px;top:12px;font-size:46px;font-weight:900;color:#f0e8d6}
+.mo.past{opacity:.5}
+.mo.now{background:linear-gradient(135deg,#c39531,#9a7422);border-color:transparent;outline:6px solid rgba(195,149,49,.25)}
+.mo.now .m{color:#fff3d6}.mo.now .r{color:#fff;font-size:25px}.mo.now .n{color:rgba(255,255,255,.22)}
+.mo.now::after{content:"ESTE MES";position:absolute;left:22px;bottom:-16px;background:#1a1917;color:var(--gold-l);font-size:14px;font-weight:800;letter-spacing:.2em;padding:6px 14px;border-radius:99px}
+.slogan{margin-top:60px;background:#1a1917;color:#fff;border-radius:24px;padding:36px 46px;display:flex;gap:30px;align-items:center}
+.slogan p{margin:0;font-size:46px;font-weight:800;line-height:1.15}
+.slogan p span{color:var(--gold-l)}
+/* ---------- agenda ---------- */
+.ag-hub{position:absolute;left:150px;top:300px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f3ead7);box-shadow:0 40px 80px -30px rgba(120,90,20,.45),inset 0 0 0 14px #fff;display:grid;place-items:center;text-align:center}
+.ag-hub h3{font-size:56px;font-weight:900;line-height:1.05;margin:0;color:var(--char)}.ag-hub h3 span{color:var(--gold)}
+.ag-list{position:absolute;left:820px;top:270px;width:960px;display:flex;flex-direction:column;gap:26px}
+.ag{display:flex;align-items:center;gap:30px;background:#fff;border-radius:24px;padding:22px 32px;cursor:pointer;border:1px solid #efe7d6;transition:transform .3s var(--ease),box-shadow .3s}
+.ag:hover{transform:translateX(18px);box-shadow:0 18px 40px -20px rgba(120,90,20,.55)}
+.ag .ic{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.ag .ic svg{width:44px;height:44px}
+.ag b{font-size:54px;font-weight:900;color:var(--char);width:84px}
+.ag p{margin:0;font-size:28px;font-weight:700;letter-spacing:.02em}
+.ag:nth-child(2){margin-left:60px}.ag:nth-child(3){margin-left:90px}.ag:nth-child(4){margin-left:60px}
+/* ---------- medidores ---------- */
+.units{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+.unit{padding:36px 30px 34px}
+.unit h3{display:flex;align-items:center;gap:14px;font-size:34px;font-weight:900;margin:0 0 6px}
+.unit h3 i{width:16px;height:16px;border-radius:50%;background:var(--gold);display:inline-block}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+.gauge{text-align:center}
+.gauge svg{width:100%;height:220px;overflow:visible}
+.gauge .val{font-size:70px;font-weight:900;line-height:1;margin-top:6px;letter-spacing:-.02em}
+.gauge h4{font-size:20px;margin:10px 0 8px;font-weight:800;line-height:1.2;min-height:48px}
+.gauge .pill{font-size:15px;padding:6px 12px}
+/* ---------- tabla PASSO ---------- */
+.passo{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:start}
+.passo table.t td{font-size:28px;padding:34px 22px}
+.passo table.t th{font-size:19px}
+.ok-ck::after{content:" ✓";color:var(--ok);font-weight:900}
+.passo td.n{white-space:nowrap}
+.hht{padding:38px 40px}.hht .big{font-size:96px;color:var(--gold)}
+.hht .split{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+.hht .split p{margin:0;padding:10px 18px;border-radius:14px;background:#f6f0e2;font-size:20px;font-weight:700}
+/* ---------- eventos ---------- */
+.evt{display:grid;grid-template-columns:1fr 230px 230px;gap:0 30px;align-items:center}
+.evt .h{font-size:20px;font-weight:800;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;text-align:center;padding-bottom:10px}
+.evt .h:first-child{text-align:left}
+.evt .row{display:contents}
+.evt .lab{height:70px;margin:6px 0;border-radius:16px;display:flex;align-items:center;padding:0 28px;font-size:25px;font-weight:800;color:#fff}
+.evt .hx{justify-self:center;--s:74px;width:var(--s);height:calc(var(--s)*1.1547);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-size:32px;font-weight:900;color:#fff}
+.evt .zero .lab,.evt .zero .hx{opacity:.55}
+.im4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:26px 36px}
+.im4 .card{padding:22px 30px;display:flex;flex-direction:column}.im4 .chartbox{flex:1;min-height:0;margin-top:6px}
+.sub .dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--gold);margin-right:10px;vertical-align:-1px}.sub .dot.sel{background:#2f6db5}
+/* ---------- detalle de eventos ---------- */
+.evd{display:grid;grid-template-columns:1.02fr .98fr;gap:40px;align-items:start}
+.evd .card{padding:32px 38px}
+.evd .tags{display:flex;gap:12px;flex-wrap:wrap}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:9px 20px;margin:20px 0 18px;font-size:21px}
+.facts dt{color:var(--muted);font-weight:700}.facts dd{margin:0;font-weight:700}
+.evd h4{font-size:17px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-d);margin:16px 0 8px;font-weight:800}
+.evd p.desc{font-size:21px;line-height:1.48;color:var(--ink2);margin:0}
+.evd ul.causes{margin:0;padding-left:26px;font-size:20px;line-height:1.42;color:var(--ink)}
+.evd ul.causes li{margin-bottom:6px}
+.photos{display:grid;grid-template-columns:1fr;grid-template-rows:1.15fr .85fr;gap:16px;height:780px}
+.acts{margin-top:20px;padding:22px 26px}
+.act{display:grid;grid-template-columns:1fr 150px 92px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid #f1ebdd;font-size:18px}
+.act:last-child{border:0}
+.act p{margin:0;font-weight:600;line-height:1.3}
+.act .r{color:var(--muted);font-weight:700;font-size:16px}
+.act .pc{font-weight:900;text-align:right}
+.mini{height:8px;border-radius:9px;background:#eee7d8;overflow:hidden;margin-top:6px}.mini i{display:block;height:100%;border-radius:9px;width:0}
+/* ---------- acuerdos ---------- */
+.ac{display:grid;grid-template-columns:70px 230px 1fr 150px 1fr 200px 150px 150px;gap:20px;align-items:center;background:#fff;border-radius:20px;padding:18px 24px;margin-bottom:12px;border:1px solid #efe7d6}
+.ac.h{background:transparent;border:0;padding:0 24px 2px;font-size:15px;font-weight:800;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.ac.h p{margin:0}
+.ac .no{font-size:30px;font-weight:900;color:var(--gold)}
+.ac .loc{font-size:21px;font-weight:800}
+.ac .tx{font-size:19px;line-height:1.32;color:var(--ink2)}
+.ac .resp{font-size:19px;font-weight:700}
+.ac .fe{font-size:18px;font-weight:700;color:var(--muted)}
+.risk{justify-self:start;padding:7px 16px;border-radius:10px;font-size:17px;font-weight:900;letter-spacing:.06em}
+.risk.MEDIO{background:#fff3b8;color:#7a5a00}.risk.BAJO{background:#d5f2e0;color:#126b3c}.risk.ALTO{background:#fbe1e1;color:#9e1f1f}
+.bar{height:16px;border-radius:99px;background:#eee7d8;overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#1f9d5c,#4cc483)}
+.ac .pct{font-size:21px;font-weight:900;color:var(--ok);margin-top:5px;text-align:right}
+/* ---------- inspección ---------- */
+.ins{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+.ins .card{padding:40px 46px;display:grid;grid-template-columns:330px 1fr;gap:40px;align-items:center}
+.donut{width:330px;height:330px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.donut .c b{font-size:72px;font-weight:900;display:block;line-height:1}.donut .c span{font-size:18px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+.kv{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #f1ebdd;padding:16px 0;font-size:25px;font-weight:700}
+.kv p{margin:0}.kv b{font-size:46px;font-weight:900}
+/* ---------- pendientes ---------- */
+.pend{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.pend .card{padding:0}
+.pend .slot{height:250px;border-radius:0}
+.pend .in{padding:28px 32px}
+.pend h3{font-size:30px;margin:0 0 8px}
+.pend .q{font-size:22px;color:var(--ink2);line-height:1.4;min-height:62px}
+.pend .ctrl{margin-top:16px;padding:16px 18px;border-radius:14px;background:#f6f1e5;font-size:20px;font-weight:700}
+.pend .meta{display:flex;justify-content:space-between;margin-top:16px;font-size:19px;color:var(--muted);font-weight:700}.pend .meta p{margin:0}
+.na td{height:74px}
+/* ---------- cierre ---------- */
+#s-cierre .lg{position:absolute;left:150px;top:210px;width:560px}
+#s-cierre .q{position:absolute;left:150px;top:650px;width:1100px;color:#fff}
+#s-cierre .q h3{font-size:44px;font-weight:700;margin:0 0 14px;color:#d8d1c2}
+#s-cierre .q h2{font-size:72px;font-weight:900;line-height:1.08;margin:0;color:#fff}
+#s-cierre .q h2 span{color:var(--gold-l)}
+</style>
+</head>
+<body data-deck="csst-2026-11" data-transition="push">
+<div class="viewport"><div class="stage">
+
+<!-- 1 PORTADA -->
+<section class="slide dark" id="s-portada" data-transition="zoom" data-title="Portada">
+  <div class="bg" id="kb"></div><div class="shade"></div>
+  <div class="logo" data-a="down"><img src="assets/img/logo-hochschild-blanco.png" alt="Hochschild" style="height:150px;display:block"></div>
+  <div class="ttl">
+    <div class="kick" data-a="left">U.M. PALLANCATA · SELENE</div>
+    <h1 data-a="up">Reunión ordinaria<span>CSST</span></h1>
+    <div class="date" data-a="left"><i></i><p class="edit" style="margin:0">Noviembre 2026</p></div>
+  </div>
+</section>
+
+<!-- 2 MOMENTO DE SEGURIDAD: ROL -->
+<section class="slide light" id="s-momento" data-title="Momento de seguridad: rol">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Momento de seguridad</div><h2 data-a="up">Rol de responsables <em>2026</em></h2></div>
+  <div class="body" style="top:270px">
+    <div class="months" id="months"></div>
+    <div class="slogan" data-a="up" data-d=".3"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#e8c97f" stroke-width="2" style="flex:none"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><p>Actúo con responsabilidad, <span>trabajo con seguridad</span></p></div>
+  </div>
+</section>
+
+<!-- 3 MOMENTO DE SEGURIDAD: CONTENIDO (imagen que se pega) -->
+<section class="slide light" id="s-momento-img" data-transition="rise" data-title="Momento de seguridad">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Momento de seguridad</div><h2 data-a="up">Momento de <em>seguridad</em></h2></div>
+  <div class="body" style="top:240px;bottom:70px"><div class="slot" data-slot="momento" data-ph="Pegue aquí el Momento de Seguridad del mes" data-a="zoom" style="height:100%"></div></div>
+</section>
+
+<!-- 4 AGENDA -->
+<section class="slide light" id="s-agenda" data-transition="zoom" data-title="Agenda">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">Orden del día</div><h2 data-a="up">Agenda</h2></div>
+  <div class="ag-hub" data-a="pop"><h3>Reunión<br>ordinaria<br><span>CSST</span></h3></div>
+  <div class="ag-list">
+    <div class="ag" data-go="s-indices" data-a="right"><div class="ic" style="background:#e6b616"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-3 5 3-1.5-9.5"/></svg></div><b>01</b><p>Cumplimiento de objetivos del PASSO</p></div>
+    <div class="ag" data-go="s-eventos" data-a="right"><div class="ic" style="background:#2f5d9a"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 21h18M6 17V10M11 17V6M16 17v-4M21 17V8"/></svg></div><b>02</b><p>Resumen de estadísticas</p></div>
+    <div class="ag" data-go="s-acuerdos" data-a="right"><div class="ic" style="background:#8a9bb8"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div><b>03</b><p>Lectura del acta de la reunión anterior</p></div>
+    <div class="ag" data-go="s-inspeccion" data-a="right"><div class="ic" style="background:#e9733f"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></div><b>04</b><p>Informes de gestión de seguridad</p></div>
+    <div class="ag" data-go="s-cierre" data-a="right"><div class="ic" style="background:#b89a7c"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M7 11 12 6l5 5M12 6v12"/><path d="M4 20h16"/></svg></div><b>05</b><p>Acuerdos y pedidos</p></div>
+  </div>
+</section>
+
+<!-- 5 INDICES POR UNIDAD -->
+<section class="slide light" id="s-indices" data-title="Objetivos: índices por unidad">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">01 · Cumplimiento de objetivos del PASSO</div><h2 data-a="up">Índices de seguridad · <em>octubre 2026</em></h2></div>
+  <div class="body" style="top:250px">
+    <div class="units">
+      <div class="card unit" data-a="up"><h3><i></i>Pallancata</h3><div class="g3">
+        <div class="gauge" data-max="3" data-ex="1.35" data-ac="2.2"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="0.86" data-dec="2">0.86</div><h4>Índice de frecuencia</h4><span class="pill ok">Excelente ≤ 1.35</span></div>
+        <div class="gauge" data-max="450" data-ex="150" data-ac="300"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="8.60" data-dec="2">8.60</div><h4>Índice de severidad</h4><span class="pill ok">Excelente ≤ 150</span></div>
+        <div class="gauge" data-max="2" data-ex="1"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="0" data-dec="2">0.00</div><h4>Índice de alto potencial</h4><span class="pill ok">Excelente ≤ 1.00</span></div>
+      </div></div>
+      <div class="card unit" data-a="up" data-d=".1"><h3><i style="background:#2f6db5"></i>Selene</h3><div class="g3">
+        <div class="gauge" data-max="3" data-ex="1.35" data-ac="2.2"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="0" data-dec="2">0.00</div><h4>Índice de frecuencia</h4><span class="pill ok">Excelente ≤ 1.35</span></div>
+        <div class="gauge" data-max="450" data-ex="150" data-ac="300"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="0" data-dec="2">0.00</div><h4>Índice de severidad</h4><span class="pill ok">Excelente ≤ 150</span></div>
+        <div class="gauge" data-max="2" data-ex="1"><svg viewBox="0 0 400 230"></svg><div class="val" data-count="0" data-dec="2">0.00</div><h4>Índice de alto potencial</h4><span class="pill ok">Excelente ≤ 1.00</span></div>
+      </div></div>
+    </div>
+    <div class="insight" data-a="up" data-d=".4" style="margin-top:44px"><p style="margin:0">Pallancata registra <b>IF 0.86 e IS 8.60</b> por el accidente con tiempo perdido de octubre, pero ambos se mantienen en el <b>rango excelente</b>. Selene mantiene sus tres índices en 0.</p></div>
+  </div>
+</section>
+
+<!-- 6 PASSO -->
+<section class="slide light" id="s-passo" data-transition="rise" data-title="Objetivos PASSO 2026">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">01 · Cumplimiento de objetivos del PASSO</div><h2 data-a="up">Objetivos <em>PASSO 2026</em></h2></div>
+  <div class="body" style="top:250px">
+    <div class="passo">
+      <div class="card" data-a="up" style="padding:0"><table class="t">
+        <thead><tr><th>Índice</th><th style="text-align:right">Pallancata</th><th style="text-align:right">Selene</th><th style="text-align:right">Objetivo excelente</th></tr></thead>
+        <tbody>
+          <tr><td>Índice de frecuencia</td><td class="n ok-ck"><b data-count="0.86" data-dec="2">0.86</b></td><td class="n ok-ck"><b data-count="0" data-dec="2">0.00</b></td><td class="n">≤ 1.35</td></tr>
+          <tr><td>Índice de severidad</td><td class="n ok-ck"><b data-count="8.60" data-dec="2">8.60</b></td><td class="n ok-ck"><b data-count="0" data-dec="2">0.00</b></td><td class="n">≤ 150</td></tr>
+          <tr><td>Índice de alto potencial</td><td class="n ok-ck"><b data-count="0" data-dec="2">0.00</b></td><td class="n ok-ck"><b data-count="0" data-dec="2">0.00</b></td><td class="n">≤ 1.00</td></tr>
+        </tbody></table>
+        <div class="insight" style="margin:26px;font-size:22px"><p style="margin:0">Las dos unidades cumplen los objetivos del PASSO en <b>nivel excelente</b> al cierre de octubre.</p></div></div>
+      <div>
+        <div class="card hht" data-a="right"><div class="sub">Horas hombre trabajadas · acumulado 2026</div><div class="big" data-count="1436160" data-cdur="2.2">1,436,160</div>
+          <div class="split"><p>Pallancata: <b data-count="1163336">1,163,336</b></p><p>Selene: <b data-count="272824">272,824</b></p></div>
+          <div class="lead" style="margin-top:16px">HHT de octubre: <b data-count="248480">248,480</b></div></div>
+        <div class="card" data-a="right" data-d=".2" style="margin-top:30px;padding:0"><table class="t"><thead><tr><th>Índice</th><th style="text-align:right">Aceptable</th><th style="text-align:right">Excelente</th></tr></thead><tbody><tr><td>Frecuencia</td><td class="n">2.20</td><td class="n okc">1.35</td></tr><tr><td>Severidad</td><td class="n">300</td><td class="n okc">150</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 INDICES MES A MES -->
+<section class="slide light" id="s-indices-mes" data-title="Estadísticas: índices mes a mes">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Resumen de estadísticas</div><h2 data-a="up">Índices mes a mes · <em>Pallancata y Selene</em></h2></div>
+  <div class="body im4" style="top:230px;bottom:50px">
+    <div class="card pad" data-a="up"><div class="sub"><i class="dot"></i>Pallancata · índice de frecuencia (IF)</div><div class="chartbox"><canvas id="c-if-p"></canvas></div></div>
+    <div class="card pad" data-a="up"><div class="sub"><i class="dot"></i>Pallancata · índice de severidad (IS)</div><div class="chartbox"><canvas id="c-is-p"></canvas></div></div>
+    <div class="card pad" data-a="up"><div class="sub"><i class="dot sel"></i>Selene · índice de frecuencia (IF)</div><div class="chartbox"><canvas id="c-if-s"></canvas></div></div>
+    <div class="card pad" data-a="up"><div class="sub"><i class="dot sel"></i>Selene · índice de severidad (IS)</div><div class="chartbox"><canvas id="c-is-s"></canvas></div></div>
+  </div>
+</section>
+
+<!-- 8 CPI POR AREA -->
+<section class="slide light" id="s-cpi-area" data-transition="cube" data-title="Objetivos: CPI por área">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">01 · Cumplimiento de objetivos del PASSO</div><h2 data-a="up">CPI por área · <em>octubre</em></h2></div>
+  <div class="body" style="top:250px;display:grid;grid-template-columns:1.35fr .65fr;gap:40px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-cpi-area"></canvas></div></div>
+    <div>
+      <div class="card pad" data-a="right" style="text-align:center"><div class="sub">Unidad Pallancata – Selene</div><div class="big gold" data-count="95.00" data-dec="2" data-suf="%">95.00%</div><div class="pill ok" style="margin-top:14px">Objetivo excelente: 95 %</div></div>
+      <div class="insight" data-a="right" data-d=".2" style="margin-top:30px"><p style="margin:0 0 10px"><b>4 áreas por debajo del 95 %:</b></p><ul><li>Gestión Social · 94.00 %</li><li>Mantenimiento · 94.27 %</li><li>Planeamiento / Infraestructura · 94.50 %</li><li>Proyectos · 94.70 %</li></ul><p style="margin:0">Salud e Higiene lidera con 97.90 %</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 CPI MENSUAL -->
+<section class="slide light" id="s-cpi-mes" data-title="Objetivos: CPI mensual">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">01 · Cumplimiento de objetivos del PASSO</div><h2 data-a="up">CPI de la unidad · <em>mes a mes</em></h2></div>
+  <div class="body" style="top:250px;display:grid;grid-template-columns:1.4fr .6fr;gap:40px">
+    <div class="card pad" data-a="up"><div class="chartbox" style="height:660px"><canvas id="c-cpi-mes"></canvas></div></div>
+    <div>
+      <div class="card pad" data-a="right" style="text-align:center"><div class="sub">Acumulado 2026</div><div class="big gold" data-count="95.20" data-dec="2" data-suf="%">95.20%</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 EVENTOS -->
+<section class="slide light" id="s-eventos" data-transition="zoom" data-title="Eventos: Pallancata">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Resumen de estadísticas</div><h2 data-a="up">Accidentes e incidentes · <em>Pallancata</em></h2></div>
+  <div class="body" style="top:240px;left:200px;right:200px"><div class="evt" id="evt"></div></div>
+</section>
+
+<section class="slide light" id="s-eventos-sel" data-transition="rise" data-title="Eventos: Selene">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Resumen de estadísticas</div><h2 data-a="up">Accidentes e incidentes · <em>Selene</em></h2></div>
+  <div class="body" style="top:240px;left:200px;right:200px"><div class="evt" id="evt-sel"></div></div>
+</section>
+
+<!-- 11 ACCIDENTE CON TIEMPO PERDIDO 01 -->
+<section class="slide light" id="s-ev-atp01" data-transition="rise" data-title="Accidente con tiempo perdido N° 01">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Eventos de octubre</div><h2 data-a="up">Accidente con tiempo perdido <em>N° 01</em></h2></div>
+  <div class="body" style="top:220px;bottom:60px"><div class="evd">
+    <div class="card" data-a="left">
+      <div class="tags"><span class="pill bad">Accidente con tiempo perdido</span><span class="pill">E.C. COMIN · Proyectos</span></div>
+      <dl class="facts"><dt>Fecha</dt><dd>21/10/2026 · 08:30 h</dd><dt>Lugar</dt><dd>Presa de relaves, sector Este 4610 · canal de mampostería</dd><dt>Tipo</dt><dd>Golpeado por objeto en movimiento</dd><dt>Involucrado</dt><dd>Oficial albañil</dd></dl>
+      <h4>¿Qué pasó?</h4><p class="desc">Al acomodar en la base del canal una roca de 36 × 19 × 15 cm (33 kg) con <b>guantes anticorte mojados</b>, la roca resbaló y le atrició el dedo índice derecho: pérdida parcial del pulpejo y la uña.</p>
+      <h4>Causas principales</h4><ul class="causes"><li>No usó guantes antiimpacto, como indica el PETS (nunca los solicitó en almacén).</li><li>Personal nuevo sin monitoreo de EPP por la supervisión de COMIN.</li><li>Se cambió el tamaño de roca de 35 a 50 cm sin gestión del cambio.</li></ul>
+    </div>
+    <div>
+      <div class="photos" data-a="zoom" data-d=".15"><div class="slot cover zoomable" data-slot="atp01-a" data-src="assets/img/ev-atp01-durante.jpg"></div><div class="slot cover zoomable" data-slot="atp01-b" data-src="assets/img/ev-atp01-antes.jpg"></div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 12 INCIDENTE 09 -->
+<section class="slide light" id="s-ev-inc09" data-title="Incidente N° 09">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Eventos de octubre</div><h2 data-a="up">Incidente <em>N° 09</em></h2></div>
+  <div class="body" style="top:220px;bottom:60px"><div class="evd">
+    <div class="card" data-a="left">
+      <div class="tags"><span class="pill warn">Incidente</span><span class="pill">E.C. COMIN · Proyectos</span></div>
+      <dl class="facts"><dt>Fecha</dt><dd>19/10/2026 · 19:30 h</dd><dt>Lugar</dt><dd>Presa de relaves 3 · ingreso a planta manganeso (frente a oficinas COMIN)</dd><dt>Tipo</dt><dd>Golpeado por objeto en movimiento</dd><dt>Involucrados</dt><dd>Conductor de camioneta y de minibús</dd></dl>
+      <h4>¿Qué pasó?</h4><p class="desc">El conductor de la camioneta <b>retrocedió sin verificar espejos ni cámara</b> y golpeó la parte posterior del minibús, que esperaba al personal en una zona no autorizada.</p>
+      <h4>Causas principales</h4><ul class="causes"><li>Retroceso sin comprobar la línea de fuego posterior (exceso de confianza).</li><li>Minibús detenido en la vía: no existía paradero delimitado.</li><li>Iluminación deficiente en el ingreso a planta manganeso.</li></ul>
+    </div>
+    <div>
+      <div class="photos" data-a="zoom" data-d=".15"><div class="slot cover zoomable" data-slot="inc09-a" data-src="assets/img/ev-inc09-durante.jpg"></div><div class="slot cover zoomable" data-slot="inc09-b" data-src="assets/img/ev-inc09-impacto.jpg"></div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 13 INCIDENTE 10 -->
+<section class="slide light" id="s-ev-inc10" data-transition="cube" data-title="Incidente N° 10">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">02 · Eventos de octubre</div><h2 data-a="up">Incidente <em>N° 10</em></h2></div>
+  <div class="body" style="top:220px;bottom:60px"><div class="evd">
+    <div class="card" data-a="left">
+      <div class="tags"><span class="pill warn">Incidente</span><span class="pill">E.C. COMIN · Proyectos</span></div>
+      <dl class="facts"><dt>Fecha</dt><dd>30/10/2026 · 15:00 h</dd><dt>Lugar</dt><dd>Parqueo de volquetes · cantera de suelos (relavera N° 03)</dd><dt>Tipo</dt><dd>Golpeado por objeto en movimiento</dd><dt>Involucrado</dt><dd>Operador de volquete</dd></dl>
+      <h4>¿Qué pasó?</h4><p class="desc">Al salir del parqueo y virar a la derecha, el volquete <b>no calculó el radio de giro</b>: la penúltima llanta posterior derecha rozó el parachoques de una camioneta estacionada a 1,5 m en la playa de equipo pesado.</p>
+      <h4>Causas principales</h4><ul class="causes"><li>Giro sin distancia lateral de seguridad ni monitoreo de espejos.</li><li>Camioneta estacionada en zona exclusiva de equipo pesado.</li><li>Bahías sin separación física y señalización poco visible.</li></ul>
+    </div>
+    <div>
+      <div class="photos" data-a="zoom" data-d=".15"><div class="slot cover zoomable" data-slot="inc10-a" data-src="assets/img/ev-inc10-durante.jpg"></div><div class="slot cover zoomable" data-slot="inc10-b" data-src="assets/img/ev-inc10-antes.jpg"></div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 14 PEDIDOS CSST -->
+<section class="slide light" id="s-acuerdos" data-transition="flip" data-title="Pedidos del CSST">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">03 · Lectura del acta anterior</div><h2 data-a="up">Pedidos del CSST · <em>octubre 2026</em></h2></div>
+  <div class="body" style="top:240px" id="acuerdos"></div>
+</section>
+
+<!-- 15 INSPECCION -->
+<section class="slide light" id="s-inspeccion" data-transition="zoom" data-title="Inspección CSST">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">04 · Informes de gestión de seguridad</div><h2 data-a="up">Inspección CSST · <em>octubre</em></h2></div>
+  <div class="body" style="top:270px"><div class="ins">
+    <div class="card" data-a="up"><div class="donut" data-noedit><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#efe7d6" stroke-width="16"/><circle class="arc" cx="60" cy="60" r="50" fill="none" stroke="#1f9d5c" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 400"/></svg><div class="c"><div><b class="pctv">0%</b><span>AVANCE</span></div></div></div>
+      <div><h3 style="font-size:44px;margin-bottom:10px">Pallancata</h3><div class="kv"><p>Observaciones</p><b class="obs" data-count="15">15</b></div><div class="kv"><p>Levantadas</p><b class="okc lev" data-count="15">15</b></div><div class="kv"><p>Pendientes</p><b class="pen" data-count="0">0</b></div></div></div>
+    <div class="card" data-a="up" data-d=".15"><div class="donut" data-noedit><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#efe7d6" stroke-width="16"/><circle class="arc" cx="60" cy="60" r="50" fill="none" stroke="#1f9d5c" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 400"/></svg><div class="c"><div><b class="pctv">0%</b><span>AVANCE</span></div></div></div>
+      <div><h3 style="font-size:44px;margin-bottom:10px">Selene</h3><div class="kv"><p>Observaciones</p><b class="obs" data-count="9">9</b></div><div class="kv"><p>Levantadas</p><b class="okc lev" data-count="9">9</b></div><div class="kv"><p>Pendientes</p><b class="pen" data-count="0">0</b></div></div></div>
+  </div>
+  <div class="insight" data-a="up" data-d=".4" style="margin-top:40px"><p style="margin:0">Se levantaron las <b>24 observaciones</b> de la inspección de octubre (15 en Pallancata y 9 en Selene): <b>100 % de avance, sin pendientes.</b></p></div></div>
+</section>
+
+<!-- 16 PENDIENTES (oculta) -->
+<section class="slide light" id="s-insp-pall" data-hidden data-title="Pendientes de inspección">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">04 · Informes de gestión de seguridad</div><h2 data-a="up">Pendientes de inspección</h2></div>
+  <div class="body" style="top:260px"><div class="pend">
+    <div class="card" data-a="flip"><div class="slot cover" data-slot="pend-1"></div><div class="in"><h3>Lugar</h3><div class="q edit">Observación.</div><div class="ctrl edit">Control:</div><div class="meta"><p>Responsable</p><p>Fecha</p></div></div></div>
+    <div class="card" data-a="flip" data-d=".1"><div class="slot cover" data-slot="pend-2"></div><div class="in"><h3>Lugar</h3><div class="q edit">Observación.</div><div class="ctrl edit">Control:</div><div class="meta"><p>Responsable</p><p>Fecha</p></div></div></div>
+    <div class="card" data-a="flip" data-d=".2"><div class="slot cover" data-slot="pend-3"></div><div class="in"><h3>Lugar</h3><div class="q edit">Observación.</div><div class="ctrl edit">Control:</div><div class="meta"><p>Responsable</p><p>Fecha</p></div></div></div>
+  </div></div>
+</section>
+
+<!-- 17 NUEVOS ACUERDOS (oculta) -->
+<section class="slide light" id="s-nuevos" data-hidden data-transition="rise" data-title="Acuerdos de esta reunión">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt="">
+  <div class="sh"><div class="kick" data-a="left">05 · Acuerdos y pedidos</div><h2 data-a="up">Acuerdos de la reunión</h2></div>
+  <div class="body" style="top:260px"><div class="card na" data-a="up" style="padding:0"><table class="t"><thead><tr><th style="width:28%">Acuerdo / pedido</th><th style="width:30%">Control</th><th>Responsable</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>
+    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+  </tbody></table></div></div>
+</section>
+
+<!-- 18 CIERRE -->
+<section class="slide dark" id="s-cierre" data-transition="zoom" data-title="Cierre">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div>
+  <div class="lg" data-a="blur"><img src="assets/img/logo-hochschild-blanco.png" alt="Hochschild" style="width:100%;display:block"></div>
+  <div class="q" data-a="up" data-d=".3"><h3>Gracias.</h3><h2>Actúo con responsabilidad,<br><span>trabajo con seguridad.</span></h2></div>
+</section>
+
+</div></div>
+
+<script src="data/csst-2026-11-cambios.js" onerror="void 0"></script>
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/chart.umd.min.js"></script>
+<script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
+<script src="assets/js/csst-build.js?v=20261109c"></script>
+<script src="assets/js/deck.js?v=20261109c"></script>
+<script src="assets/js/charts.js?v=20261109c"></script>
+<script src="assets/js/csst.js?v=20261109c"></script>
+</body>
+</html>
