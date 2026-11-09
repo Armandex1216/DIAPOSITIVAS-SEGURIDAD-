@@ -1,5 +1,5 @@
 -- Diapositivas de Seguridad · guardado en la nube (edición libre, sin login)
--- Crea SOLO: tabla diapo_cambios, tabla diapo_historial y bucket diapositivas. No toca nada más del proyecto.
+-- Crea SOLO: tablas diapo_cambios, diapo_imagenes y diapo_historial. No toca nada más del proyecto.
 
 create table if not exists public.diapo_cambios (
   deck_id text primary key, data jsonb not null default '{}'::jsonb,
@@ -9,11 +9,12 @@ create policy "diapo_ver" on public.diapo_cambios for select to anon, authentica
 create policy "diapo_insertar" on public.diapo_cambios for insert to anon, authenticated with check (true);
 create policy "diapo_actualizar" on public.diapo_cambios for update to anon, authenticated using (true) with check (true);
 
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('diapositivas', 'diapositivas', true, 5242880, array['image/jpeg','image/png','image/webp']) on conflict (id) do nothing;
-create policy "diapo_img_ver" on storage.objects for select to anon, authenticated using (bucket_id = 'diapositivas');
-create policy "diapo_img_subir" on storage.objects for insert to anon, authenticated with check (bucket_id = 'diapositivas');
-create policy "diapo_img_cambiar" on storage.objects for update to anon, authenticated using (bucket_id = 'diapositivas') with check (bucket_id = 'diapositivas');
+-- Imágenes en tabla propia (el storage del proyecto tiene políticas de otra app que bloquean a usuarios anónimos)
+create table if not exists public.diapo_imagenes (id text primary key, deck_id text not null, data text not null, creado timestamptz not null default now(),
+  constraint diapo_img_tamano check (length(data) < 3000000 and data like 'data:image/%'));
+alter table public.diapo_imagenes enable row level security;
+create policy "diapo_imagenes_ver" on public.diapo_imagenes for select to anon, authenticated using (true);
+create policy "diapo_imagenes_subir" on public.diapo_imagenes for insert to anon, authenticated with check (true);
 
 -- Historial: cada guardado deja la versión anterior (se conservan las últimas 300 por presentación)
 create table if not exists public.diapo_historial (id bigserial primary key, deck_id text not null, data jsonb not null, guardado timestamptz not null default now());

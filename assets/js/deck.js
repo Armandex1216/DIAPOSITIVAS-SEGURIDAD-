@@ -211,7 +211,9 @@
   function compress(file, cb) {
     const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const max = 1700, sc = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', .85)); }; img.src = r.result; }; r.readAsDataURL(file);
   }
-  function setSlot(slot, src) { const im = $('img', slot); if (src) { im.src = src; slot.classList.add('has'); } else { im.removeAttribute('src'); slot.classList.remove('has'); } }
+  function setSlot(slot, src) { const im = $('img', slot); delete slot.dataset.ref;
+    if (src && src.startsWith('dbimg:')) { slot.dataset.ref = src; slot.classList.add('has'); if (D.resolveImg) D.resolveImg(src).then(u => { if (u && slot.dataset.ref === src) im.src = u; }); return; } // imagen guardada en la nube
+    if (src) { im.src = src; slot.classList.add('has'); } else { im.removeAttribute('src'); slot.classList.remove('has'); } }
   function initSlots() {
     $$('.slot').forEach(slot => {
       const key = slot.dataset.slot; if (!$('img', slot)) slot.insertAdjacentHTML('afterbegin', '<img alt="">');

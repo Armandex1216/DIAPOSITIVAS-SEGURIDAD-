@@ -6,7 +6,7 @@
    - Sin internet sigue funcionando con lo guardado en el equipo.
    Configuración: data/nube.js  →  window.NUBE = { url, key }
    Tabla: public.diapo_cambios (deck_id, data, updated_at, updated_by)
-   Imágenes: bucket «diapositivas»
+   Imágenes: tabla public.diapo_imagenes
    ========================================================== */
 (function () {
   'use strict';
@@ -43,17 +43,22 @@
 
   /* ---------- subir: imágenes al bucket y cambios a la tabla ---------- */
   const canon = o => JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x) => (a[x] = v[x], a), {}) : v);
-  const toBlob = url => fetch(url).then(r => r.blob());
+  // imágenes: tabla diapo_imagenes (id → data URL); en los cambios solo queda la referencia «dbimg:<id>»
   async function uploadImages() {
     const imgs = D.store.images;
     for (const k of Object.keys(imgs)) {
       const v = imgs[k]; if (!v || !v.startsWith('data:')) continue;
-      const path = `${id}/${k}-${Date.now()}.jpg`, blob = await toBlob(v);
-      const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+      const iid = `${id}/${k}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+      const { error } = await sb.from('diapo_imagenes').insert({ id: iid, deck_id: id, data: v });
       if (error) throw error;
-      if (imgs[k] === v) imgs[k] = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      cache.set('dbimg:' + iid, Promise.resolve(v));
+      if (imgs[k] === v) imgs[k] = 'dbimg:' + iid;
     }
   }
+  const cache = new Map();
+  D.resolveImg = ref => { if (!cache.has(ref)) cache.set(ref, sb.from('diapo_imagenes').select('data').eq('id', ref.slice(6)).maybeSingle().then(r => r.data ? r.data.data : null, () => null)); return cache.get(ref); };
+  document.querySelectorAll('.slot[data-ref]').forEach(slot => { const ref = slot.dataset.ref, im = slot.querySelector('img'); D.resolveImg(ref).then(u => { if (u && slot.dataset.ref === ref) im.src = u; }); });
+
   let t = null, busy = false, again = false;
   async function push() {
     if (!user) return; if (busy) { again = true; return; } busy = true; paint('sync');
