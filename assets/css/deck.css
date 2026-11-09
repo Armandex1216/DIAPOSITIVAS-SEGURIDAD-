@@ -193,3 +193,8 @@ body.moving [data-editable]{outline:none!important}
 body:not(.ui-on):not(.editing):not(.printing) .viewport{cursor:none}
 .curtain{position:fixed;inset:0;z-index:200;display:none}.curtain.on{display:block}.curtain.black{background:#000}.curtain.white{background:#fff}
 @media (prefers-reduced-motion:reduce){.slide *{transition-duration:.01s!important}}
+/* nube */
+html.nube-cargando .stage{visibility:hidden}
+html.nube-cargando .viewport::after{content:"Cargando la última versión…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#e8c97f;font:700 18px Montserrat,sans-serif;letter-spacing:.08em}
+.lg-f{display:flex;flex-direction:column;gap:10px}.lg-f input{font:600 15px Montserrat,sans-serif;border:1px solid #e2d8c2;border-radius:10px;padding:11px 13px}
+.lg-err{min-height:18px;font-size:13px;color:#b02a2a;font-weight:600}

@@ -18,10 +18,10 @@
   let fileEdits = (window.DECK_EDITS && window.DECK_EDITS[deckId]) || null;
   let local = null; try { local = JSON.parse(localStorage.getItem(LSK) || 'null'); } catch (e) { }
   const store = merge(fileEdits, local);
-  const persist = () => { try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } };
+  const persist = () => { try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
   const D = window.DECK = {
-    i: 0, slides, busy: false, frags: [], store,
+    i: 0, slides, busy: false, frags: [], store, deckId, LSK,
     on(id, ev, fn) { (hooks[id + ':' + ev] = hooks[id + ':' + ev] || []).push(fn); },
     fire(sl, ev) { (hooks[sl.id + ':' + ev] || []).forEach(f => { try { f(sl); } catch (e) { console.error(e); } }); },
     go, next, prev, persist, editing: () => body.classList.contains('editing'),
