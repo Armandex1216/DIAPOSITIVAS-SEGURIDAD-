@@ -350,3 +350,10 @@ body.dragging,body.dragging *{user-select:none!important;cursor:move}
 body.editing .ui,body.moving .ui{opacity:1}
 .rt-bar{top:58px;max-width:calc(100vw - 150px);left:calc(50% - 60px)}
 body.editing .edit-badge{top:12px;left:calc(50% - 60px)}
+.tbl-tool{position:absolute;z-index:60;display:none;transform:translateX(-100%);gap:4px;align-items:center;background:#1a1917;border-radius:12px;padding:5px;box-shadow:0 12px 26px -12px rgba(0,0,0,.6)}
+.tbl-tool.on{display:flex}.tbl-tool span{width:1px;height:20px;background:#47433b;margin:0 2px}
+.tbl-tool button{background:#2c2a26;border:1px solid #47433b;color:#e8d9b4;border-radius:8px;padding:6px 10px;font:700 14px Montserrat,sans-serif;cursor:pointer}
+.tbl-tool button:hover{background:#c39531;color:#1a1917}.tbl-tool button[data-tt=del]:hover{background:#d23c3c;color:#fff}
+body.editing [data-tbl] tr.tt-row td{box-shadow:inset 0 0 0 9999px rgba(195,149,49,.10)}
+@media print{.tbl-tool{display:none!important}}
+.tbl-tool button{white-space:nowrap;font-size:19px;padding:8px 14px;line-height:1;min-width:0}

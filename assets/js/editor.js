@@ -122,6 +122,23 @@
     if (op === 'col-') { if (row.children.length <= 1) return; $$('tr', t).forEach(r => r.children[ci] && r.children[ci].remove()); }
     saveTable(t); D.toast('Tabla actualizada');
   }
+  /* Herramienta de tabla al pasar el mouse (modo edición): agregar o quitar filas y hacerlas más bajas o más altas */
+  const tt = document.createElement('div'); tt.className = 'tbl-tool'; tt.setAttribute('data-noedit', ''); tt.setAttribute('contenteditable', 'false');
+  tt.innerHTML = '<button data-tt="add" title="Agregar una fila al final">+ Fila</button><button data-tt="del" title="Quitar la fila marcada (o la última)">✕ Fila</button><span></span><button data-tt="pad-" title="Filas más bajas">↕ −</button><button data-tt="pad+" title="Filas más altas">↕ +</button>';
+  let ttTable = null, ttRow = null;
+  const ttPlace = () => { if (!ttTable || !D.editing()) { tt.classList.remove('on'); return; } const sl = ttTable.closest('.slide'); if (tt.parentNode !== sl) sl.appendChild(tt);
+    const a = sl.getBoundingClientRect(), r = ttTable.getBoundingClientRect(), k = D.scale || 1; tt.style.left = (r.right - a.left) / k + 'px'; tt.style.top = Math.max(0, (r.top - a.top) / k - 46) + 'px'; tt.classList.add('on'); };
+  document.addEventListener('mouseover', e => { if (!D.editing() || (D.moving && D.moving())) return; if (e.target.closest('.tbl-tool')) return; const t = e.target.closest('[data-tbl]');
+    if (t) { if (t !== ttTable) { ttTable = t; } const tr = e.target.closest('tbody tr'); if (tr && t.contains(tr)) { if (ttRow) ttRow.classList.remove('tt-row'); ttRow = tr; tr.classList.add('tt-row'); } ttPlace(); } });
+  document.addEventListener('mousedown', e => { if (ttTable && !e.target.closest('[data-tbl]') && !e.target.closest('.tbl-tool')) { tt.classList.remove('on'); if (ttRow) ttRow.classList.remove('tt-row'); ttTable = ttRow = null; } });
+  tt.addEventListener('mousedown', e => e.preventDefault());
+  tt.addEventListener('click', e => { const b = e.target.closest('[data-tt]'); if (!b || !ttTable) return; e.stopPropagation(); const t = ttTable, tb = $('tbody', t) || t, rows = $$('tbody tr', t);
+    if (b.dataset.tt === 'add') { const last = rows[rows.length - 1]; if (!last) return; const nr = last.cloneNode(true); $$('td,th', nr).forEach(c => { c.innerHTML = '&nbsp;'; c.className = c.className.replace(/\bc-\w+|\bf-\w+/g, '').trim(); c.contentEditable = 'true'; }); nr.classList.remove('tt-row'); tb.appendChild(nr); }
+    if (b.dataset.tt === 'del') { if (rows.length <= 1) { D.toast('La tabla necesita al menos una fila'); return; } const r = ttRow && t.contains(ttRow) ? ttRow : rows[rows.length - 1]; r.remove(); ttRow = null; }
+    if (b.dataset.tt === 'pad-' || b.dataset.tt === 'pad+') { const cells = $$('td,th', t), cur = parseFloat(getComputedStyle(cells[1] || cells[0]).paddingTop) || 10, nv = Math.max(1, Math.min(40, cur + (b.dataset.tt === 'pad+' ? 3 : -3)));
+      cells.forEach(c => { c.style.paddingTop = nv + 'px'; c.style.paddingBottom = nv + 'px'; }); }
+    $$('.tt-row', t).forEach(x => x.classList.remove('tt-row')); saveTable(t); paintTable(t); if (ttRow) ttRow.classList.add('tt-row'); ttPlace(); D.toast('Tabla actualizada', 1200); });
+  addEventListener('resize', ttPlace);
   function cellFill(v) { const cell = cellOf(); if (!cell) { D.toast('Haga clic dentro de una celda'); return; } cell.className = cell.className.replace(/\bf-\w+/g, '').trim(); if (v && v !== 'none') cell.classList.add('f-' + v); saveTable(cell.closest('[data-tbl]')); }
   // tablas de las plantillas: restaurar lo guardado
   D.slides.forEach(sl => $$('[data-tbl]', sl).filter(t => !t.closest('.free')).forEach(t => { const k = tblKey(t); if (store.tables[k] != null) t.innerHTML = store.tables[k]; paintTable(t); }));
