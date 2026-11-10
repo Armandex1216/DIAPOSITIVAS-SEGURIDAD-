@@ -103,8 +103,8 @@
   function chartMake(kind) {
     const pal = ['#c39531', '#2f6db5', '#1f9d5c', '#d23c3c', '#e6a316', '#6b46c1', '#8d8a83'];
     return (ctx, d) => {
-      const donut = kind === 'donut', ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderWidth: donut ? 4 : (kind === 'line' ? 4 : 0), borderColor: donut ? '#fff' : pal[i % pal.length],
-        backgroundColor: donut ? s.values.map((_, j) => pal[j % pal.length]) : pal[i % pal.length], borderRadius: kind === 'line' || donut ? 0 : 8, tension: .3, pointRadius: 7, pointBackgroundColor: pal[i % pal.length],
+      const donut = kind === 'donut', P = d.colors && d.colors.length ? d.colors : pal, ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderWidth: donut ? 4 : (kind === 'line' ? 4 : 0), borderColor: donut ? '#fff' : P[i % P.length],
+        backgroundColor: donut ? s.values.map((_, j) => P[j % P.length]) : P[i % P.length], borderRadius: kind === 'line' || donut ? 0 : 8, tension: .3, pointRadius: 7, pointBackgroundColor: P[i % P.length],
         datalabels: { display: c => c.dataset.data[c.dataIndex] != null && c.dataset.data[c.dataIndex] !== 0, color: donut || kind === 'stack' ? '#fff' : '#1a1917', anchor: donut || kind === 'stack' ? 'center' : 'end', align: donut || kind === 'stack' ? 'center' : (kind === 'hbar' ? 'right' : 'top'), font: { weight: '900', size: 18 } } }));
       const cfg = { type: donut ? 'doughnut' : (kind === 'line' ? 'line' : 'bar'), data: { labels: d.labels, datasets: ds },
         options: { maintainAspectRatio: false, indexAxis: kind === 'hbar' ? 'y' : 'x', cutout: donut ? '58%' : undefined, layout: { padding: { top: 26, right: 30 } },
@@ -125,7 +125,7 @@
     layerOf(sl).appendChild(el);
     D.applyLayout(el, store.layout['free:' + fid]);
     if (f.t === 'img') D.initSlot($('.slot', el));
-    if (f.t === 'chart' && window.HC) HC.bind(f.s, 'fc-' + fid, chartMake(f.kind), f.def);
+    if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, chartMake(f.kind), f.def); HC.colorable['fc-' + fid] = f.kind === 'donut' ? 'label' : 'series'; }
     if (D.editing()) setEditable(el, true);
     return el;
   }

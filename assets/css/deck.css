@@ -252,3 +252,4 @@ table.tt td.c-na{background:#e9e9e9}
 table.tt td.f-gold{background:#c39531;color:#1a1917}table.tt td.f-dark{background:#1a1917;color:#fff}
 body.editing [data-tbl] td:focus,body.editing [data-tbl] th:focus{outline:3px solid var(--gold);outline-offset:-3px}
 @media print{.rt-bar,.ins-menu{display:none!important}body .free{outline:none!important}}
+.mtab input.mcol{width:38px;height:30px;padding:0;border:1px solid #e2d8c2;border-radius:6px;background:#fff;margin-top:4px;cursor:pointer}

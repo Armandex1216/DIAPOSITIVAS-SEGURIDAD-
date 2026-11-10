@@ -147,7 +147,7 @@
     dir = dir || (n > D.i ? 1 : -1);
     const a = slides[D.i], b = slides[n];
     const ed = D.editing();
-    const type = ed ? 'fade' : ((dir > 0 ? b : a).dataset.transition || body.dataset.transition || 'push');
+    const type = 'push'; // única transición: deslizar la lámina
     D.busy = true; D.fire(a, 'leave'); if (ed) commitEdits(a);
     resetSlide(b); b.classList.add('active'); a.classList.add('leaving');
     const [[ea, ta], [eb, fb, tb]] = (TR[type] || TR.push)(a, b, dir);

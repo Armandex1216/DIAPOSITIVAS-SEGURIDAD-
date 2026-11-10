@@ -12,19 +12,19 @@
 
   const T = {
     donut: cols => (ctx, d) => { const v = d.series[0].values, tot = v.reduce((a, b) => a + (+b || 0), 0);
-      return { type: 'doughnut', data: { labels: d.labels, datasets: [{ data: v, backgroundColor: d.labels.map((_, i) => cols[i % cols.length]), borderColor: '#fff', borderWidth: 3 }] },
+      return { type: 'doughnut', data: { labels: d.labels, datasets: [{ data: v, backgroundColor: d.labels.map((_, i) => (d.colors || cols)[i % (d.colors || cols).length]), borderColor: '#fff', borderWidth: 3 }] },
         options: { maintainAspectRatio: false, cutout: '52%', layout: { padding: { top: 60, bottom: 60, left: 120, right: 120 } }, animation: { animateRotate: true, duration: 1400 },
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw} (${tot ? Math.round(c.raw / tot * 1000) / 10 : 0} %)` } },
             datalabels: { display: c => +c.dataset.data[c.dataIndex] > 0, anchor: 'end', align: 'end', offset: 8, textAlign: 'center', color: '#1a1917', font: { weight: '800', size: 16 }, formatter: (val, c) => c.chart.data.labels[c.dataIndex].toUpperCase() + '\n' + fmt(val) } } } }; },
-    stack: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: cols[i % cols.length], borderRadius: 4, barPercentage: .8,
+    stack: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: (d.colors || cols)[i % (d.colors || cols).length], borderRadius: 4, barPercentage: .8,
         datalabels: { display: c => +c.dataset.data[c.dataIndex] > 0, color: i === 1 ? '#1a1917' : '#fff', font: { weight: '900', size: 22 } } })) },
       options: { maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { font: { size: 17, weight: '700' }, usePointStyle: true } } }, animation: { duration: 1200, delay: c => c.type === 'data' ? c.dataIndex * 150 + c.datasetIndex * 250 : 0 },
         scales: { x: HC.axis({ stacked: true, grid: { display: false } }), y: HC.axis({ stacked: true, beginAtZero: true }) } } }),
-    hbar2: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: cols[i % cols.length], borderRadius: 10, barPercentage: .85, categoryPercentage: .78,
+    hbar2: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: (d.colors || cols)[i % (d.colors || cols).length], borderRadius: 10, barPercentage: .85, categoryPercentage: .78,
         datalabels: { display: true, anchor: 'end', align: 'right', offset: 6, color: '#1a1917', font: { weight: '800', size: 18 }, formatter: v => fmt(v) } })) },
       options: { indexAxis: 'y', maintainAspectRatio: false, layout: { padding: { right: 70 } }, plugins: { legend: { position: 'top', labels: { font: { size: 17, weight: '700' }, usePointStyle: true } } }, animation: { duration: 1300, delay: c => c.type === 'data' ? c.dataIndex * 160 : 0 },
         scales: { x: HC.axis({ beginAtZero: true }), y: HC.axis({ grid: { display: false }, ticks: { font: { size: 20, weight: '800' }, color: '#1a1917' } }) } } }),
-    bar: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: cols[i % cols.length], borderRadius: 10,
+    bar: cols => (ctx, d) => ({ type: 'bar', data: { labels: d.labels, datasets: d.series.map((s, i) => ({ label: s.name, data: s.values, backgroundColor: (d.colors || cols)[i % (d.colors || cols).length], borderRadius: 10,
         datalabels: { display: true, anchor: 'end', align: 'top', color: '#1a1917', font: { weight: '800', size: 18 }, formatter: v => fmt(v) } })) },
       options: { maintainAspectRatio: false, layout: { padding: { top: 30 } }, plugins: { legend: { display: d.series.length > 1 } }, scales: { x: HC.axis({ grid: { display: false } }), y: HC.axis({ beginAtZero: true }) } } })
   };
@@ -35,7 +35,7 @@
     const sl = cv.closest('.slide'); if (!sl || !cv.id) return;
     let def = null; try { def = JSON.parse(cv.dataset.def); } catch (e) { console.warn('def inválido', cv.id); }
     const cols = (cv.dataset.colors || '#c39531,#2f6db5,#1f9d5c,#d23c3c,#e6a316').split(',');
-    HC.bind(sl.id, cv.id, (T[cv.dataset.chart] || T.bar)(cols), def);
+    HC.bind(sl.id, cv.id, (T[cv.dataset.chart] || T.bar)(cols), def); HC.colorable[cv.id] = cv.dataset.chart === 'donut' ? 'label' : 'series'; HC.defColors[cv.id] = cols;
     D.on(sl.id, 'edited', () => {}); // reservado
   });
 
@@ -44,13 +44,20 @@
   paintIdx(); D.slides.forEach(sl => D.on(sl.id, 'edited', paintIdx));
 
   // medidores de cumplimiento calculados con un gráfico (data-from="canvasId:serieEjecutado/seriePrograma")
-  const gauges = () => $$('.gpct[data-from]').forEach(g => {
+  const gauges = anim => $$('.gpct[data-from]').forEach(g => {
     const [cid, i] = g.dataset.from.split(':'); const d = HC.getData[cid] && HC.getData[cid](); if (!d) return;
     const prog = +d.series[0].values[+i] || 0, ej = +d.series[1].values[+i] || 0, p = prog ? Math.round(ej / prog * 100) : 0;
-    const arc = $('.g-arc', g), C = Math.PI * 80; arc.setAttribute('stroke-dasharray', `${C * Math.min(p, 100) / 100} ${C}`); arc.setAttribute('stroke', p >= 100 ? '#16a34a' : p >= 80 ? '#e6a316' : '#e11d1d'); $('.g-val', g).textContent = p + ' %';
+    const arc = $('.g-arc', g), C = Math.PI * 80, to = C * Math.min(p, 100) / 100, val = $('.g-val', g); arc.setAttribute('stroke', p >= 100 ? '#16a34a' : p >= 80 ? '#e6a316' : '#e11d1d');
+    if (anim && window.gsap && !D.editing()) { const o = { v: 0 }; gsap.fromTo(arc, { attr: { 'stroke-dasharray': `0 ${C}` } }, { attr: { 'stroke-dasharray': `${to} ${C}` }, duration: 1.5, delay: .6, ease: 'power3.out' }); gsap.to(o, { v: p, duration: 1.5, delay: .6, ease: 'power3.out', onUpdate: () => val.textContent = Math.round(o.v) + ' %' }); }
+    else { arc.setAttribute('stroke-dasharray', `${to} ${C}`); val.textContent = p + ' %'; }
   });
-  setTimeout(gauges, 50); D.slides.forEach(sl => { D.on(sl.id, 'enter', gauges); D.on(sl.id, 'edited', gauges); });
-  document.addEventListener('click', e => { if (e.target.closest('.modal')) setTimeout(gauges, 60); });
+  setTimeout(() => gauges(false), 50); D.slides.forEach(sl => { D.on(sl.id, 'enter', () => gauges(true)); D.on(sl.id, 'edited', () => gauges(false)); });
+  document.addEventListener('click', e => { if (e.target.closest('.modal')) setTimeout(() => gauges(false), 60); });
+
+  // animaciones automáticas: filas de tablas, viñetas, anillos y medidores aparecen uno tras otro
+  const AUTO = '[data-tbl] tbody tr, .rich li, ul.cmb li, .rings .r, .gpct, .cm, .side-txt, .fl';
+  D.slides.forEach(sl => D.on(sl.id, 'enter', () => { if (D.editing() || !window.gsap || document.body.classList.contains('printing')) return; const els = $$(AUTO, sl).filter(e => !e.closest('.free')); if (!els.length) return;
+    gsap.fromTo(els, { opacity: 0, x: -36 }, { opacity: 1, x: 0, duration: .55, delay: .55, stagger: Math.min(.09, 1.2 / els.length), ease: 'power3.out', clearProps: 'opacity,transform' }); }));
 
   // fecha de la reunión: texto con data-fecha (al crear la presentación se completa desde ?fecha=)
   const qs = new URLSearchParams(location.search);
