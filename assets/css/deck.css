@@ -334,3 +334,11 @@ body.dragging,body.dragging *{user-select:none!important;cursor:move}
 .dest-n{width:30px;height:30px;border-radius:50%;background:#c39531;color:#1a1917;display:grid;place-items:center;font-weight:900}
 .ov .mv{position:absolute;right:12px;bottom:12px;display:flex;gap:6px}.ov .mv button{background:#2c2a26;border:1px solid #47433b;color:#e8d9b4;border-radius:8px;padding:4px 10px;font:700 12px Montserrat,sans-serif;cursor:pointer}.ov .mv button:hover{background:#c39531;color:#1a1917}
 .ov.drag{opacity:.35}.ov.over{border-color:var(--gold);transform:scale(1.03)}.ov{padding-bottom:46px}
+.data-btn.kind-btn{right:auto;left:0;background:#1a1917;color:#e8c97f}
+.kind-pop{position:absolute;left:0;top:34px;z-index:30;width:330px;background:#1a1917;border:1px solid #47433b;border-radius:16px;padding:14px;box-shadow:0 24px 50px -20px rgba(0,0,0,.7);display:grid;grid-template-columns:1fr 1fr;gap:8px;font-family:Montserrat,sans-serif}
+.kind-pop b{grid-column:1/-1;color:#e8c97f;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin:2px 4px 4px}
+.kind-pop button{display:flex;align-items:center;gap:8px;background:#2c2a26;border:1px solid #3c3934;color:#eee;border-radius:10px;padding:9px 10px;font:700 14px Montserrat,sans-serif;cursor:pointer;text-align:left}
+.kind-pop button i{font-style:normal;font-size:20px;width:22px;text-align:center;color:#c39531}
+.kind-pop button:hover,.kind-pop button.on{background:#c39531;color:#1a1917}.kind-pop button:hover i,.kind-pop button.on i{color:#1a1917}
+.kind-pop small{grid-column:1/-1;color:#a9a397;font-size:12px;margin:2px 4px}
+@media print{.kind-pop{display:none!important}}
