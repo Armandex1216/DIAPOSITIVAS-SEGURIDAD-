@@ -34,6 +34,28 @@
         if (!tot || edge == null) continue; const txt = tot.toLocaleString('es-PE');
         if (horiz) x.fillText(txt, edge + 10, cross); else x.fillText(txt, cross, edge - 8); }
       x.restore(); } });
+  Chart.register({ id: 'hcWaffle', // cuadrícula de 100 cuadros: cada cuadro = 1 % del total; se llena cuadro por cuadro
+    beforeInit(c) { c.$hcW0 = performance.now(); },
+    afterDraw(c) { const o = c.config.options.hcWaffle; if (!o) return; const a = c.chartArea || { left: 0, top: 0, right: c.width, bottom: c.height }, x = c.ctx;
+      const v = o.values.map(n => Math.max(0, +n || 0)), tot = v.reduce((p, q) => p + q, 0); if (!tot) return;
+      const ex = v.map(n => n / tot * 100), cnt = ex.map(Math.floor); let rest = 100 - cnt.reduce((p, q) => p + q, 0);
+      ex.map((e, i) => [e - Math.floor(e), i]).sort((p, q) => q[0] - p[0]).forEach(([, i]) => { if (rest > 0) { cnt[i]++; rest--; } });
+      const cells = []; cnt.forEach((k, i) => { for (let j = 0; j < k; j++) cells.push(i); });
+      const W = a.right - a.left, H = a.bottom - a.top, side = Math.min(H, W * .56), g = side / 10, pad = Math.max(3, g * .12), x0 = a.left + 10, y0 = a.top + (H - side) / 2;
+      const t = c.config.options.animation === false ? 1 : Math.min(1, (performance.now() - c.$hcW0) / 1600), shown = Math.round(100 * (1 - Math.pow(1 - t, 2)));
+      x.save();
+      for (let k = 0; k < 100; k++) { const col = k % 10, row = Math.floor(k / 10), px = x0 + col * g, py = y0 + (9 - row) * g; // se llena de abajo hacia arriba
+        x.fillStyle = k < shown ? o.colors[cells[k] % o.colors.length] : '#eee8dc'; const r = g * .18, w = g - pad;
+        x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + w, r); x.arcTo(px + w, py + w, px, py + w, r); x.arcTo(px, py + w, px, py, r); x.arcTo(px, py, px + w, py, r); x.fill(); }
+      // leyenda grande a la derecha: color, nombre, cantidad y %
+      const lx = x0 + side + 40, lw = a.right - lx, n = o.labels.length, lh = Math.min(110, side / Math.max(1, n)), ly0 = y0 + (side - lh * n) / 2;
+      o.labels.forEach((lab, i) => { const y = ly0 + i * lh, fade = Math.min(1, Math.max(0, (t * 1.6) - i * .15));
+        x.globalAlpha = fade; x.fillStyle = o.colors[i % o.colors.length]; x.fillRect(lx, y + 8, 14, lh * .62);
+        x.fillStyle = '#1a1917'; x.textBaseline = 'top'; x.font = `900 ${Math.round(Math.min(46, lh * .42))}px Montserrat, sans-serif`;
+        x.fillText((o.pct ? (Math.round(v[i] * 10) / 10).toLocaleString('es-PE') + ' %' : Math.round(ex[i] * 10) / 10 + ' %'), lx + 30, y + 4);
+        x.font = `700 ${Math.round(Math.min(22, lh * .22))}px Montserrat, sans-serif`; x.fillStyle = '#4c4a46';
+        const txt = String(lab) + (o.pct ? '' : ' · ' + v[i].toLocaleString('es-PE')); x.fillText(txt.length * 11 > lw ? txt.slice(0, Math.floor(lw / 11)) + '…' : txt, lx + 30, y + lh * .48); });
+      x.restore(); if (t < 1) requestAnimationFrame(() => { try { c.draw(); } catch (e) { } }); } });
   // aplica las animaciones y el estilo «Hochschild» a una configuración de Chart.js
   function fx(cfg) {
     const type = cfg.type, o = cfg.options = cfg.options || {}, ds = (cfg.data && cfg.data.datasets) || [];
@@ -60,7 +82,7 @@
     } else if (type === 'bar') {
       o.animation = Object.assign({ duration: 1100, easing: 'easeOutBack', delay: c => ix(c) * 110 + di(c) * 200 }, o.animation || {});
       const horiz = o.indexAxis === 'y', stacked = !!(o.scales && ((o.scales.x && o.scales.x.stacked) || (o.scales.y && o.scales.y.stacked)));
-      if (stacked) { // cantidad dentro de cada nivel y total encima de la barra
+      if (stacked && !o.hcRaw) { // cantidad dentro de cada nivel y total encima de la barra
         if (o.hcStackTotal === undefined) o.hcStackTotal = {}; o.layout = o.layout || {}; o.layout.padding = Object.assign({}, o.layout.padding || {}, horiz ? { right: 70 } : { top: 46 });
         ds.forEach(d => { const col = Array.isArray(d.backgroundColor) ? d.backgroundColor[0] : d.backgroundColor;
           d.datalabels = Object.assign({}, d.datalabels || {}, { display: c => +c.dataset.data[c.dataIndex] > 0, anchor: 'center', align: 'center', clamp: true, color: lum(col) > .62 ? '#1a1917' : '#fff', font: { weight: '900', size: 22 }, formatter: v => (+v).toLocaleString('es-PE') }); });
@@ -97,9 +119,9 @@
     },
     builders: {}, defs: {}, getData: {}, colorable: {}, defColors: {},
     /* ---------- tipo de gráfico elegido por el usuario: la misma data en otra forma ---------- */
-    KINDS: { donut: ['◍', 'Dona'], pie: ['◕', 'Pastel'], polar: ['✺', 'Área polar'], bar: ['▮', 'Barras'], hbar: ['▬', 'Barras horizontales'], line: ['⟋', 'Líneas'], radar: ['⬡', 'Radar'], stack: ['▤', 'Barras apiladas'] },
+    KINDS: { split: ['▭', 'Barra de proporción'], waffle: ['▦', 'Cuadrícula de 100'], donut: ['◍', 'Dona'], pie: ['◕', 'Pastel'], polar: ['✺', 'Área polar'], bar: ['▮', 'Barras'], hbar: ['▬', 'Barras horizontales'], line: ['⟋', 'Líneas'], radar: ['⬡', 'Radar'], stack: ['▤', 'Barras apiladas'] },
     kindOf(id) { const t = DECK.store.meta && DECK.store.meta.tipos; return (t && t[id]) || null; },
-    setKind(id, k) { const m = DECK.store.meta; m.tipos = Object.assign({}, m.tipos || {}); if (k) m.tipos[id] = k; else delete m.tipos[id]; HC.colorable[id] = ['donut', 'pie', 'polar'].includes(k) ? 'label' : HC.colorable0[id] || HC.colorable[id]; DECK.persist(); if (HC.builders[id]) HC.builders[id](true); },
+    setKind(id, k) { const m = DECK.store.meta; m.tipos = Object.assign({}, m.tipos || {}); if (k) m.tipos[id] = k; else delete m.tipos[id]; HC.colorable[id] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(k) ? 'label' : HC.colorable0[id] || HC.colorable[id]; DECK.persist(); if (HC.builders[id]) HC.builders[id](true); },
     colorable0: {},
     kindMenu(id, btn) {
       let m = document.querySelector('.kind-pop'); if (m) { m.remove(); if (m.dataset.id === id) return; }
@@ -116,6 +138,17 @@
       return (ctx, d) => {
         const C = d.colors && d.colors.length ? d.colors : cols, one = d.series.length === 1, pc = d.pct ? ' %' : '';
         const perLabel = d.labels.map((_, i) => C[i % C.length]);
+        if (kind === 'waffle') return { type: 'bar', data: { labels: [], datasets: [] }, options: { maintainAspectRatio: false, hcShadow: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } },
+          hcWaffle: { labels: d.labels, values: d.series[0].values, colors: perLabel, pct: !!d.pct } } };
+        if (kind === 'split') { // una sola barra al 100 %: cada parte con su nombre, cantidad y %
+          const v = d.series[0].values.map(n => +n || 0), tot = v.reduce((a, b) => a + b, 0), sh = v.map(n => tot ? n / tot * 100 : 0);
+          return { type: 'bar', data: { labels: [''], datasets: d.labels.map((l, i) => ({ label: l, data: [sh[i]], backgroundColor: perLabel[i], borderRadius: 0, borderSkipped: false, barThickness: 160, borderColor: '#fff', borderWidth: { left: i ? 3 : 0 },
+            datalabels: { display: sh[i] > 7, anchor: 'center', align: 'center', textAlign: 'center', color: '#fff',
+              font: { weight: '900', size: sh[i] > 14 ? 34 : 20, lineHeight: 1.2 }, formatter: () => (Math.round(sh[i] * 10) / 10).toLocaleString('es-PE') + ' %' + (d.pct ? '' : '\n' + fmt(v[i])) } })) },
+            options: { maintainAspectRatio: false, indexAxis: 'y', hcRaw: true, hcStackTotal: false, layout: { padding: { top: 10, bottom: 10, right: 20 } },
+              plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 18, weight: '700' }, padding: 20, generateLabels: ch => ch.data.datasets.map((x, i) => ({ text: `${x.label}: ${fmt(v[i])}${pc}`, fillStyle: perLabel[i], strokeStyle: perLabel[i], pointStyle: 'rectRounded', datasetIndex: i })) } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(v[c.datasetIndex])}${pc} (${Math.round(c.raw * 10) / 10} %)` } } },
+              scales: { x: { stacked: true, max: 100, display: false }, y: { stacked: true, display: false } } } };
+        }
         if (kind === 'donut' || kind === 'pie' || kind === 'polar') {
           const v = d.series[0].values, tot = v.reduce((a, b) => a + (+b || 0), 0), share = x => tot ? Math.round(x / tot * 1000) / 10 : 0;
           const lab = kind === 'donut'
