@@ -373,6 +373,10 @@ body.editing [data-tbl] tr.tt-row td{box-shadow:inset 0 0 0 9999px rgba(195,149,
 .ui-hide{font-size:11px!important;color:#a9a397!important;border-bottom:1px solid rgba(255,255,255,.08)!important;border-radius:8px 8px 0 0!important;margin-bottom:2px}
 body.ui-hidden .ui{opacity:0!important;pointer-events:none;transform:translate(140%,-50%)}
 .ui{transition:opacity .35s,transform .35s}
-.ui-tab{display:none;position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:51;width:18px;height:64px;border:0;border-radius:10px 0 0 10px;background:rgba(20,19,17,.55);color:#e8c97f;font:700 14px Montserrat,sans-serif;cursor:pointer;opacity:.12;transition:opacity .25s,width .25s;padding:0}
-body.ui-hidden .ui-tab{display:block}.ui-tab:hover{opacity:1;width:26px}
+.ui-tab{display:none;position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:51;width:30px;height:86px;border:1px solid rgba(232,201,127,.45);border-right:0;border-radius:14px 0 0 14px;background:linear-gradient(180deg,#2a2723,#1a1917);color:#e8c97f;cursor:pointer;opacity:.45;transition:opacity .25s,width .25s,box-shadow .25s;padding:0;box-shadow:-6px 0 18px -8px rgba(0,0,0,.5)}
+.ui-tab svg{width:16px;height:16px;display:block;margin:0 auto;transition:transform .25s}
+body.ui-hidden .ui-tab{display:block}.ui-tab:hover{opacity:1;width:38px;box-shadow:-8px 0 22px -6px rgba(195,149,49,.55)}.ui-tab:hover svg{transform:translateX(-2px)}
 @media print{.ui-tab{display:none!important}}
+
+/* sin la barra de Vercel encima de la presentación */
+vercel-live-feedback,#vercel-live-feedback,[data-vercel-toolbar]{display:none!important;visibility:hidden!important;pointer-events:none!important}
