@@ -143,7 +143,7 @@
         if (kind === 'split') { // una sola barra al 100 %: cada parte con su nombre, cantidad y %
           const v = d.series[0].values.map(n => +n || 0), tot = v.reduce((a, b) => a + b, 0), sh = v.map(n => tot ? n / tot * 100 : 0);
           return { type: 'bar', data: { labels: [''], datasets: d.labels.map((l, i) => ({ label: l, data: [sh[i]], backgroundColor: perLabel[i], borderRadius: 0, borderSkipped: false, barThickness: 160, borderColor: '#fff', borderWidth: { left: i ? 3 : 0 },
-            datalabels: { display: sh[i] > 4, anchor: 'center', align: 'center', textAlign: 'center', color: '#fff',
+            datalabels: { display: sh[i] > 7, anchor: 'center', align: 'center', textAlign: 'center', color: '#fff',
               font: { weight: '900', size: sh[i] > 14 ? 34 : 20, lineHeight: 1.2 }, formatter: () => (Math.round(sh[i] * 10) / 10).toLocaleString('es-PE') + ' %' + (d.pct ? '' : '\n' + fmt(v[i])) } })) },
             options: { maintainAspectRatio: false, indexAxis: 'y', hcRaw: true, hcStackTotal: false, layout: { padding: { top: 10, bottom: 10, right: 20 } },
               plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 18, weight: '700' }, padding: 20, generateLabels: ch => ch.data.datasets.map((x, i) => ({ text: `${x.label}: ${fmt(v[i])}${pc}`, fillStyle: perLabel[i], strokeStyle: perLabel[i], pointStyle: 'rectRounded', datasetIndex: i })) } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(v[c.datasetIndex])}${pc} (${Math.round(c.raw * 10) / 10} %)` } } },
