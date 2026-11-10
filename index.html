@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diapositivas de Seguridad · U.M. Pallancata – Selene</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261110i">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261110j">
 <style>
 html,body{overflow:auto;height:auto;background:#f7f2e8;color:#1a1917}
 .top{position:sticky;top:0;z-index:5;background:rgba(247,242,232,.9);backdrop-filter:blur(10px);border-bottom:1px solid #ebe1cc}
@@ -112,6 +112,7 @@ h1 span{color:#c39531}
   }
   /* ---------- crear presentación ---------- */
   const nextDay = dow => { const d = new Date(); d.setHours(12); if (dow == null) return d.toISOString().slice(0, 10); const add = (dow - d.getDay() + 7) % 7; d.setDate(d.getDate() + add); return d.toISOString().slice(0, 10); };
+  const GUM_OCULTAS = ['g-ambiental', 'g-estad', 'g-hall', 'g-abiertos', 'g-s-retraso', 'g-resumen', 'g-oto', 'g-insp'];
   function openNew(folderId, importId) {
     const f = C.find(x => x.id === folderId) || C[0]; const m = $('#nmodal');
     m.innerHTML = `<form class="nbox"><h3>Nueva presentación</h3><p class="nsub">Carpeta: <b>${esc(f.nombre)}</b>${importId ? ' · con las estadísticas enviadas desde Safety HOC' : ''}</p>
@@ -123,6 +124,8 @@ h1 span{color:#c39531}
     const fm = $('form', m), sync = () => { const pl = P[fm.p.value] || P.blanco; fm.fecha.value = fm.fecha.value || nextDay(pl.dia); fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; };
     fm.p.onchange = () => { fm.fecha.value = ''; sync(); }; fm.fecha.onchange = () => { const pl = P[fm.p.value] || P.blanco; fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; }; sync();
     const prev = itemsOf(f)[0]; if (!prev) { fm.copy.checked = false; fm.copy.closest('label').style.display = 'none'; }
+    const copyTxt = () => { const lab = fm.copy.closest('label'); lab.lastChild.textContent = fm.p.value === 'gum' ? ' Copiar los acuerdos y pedidos del CSST (y textos) de la última GUM para solo actualizarlos. La GUM empieza vacía: portada, acuerdos y cierre; los gráficos se agregan después.' : ' Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla'; };
+    fm.p.addEventListener('change', copyTxt); copyTxt();
     m.classList.add('on'); $('[data-x]', m).onclick = () => m.classList.remove('on');
     fm.onsubmit = async e => { e.preventDefault(); const err = $('.nerr', m); if (!cloud) { err.textContent = 'La nube no está configurada.'; return; }
       if (!navigator.onLine) { err.textContent = 'Necesita internet para crear una presentación nueva.'; return; }
@@ -130,11 +133,19 @@ h1 span{color:#c39531}
       err.textContent = 'Creando…';
       try {
         await api('diapo_decks', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ id, carpeta: f.id, plantilla: pl, titulo: fm.t.value.trim(), fecha }) });
-        const src = prev && fm.copy.checked ? prev : null;
+        const src = prev && fm.copy.checked ? prev : null; let data = null;
         if (src && src.deck && (!src.cloud || src.cloud.plantilla === pl) && !(src.archivo || '').startsWith('gum-octubre')) {
           const rows = await api(`diapo_cambios?deck_id=eq.${encodeURIComponent(src.deck)}&select=data`);
-          if (rows && rows[0]) { const data = rows[0].data || {}; data.meta = {}; await api('diapo_cambios', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ deck_id: id, data, updated_at: new Date().toISOString(), updated_by: 'copia' }) }); }
+          if (rows && rows[0]) { data = rows[0].data || {}; data.meta = {}; }
         }
+        // GUM nueva: vacía (portada, acuerdos del CSST y cierre). De la anterior solo se copian textos y tablas (acuerdos), no gráficos ni láminas agregadas.
+        if (pl === 'gum') {
+          data = data || {}; data.meta = {}; data.slides = {}; data.free = {}; data.charts = {};
+          data.layout = Object.fromEntries(Object.entries(data.layout || {}).filter(([k]) => !k.startsWith('free:') && !k.startsWith('x')));
+          data.images = Object.fromEntries(Object.entries(data.images || {}).filter(([k]) => !k.startsWith('free-') && !k.includes('@x')));
+          data.hidden = Object.fromEntries(GUM_OCULTAS.map(k => [k, true]));
+        }
+        if (data) await api('diapo_cambios', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ deck_id: id, data, updated_at: new Date().toISOString(), updated_by: src ? 'copia' : 'nueva' }) });
         location.href = `${(P[pl] || P.blanco).archivo}?d=${encodeURIComponent(id)}&fecha=${fecha}${importId ? '&importar=' + encodeURIComponent(importId) : ''}`;
       } catch (ex) { console.error(ex); err.textContent = 'No se pudo crear: ' + ex.message.slice(0, 160); }
     };
