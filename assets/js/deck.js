@@ -56,7 +56,11 @@
   };
 
   /* ---------- escala ---------- */
-  function fit() { const s = Math.min(innerWidth / W, innerHeight / H); stage.style.transform = `translate(-50%,-50%) scale(${s})`; D.scale = s; }
+  // al editar, la lámina se achica para no quedar tapada por la barra de formato (arriba) ni por los controles (a la derecha)
+  function fit() { const ed = body.classList.contains('editing') || body.classList.contains('moving'), R = ed ? 128 : 0, T = ed ? 124 : 0, Bm = ed ? 14 : 0, Lm = ed ? 14 : 0;
+    const s = Math.min((innerWidth - R - Lm) / W, (innerHeight - T - Bm) / H), dx = (Lm - R) / 2, dy = (T - Bm) / 2;
+    stage.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${s})`; D.scale = s; if (D.drawSel) D.drawSel(); }
+  new MutationObserver(() => { const k = body.classList.contains('editing') + ':' + body.classList.contains('moving'); if (k !== fit._k) { fit._k = k; fit(); } }).observe(body, { attributes: true, attributeFilter: ['class'] });
   addEventListener('resize', fit); fit();
 
   /* ---------- UI ---------- */

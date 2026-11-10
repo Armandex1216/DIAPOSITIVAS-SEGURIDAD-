@@ -42,6 +42,24 @@
   function showBar() { if (D.moving && D.moving()) return; bar.classList.add('on'); bar.classList.toggle('in-table', !!(lastEd && lastEd.closest('[data-tbl] td, [data-tbl] th'))); }
   const changed = () => { if (!lastEd) return; lastEd.dispatchEvent(new Event('input', { bubbles: true })); const t = lastEd.closest('[data-tbl]'); if (t) saveTable(t); };
   function exec(cmd, val) { restoreSel(); document.execCommand(cmd, false, val); keepSel(); changed(); }
+  /* Negrita que también quita la negrita que ya traen los textos (<b>, <strong>, títulos en negrita).
+     Sin selección: se aplica a todo el cuadro de texto. */
+  const isBoldAt = n => { const el = n && (n.nodeType === 1 ? n : n.parentElement); return !!el && parseInt(getComputedStyle(el).fontWeight, 10) >= 600; };
+  function stripBold(root) { root.querySelectorAll('b,strong').forEach(x => { const sp = document.createElement('span'); while (x.firstChild) sp.appendChild(x.firstChild); x.replaceWith(sp); }); root.querySelectorAll('[style*="font-weight"]').forEach(x => x.style.fontWeight = ''); }
+  function toggleBold() {
+    restoreSel(); const s = getSelection(); if (!lastEd) return;
+    if (!s.rangeCount || s.isCollapsed || !lastEd.contains(s.anchorNode)) { const r = document.createRange(); r.selectNodeContents(lastEd); s.removeAllRanges(); s.addRange(r); }
+    const r = s.getRangeAt(0); let first = r.startContainer;
+    if (first.nodeType === 1 && first.childNodes[r.startOffset]) first = first.childNodes[r.startOffset];
+    const w = document.createTreeWalker(r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentNode, NodeFilter.SHOW_TEXT);
+    let t, bold = null; while ((t = w.nextNode())) { if (r.intersectsNode(t) && t.textContent.trim()) { bold = isBoldAt(t); break; } } if (bold == null) bold = isBoldAt(first);
+    const frag = r.extractContents(), box = document.createElement('div'); box.appendChild(frag); stripBold(box);
+    const sp = document.createElement('span'); sp.style.fontWeight = bold ? '400' : '800'; while (box.firstChild) sp.appendChild(box.firstChild);
+    r.insertNode(sp); for (let p = sp.parentElement; p && p !== lastEd && /^(B|STRONG)$/.test(p.tagName) && p.textContent === sp.textContent; p = sp.parentElement) p.replaceWith(sp);
+    lastEd.querySelectorAll('span:empty,b:empty,strong:empty').forEach(x => x.remove());
+    const nr = document.createRange(); nr.selectNodeContents(sp); s.removeAllRanges(); s.addRange(nr); keepSel(); changed();
+  }
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'b' || e.key === 'B') && D.editing() && activeEd()) { e.preventDefault(); e.stopImmediatePropagation(); lastEd = activeEd(); keepSel(); toggleBold(); } }, true);
   function fontPx(px) { // tamaño exacto en píxeles para el texto seleccionado (o todo el cuadro si no hay selección)
     px = Math.max(8, Math.min(400, Math.round(+px || 0))); if (!px) return;
     restoreSel(); const s = getSelection();
@@ -67,6 +85,7 @@
     if (b.dataset.col) { const cmd = b.closest('[data-pal]').dataset.pal; exec(cmd, b.dataset.col); if (cmd === 'foreColor') $('.bar-c', bar).style.background = b.dataset.col; b.closest('.dd').classList.remove('open'); return; }
     if (b.dataset.c === 'smaller') return fontSize(0, .85);
     if (b.dataset.c === 'bigger') return fontSize(0, 1.18);
+    if (b.dataset.c === 'bold') return toggleBold();
     if (b.dataset.c) return exec(b.dataset.c);
     if (b.dataset.t) return tableOp(b.dataset.t);
   });
@@ -121,6 +140,12 @@
         options: { maintainAspectRatio: false, indexAxis: kind === 'hbar' ? 'y' : 'x', cutout: donut ? '58%' : undefined, layout: { padding: { top: 26, right: 30 } },
           plugins: { legend: { display: donut || d.series.length > 1, position: donut ? 'right' : 'top', labels: { font: { size: 18, weight: '700' }, boxWidth: 18 } } } } };
       if (!donut) cfg.options.scales = { x: HC.axis({ stacked: kind === 'stack', grid: { display: kind === 'hbar' } }), y: HC.axis({ stacked: kind === 'stack', beginAtZero: true, grid: { display: kind !== 'hbar' } }) };
+      // apiladas: leyenda pequeña al costado con el total de cada nivel (Bajo · 230)
+      if (kind === 'stack') { const sum = i => (d.series[i].values || []).reduce((a, b) => a + (+b || 0), 0);
+        cfg.options.plugins.legend = { display: true, position: d.leyenda || 'right', labels: { font: { size: 16, weight: '700' }, boxWidth: 14, padding: 14, usePointStyle: true,
+          generateLabels: ch => Chart.defaults.plugins.legend.labels.generateLabels(ch).map(l => Object.assign(l, { text: `${d.series[l.datasetIndex].name} · ${sum(l.datasetIndex).toLocaleString('es-PE')}` })) } }; }
+      // cantidades dentro de cada barra (ej. «7 de 10»), además del valor encima
+      if (Array.isArray(d.dentro) && d.dentro.length) ds.forEach(x => { const top = x.datalabels; x.datalabels = { labels: { value: top, inner: { display: c => d.dentro[c.dataIndex] != null && d.dentro[c.dataIndex] !== '', anchor: 'center', align: 'center', color: '#fff', textAlign: 'center', font: { weight: '900', size: 22 }, formatter: (v, c) => d.dentro[c.dataIndex] == null ? '' : String(d.dentro[c.dataIndex]) } } }; });
       return cfg;
     };
   }
@@ -164,7 +189,7 @@
   const burstSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><polygon points='100,4 118,52 168,22 150,74 198,80 156,108 190,150 138,144 140,196 104,160 70,198 66,148 14,162 46,116 2,88 52,72 30,24 82,48' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>`)}")`;
   function applyStyle(el, f) {
     const st = f.st || {}, tx = $('.ftx', el) || (f.t === 'table' ? $('table', el) : null);
-    if (tx) { tx.style.fontFamily = st.ff || ''; tx.style.fontSize = st.fs ? st.fs + 'px' : ''; tx.style.color = st.color || ''; tx.style.textAlign = st.al || ''; tx.style.fontWeight = st.bold ? '800' : ''; tx.style.fontStyle = st.it ? 'italic' : ''; tx.style.lineHeight = st.lh || ''; }
+    if (tx) { tx.style.fontFamily = st.ff || ''; tx.style.fontSize = st.fs ? st.fs + 'px' : ''; tx.style.color = st.color || ''; tx.style.textAlign = st.al || ''; tx.style.fontWeight = st.bold ? '800' : st.bold === false ? '400' : ''; tx.style.fontStyle = st.it ? 'italic' : ''; tx.style.lineHeight = st.lh || ''; }
     el.style.opacity = st.op != null && st.op < 1 ? st.op : '';
     if (f.t === 'box') { const b = $('.fbox', el); if (b) { b.style.background = st.bg || f.bg || '#1a1917'; b.style.border = st.bw ? `${st.bw}px solid ${st.bc || '#c39531'}` : ''; } }
     if (f.t === 'text') { el.style.background = st.bg || ''; el.style.padding = st.bg || st.bw ? '18px 26px' : ''; el.style.borderRadius = st.bg || st.bw ? '18px' : ''; el.style.border = st.bw ? `${st.bw}px solid ${st.bc || '#c39531'}` : ''; }
@@ -224,7 +249,9 @@
   fprops.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b || !selF) return; const a = b.dataset.a, f = fOf(selF), st = f.st || {};
     if (a === 'fs-' || a === 'fs+') { const cur = +$('[data-p=fs]', fprops).value || 32; setStyle(selF, { fs: Math.max(8, Math.round(cur * (a === 'fs+' ? 1.12 : 1 / 1.12))) }); }
-    else if (a === 'bold' || a === 'it') setStyle(selF, { [a]: !st[a] });
+    else if (a === 'bold') { const el = $(`.free[data-fid="${selF}"]`), tx = el && ($('.ftx', el) || $('table', el)); const on = !(st.bold || (tx && parseInt(getComputedStyle(tx).fontWeight, 10) >= 600 && st.bold !== false));
+      if (!on && tx) { stripBold(tx); if (f.html != null) f.html = f.t === 'table' ? tx.innerHTML : tx.innerHTML; } setStyle(selF, { bold: on }); }
+    else if (a === 'it') setStyle(selF, { [a]: !st[a] });
     else if (a.startsWith('al:')) setStyle(selF, { al: a.slice(3) });
     else if (a === 'nobg') setStyle(selF, { bg: f.t === 'bubble' ? 'transparent' : '' });
     else if (a === 'up' || a === 'down') layer(selF, a === 'up' ? 1 : -1);

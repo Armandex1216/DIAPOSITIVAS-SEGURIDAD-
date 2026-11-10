@@ -342,3 +342,11 @@ body.dragging,body.dragging *{user-select:none!important;cursor:move}
 .kind-pop button:hover,.kind-pop button.on{background:#c39531;color:#1a1917}.kind-pop button:hover i,.kind-pop button.on i{color:#1a1917}
 .kind-pop small{grid-column:1/-1;color:#a9a397;font-size:12px;margin:2px 4px}
 @media print{.kind-pop{display:none!important}}
+
+/* controles a la derecha (vertical) para no tapar la lámina al editar */
+.ui{left:auto;right:12px;top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column;align-items:stretch;gap:3px;padding:8px 6px;max-height:96vh;overflow-y:auto;width:104px;box-sizing:border-box}
+.ui button{padding:7px 6px;font-size:12px;line-height:1.15;text-align:center;white-space:normal}
+.ui .num{min-width:0;padding:2px 0 4px}
+body.editing .ui,body.moving .ui{opacity:1}
+.rt-bar{top:58px;max-width:calc(100vw - 150px);left:calc(50% - 60px)}
+body.editing .edit-badge{top:12px;left:calc(50% - 60px)}
