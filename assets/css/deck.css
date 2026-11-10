@@ -320,3 +320,6 @@ body.dragging,body.dragging *{user-select:none!important;cursor:move}
 .ins-menu .pre-t{font-size:17px!important;font-weight:900!important}.ins-menu .pre-s{font-size:15px!important;color:#9a7422!important}
 .ins-menu{max-height:calc(100vh - 110px);overflow:auto;width:min(560px,94vw)}
 @media print{.fprops,.snap-v{display:none!important}.free .fgrip,.free .frz{display:none!important}}
+
+/* láminas de seguimiento y conclusiones enviadas desde Safety HOC */
+.free .concl-list{margin:0;padding-left:56px;counter-reset:c}.free .concl-list li{margin:0 0 26px;line-height:1.35;padding-left:8px}.free .concl-list li::marker{color:#c39531;font-weight:900}
