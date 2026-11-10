@@ -24,6 +24,16 @@
       x.font = `900 ${Math.round(r * .62)}px Montserrat, sans-serif`; x.fillText(v.toLocaleString('es-PE'), cx, cy - r * .1);
       x.font = `700 ${Math.round(r * .2)}px Montserrat, sans-serif`; x.fillStyle = '#8d8a83'; x.fillText(o.label || 'TOTAL', cx, cy + r * .36); x.restore();
       if (t < 1) requestAnimationFrame(() => { try { c.draw(); } catch (e) { } }); } });
+  const lum = hex => { const h = String(hex || '').replace('#', ''); if (!/^[0-9a-f]{6}$/i.test(h)) return 0; const n = parseInt(h, 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+  Chart.register({ id: 'hcStackTotal', // total encima (o a la derecha) de cada barra apilada
+    afterDatasetsDraw(c) { const o = c.config.options; if (!o.hcStackTotal) return; const metas = c.data.datasets.map((_, i) => c.getDatasetMeta(i)).filter(m => !m.hidden && m.data.length); if (!metas.length) return;
+      const horiz = o.indexAxis === 'y', x = c.ctx, n = c.data.labels.length, sz = o.hcStackTotal.size || 22;
+      x.save(); x.font = `900 ${sz}px Montserrat, sans-serif`; x.fillStyle = '#1a1917'; x.textAlign = horiz ? 'left' : 'center'; x.textBaseline = horiz ? 'middle' : 'bottom';
+      for (let i = 0; i < n; i++) { let tot = 0, edge = null, cross = null;
+        metas.forEach(m => { const v = +c.data.datasets[m.index].data[i] || 0, el = m.data[i]; if (!el) return; tot += v; const p = el.getProps(['x', 'y'], false); if (v > 0) { edge = edge == null ? (horiz ? p.x : p.y) : (horiz ? Math.max(edge, p.x) : Math.min(edge, p.y)); } cross = horiz ? p.y : p.x; });
+        if (!tot || edge == null) continue; const txt = tot.toLocaleString('es-PE');
+        if (horiz) x.fillText(txt, edge + 10, cross); else x.fillText(txt, cross, edge - 8); }
+      x.restore(); } });
   // aplica las animaciones y el estilo «Hochschild» a una configuración de Chart.js
   function fx(cfg) {
     const type = cfg.type, o = cfg.options = cfg.options || {}, ds = (cfg.data && cfg.data.datasets) || [];
@@ -44,6 +54,11 @@
     } else if (type === 'bar') {
       o.animation = Object.assign({ duration: 1100, easing: 'easeOutBack', delay: c => ix(c) * 110 + di(c) * 200 }, o.animation || {});
       const horiz = o.indexAxis === 'y', stacked = !!(o.scales && ((o.scales.x && o.scales.x.stacked) || (o.scales.y && o.scales.y.stacked)));
+      if (stacked) { // cantidad dentro de cada nivel y total encima de la barra
+        if (o.hcStackTotal === undefined) o.hcStackTotal = {}; o.layout = o.layout || {}; o.layout.padding = Object.assign({}, o.layout.padding || {}, horiz ? { right: 70 } : { top: 46 });
+        ds.forEach(d => { const col = Array.isArray(d.backgroundColor) ? d.backgroundColor[0] : d.backgroundColor;
+          d.datalabels = Object.assign({}, d.datalabels || {}, { display: c => +c.dataset.data[c.dataIndex] > 0, anchor: 'center', align: 'center', clamp: true, color: lum(col) > .62 ? '#1a1917' : '#fff', font: { weight: '900', size: 22 }, formatter: v => (+v).toLocaleString('es-PE') }); });
+      }
       ds.forEach(d => { const base = d.backgroundColor; if (typeof base === 'function' || Array.isArray(base)) { if (Array.isArray(base)) d.backgroundColor = c => grad(c, base[c.dataIndex % base.length], horiz); return; } d.backgroundColor = c => grad(c, base, horiz); if (d.borderRadius == null) d.borderRadius = 10; if (!stacked) d.borderSkipped = false; });
     }
     // escalas: números enteros cuando todos los datos lo son; espacio arriba para la etiqueta del máximo
