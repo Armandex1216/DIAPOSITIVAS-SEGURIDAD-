@@ -79,3 +79,17 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 #g-hall .g2{bottom:250px}
 .gum-lect{position:absolute;bottom:118px;width:830px;font-size:24px!important;font-weight:600!important;color:#3b3a36!important;background:#faf6ee;border-left:6px solid #c39531;border-radius:12px;padding:14px 20px;text-align:left!important;box-sizing:border-box}
 .gum-lect.l{left:70px}.gum-lect.r{right:70px}
+
+/* índices por unidad (informe mensual) */
+.idxs.uidx{left:110px;top:215px;width:760px;gap:58px}
+.idxs.uidx .idx .circ{font-size:48px}
+.idxs.uidx .idx .lbl2{font-size:32px}
+.uac{position:absolute;right:80px;top:200px;width:820px;border-radius:28px;background:linear-gradient(#eef0f3,#e3e6ea);box-shadow:0 20px 40px -20px rgba(0,0,0,.35);padding:120px 40px 34px;box-sizing:border-box}
+.uac .hd{position:absolute;left:-40px;top:28px;width:560px;background:linear-gradient(90deg,#1d4f9c,#2f6db5);color:#fff;font-size:38px;font-weight:800;padding:20px 34px;border-radius:14px 14px 14px 0;box-shadow:0 12px 24px -12px rgba(0,0,0,.45)}
+.uac table{width:100%;font-size:26px}
+.uac table td:not(:first-child),.uac table th:not(:first-child){text-align:center}
+.uac .uac-l{text-align:left;font-size:23px;margin-top:22px}
+.camp-k{left:0;right:0;text-align:center}
+.camp-t{position:absolute;left:200px;right:200px;bottom:60px;font-size:30px}
+.undo-imp{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;background:#1a1917;color:#fff;border:0;border-radius:999px;padding:10px 20px;font:600 14px system-ui;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);cursor:pointer}
+.tt td.rk{font-weight:800}.tt td.rk.b{color:#1f5fa8}.tt td.rk.m{color:#b7791f}.tt td.rk.a{color:#e11d1d}

@@ -70,6 +70,16 @@
   }
 
   /* ---------- importación desde Safety HOC (análisis estadístico) ---------- */
+  // «Deshacer envío»: copia de la presentación antes de colocar los gráficos (dura 2 horas)
+  const UNDO = 'deck-undo:' + (document.body.dataset.deck || '') + ':' + (qs.get('d') || '');
+  try { const u = JSON.parse(localStorage.getItem(UNDO) || 'null');
+    if (u && Date.now() - u.t < 72e5 && D.store.meta.importado === u.imp) {
+      const b = document.createElement('button'); b.className = 'undo-imp'; b.textContent = '↶ Deshacer el último envío de Safety HOC';
+      b.onclick = () => { if (!confirm('¿Quitar los gráficos del último envío y dejar la presentación como estaba antes?')) return;
+        Object.keys(D.store).forEach(k => delete D.store[k]); Object.assign(D.store, u.store); localStorage.removeItem(UNDO); D.persist(); D.toast('Presentación restaurada'); setTimeout(() => location.reload(), 900); };
+      document.body.appendChild(b); setTimeout(() => b.remove(), 6e5);
+    } } catch (e) { }
+
   // Espera a tener la última versión de la nube para no perder los gráficos recibidos.
   const imp = qs.get('importar'); const cfg = window.NUBE || {};
   if (imp && cfg.url && cfg.key && D.store.meta.importado !== imp) {
@@ -78,7 +88,7 @@
       .then(r => r.json()).then(rows => {
         if (!rows || !rows[0]) { D.toast('No se encontró el envío de Safety HOC'); return; }
         const data = rows[0].data || {}, n = (data.graficos || []).length;
-        const done = () => { const first = applyImport(data); D.store.meta.importado = imp; D.persist();
+        const done = () => { try { localStorage.setItem(UNDO, JSON.stringify({ imp, t: Date.now(), store: D.store })); } catch (e) { } const first = applyImport(data); D.store.meta.importado = imp; D.persist();
           D.toast(n ? `${n} gráfico${n > 1 ? 's' : ''} de Safety HOC colocado${n > 1 ? 's' : ''} en la presentación` : 'Estadísticas de Safety HOC cargadas en la presentación', 4000);
           const u = new URL(location.href); u.searchParams.delete('importar'); if (first) u.hash = '#' + first; history.replaceState(null, '', u); setTimeout(() => location.reload(), 1200); };
         if (n) chooseDest(data).then(ok => { if (ok) done(); else { const u = new URL(location.href); u.searchParams.delete('importar'); history.replaceState(null, '', u); D.toast('Envío cancelado: no se cambió nada'); } }); else done(); })
@@ -90,8 +100,8 @@
     return new Promise(res => {
       const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
       const vis = D.slides.filter(sl => !sl.classList.contains('is-hidden')), title = sl => (sl.dataset.title || ($('h2,h1', sl) || {}).textContent || 'Lámina').trim();
-      const repl = vis.filter((sl, i) => i > 0 && !/cierre/i.test(sl.id + ' ' + (sl.dataset.title || '')));
-      const ac = vis.find(sl => /acuerdo/i.test(sl.id + ' ' + (sl.dataset.title || ''))), end = vis.find(sl => /cierre/i.test(sl.id + ' ' + (sl.dataset.title || '')));
+      const repl = vis.filter((sl, i) => i > 0 && !sl.hasAttribute('data-fija') && !/cierre/i.test(sl.id + ' ' + (sl.dataset.title || ''))); // índices, acta, campaña y cierre no se reemplazan
+      const ac = vis.find(sl => /acuerdo|pedido|campa/i.test(sl.id + ' ' + (sl.dataset.title || ''))), end = vis.find(sl => /cierre/i.test(sl.id + ' ' + (sl.dataset.title || '')));
       const def = (ac || end || {}).id || '';
       const slotSlide = g => { const cv = g.lugar && document.getElementById(g.lugar); return cv && cv.tagName === 'CANVAS' ? cv.closest('.slide') : null; };
       let m = $('.modal.dest'); if (!m) { m = document.createElement('div'); m.className = 'modal dest'; document.body.appendChild(m); }
@@ -141,7 +151,7 @@
     let at = sl.length - 1; const last = sl[at];
     if (!(last && (/cierre/i.test(last.id) || /cierre|gracias/i.test(last.dataset.title || '')))) at = sl.length;
     if (antes !== undefined) { const j = antes ? sl.findIndex(x => x.id === antes) : -1; at = j > 0 ? j : sl.length; } // «antes de»: elegido al recibir
-    else { const ac = sl.findIndex(x => /acuerdo/i.test(x.id) && !x.classList.contains('is-hidden')); if (ac > 0 && ac < at) at = ac; }
+    else { const ac = sl.findIndex(x => /acuerdo|pedido|campa/i.test(x.id) && !x.classList.contains('is-hidden')); if (ac > 0 && ac < at) at = ac; }
     let after = at > 0 ? sl[at - 1].id : null; const n0 = Date.now();
     const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     let k = 0, firstIdx = 0; const main = { after };
