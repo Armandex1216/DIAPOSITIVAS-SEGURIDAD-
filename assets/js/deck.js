@@ -34,7 +34,15 @@
       if (after && after.parentNode === stage) after.after(sl); else stage.appendChild(sl);
     });
   })();
-  slides = $$('.slide', stage);
+  /* ---------- orden de las láminas elegido por el usuario (meta.orden) ---------- */
+  // Las láminas que no están en la lista (nuevas) quedan justo después de la que tenían antes.
+  function applyOrder() {
+    const cur = $$('.slide', stage), orden = (store.meta && Array.isArray(store.meta.orden)) ? store.meta.orden : null; if (!orden) return cur;
+    const byId = Object.fromEntries(cur.map(s => [s.id, s])), out = orden.filter(id => byId[id]).filter((id, i, a) => a.indexOf(id) === i);
+    cur.forEach((s, i) => { if (out.includes(s.id)) return; let j = i - 1; while (j >= 0 && !out.includes(cur[j].id)) j--; out.splice(j < 0 ? 0 : out.indexOf(cur[j].id) + 1, 0, s.id); });
+    out.forEach(id => stage.appendChild(byId[id])); return out.map(id => byId[id]);
+  }
+  slides = applyOrder();
 
   const persist = () => { try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
@@ -43,6 +51,7 @@
     on(id, ev, fn) { (hooks[id + ':' + ev] = hooks[id + ':' + ev] || []).push(fn); },
     fire(sl, ev) { (hooks[sl.id + ':' + ev] || []).forEach(f => { try { f(sl); } catch (e) { console.error(e); } }); },
     go, next, prev, persist, editing: () => body.classList.contains('editing'),
+    move: (from, to) => moveSlide(from, to),
     num(el) { return parseNum(el ? el.textContent : '0'); }
   };
 
@@ -194,13 +203,26 @@
   addEventListener('touchend', e => { if (tx == null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) (dx < 0 ? next : prev)(); tx = null; });
   document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g && !D.editing()) { e.stopPropagation(); const t = g.dataset.go; const n = /^\d+$/.test(t) ? +t - 1 : slides.findIndex(s => s.id === t); if (n >= 0) go(n); } });
 
+  /* ---------- mover láminas (vista «Láminas» y editor) ---------- */
+  function moveSlide(from, to) {
+    if (from === to || from < 0 || to < 0 || from >= slides.length || to >= slides.length) return false;
+    const curEl = slides[D.i], [el] = slides.splice(from, 1); slides.splice(to, 0, el);
+    slides.forEach(sl => stage.appendChild(sl)); store.meta.orden = slides.map(sl => sl.id);
+    D.i = Math.max(0, slides.indexOf(curEl)); persist(); update(); return true;
+  }
   /* ---------- vista general (ir / ocultar) ---------- */
   function toggleOv() {
     if (ov.classList.toggle('on')) renderOv();
   }
   function renderOv() {
-    ov.innerHTML = `<h4>${document.title} · ${visibleIdx().length} de ${slides.length} láminas visibles</h4><p class="ovp">Clic en una lámina para ir a ella. Use «Ocultar» para que no aparezca al presentar ni en el PDF.</p><div class="ov-grid">${slides.map((s, i) => `<div class="ov ${i === D.i ? 'cur' : ''} ${isHidden(s) ? 'off' : ''}" data-n="${i}"><b>${String(i + 1).padStart(2, '0')}</b>${(s.dataset.title || ($('h2,h1', s) || {}).textContent || 'Lámina').trim()}<button class="eye" data-h="${s.id}">${isHidden(s) ? '👁 Mostrar' : '🚫 Ocultar'}</button></div>`).join('')}</div>`;
+    ov.innerHTML = `<h4>${document.title} · ${visibleIdx().length} de ${slides.length} láminas visibles</h4><p class="ovp">Clic en una lámina para ir a ella. Arrástrela (o use ◀ ▶) para cambiar el orden. «Ocultar» la saca de la presentación y del PDF.</p><div class="ov-grid">${slides.map((s, i) => `<div class="ov ${i === D.i ? 'cur' : ''} ${isHidden(s) ? 'off' : ''}" data-n="${i}"><b>${String(i + 1).padStart(2, '0')}</b>${(s.dataset.title || ($('h2,h1', s) || {}).textContent || 'Lámina').trim()}<button class="eye" data-h="${s.id}">${isHidden(s) ? '👁 Mostrar' : '🚫 Ocultar'}</button><span class="mv"><button data-mv="-1" title="Mover antes">◀</button><button data-mv="1" title="Mover después">▶</button></span></div>`).join('')}</div>`;
     $$('.ov', ov).forEach(c => c.onclick = e => { if (e.target.closest('.eye')) return; ov.classList.remove('on'); go(+c.dataset.n); });
+    $$('.ov', ov).forEach(c => { c.draggable = true;
+      c.ondragstart = e => { c.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.dataset.n); };
+      c.ondragend = () => c.classList.remove('drag');
+      c.ondragover = e => { e.preventDefault(); c.classList.add('over'); }; c.ondragleave = () => c.classList.remove('over');
+      c.ondrop = e => { e.preventDefault(); c.classList.remove('over'); const f = +e.dataTransfer.getData('text/plain'), t = +c.dataset.n; if (moveSlide(f, t)) renderOv(); }; });
+    $$('[data-mv]', ov).forEach(b => b.onclick = e => { e.stopPropagation(); const n = +b.closest('.ov').dataset.n; if (moveSlide(n, n + +b.dataset.mv)) renderOv(); });
     $$('.eye', ov).forEach(b => b.onclick = e => { e.stopPropagation(); const s = $('#' + b.dataset.h); store.hidden[s.id] = !isHidden(s); persist(); applyHidden(); update(); renderOv(); });
   }
   function toggleFs() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => { }); else document.exitFullscreen(); }
