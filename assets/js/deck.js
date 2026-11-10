@@ -341,13 +341,15 @@
     badge.innerHTML = on ? 'MODO MOVER · arrastre un elemento para moverlo · esquina dorada = tamaño · flechas para ajustar · Alt+clic elige el bloque mayor · M para terminar' : 'MODO EDICIÓN · clic en un texto o cifra para cambiarlo · «✎ Datos» en los gráficos · E para salir';
     if (!on) { selEl = null; drawSel(); persist(); toast('Posiciones guardadas'); }
   }
+  const ev0Shift = e => !!e.shiftKey;
   stage.addEventListener('pointerdown', e => {
     if (!D.moving()) return; if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
     const sl = slides[D.i]; const rz = e.target.closest('.rz');
     if (!rz) { let el = e.target.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
       if (!el || !sl.contains(el)) { selEl = null; drawSel(); return; } selEl = el; drawSel(); }
     if (!selEl) return; const [k, L] = lay(selEl), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = selEl.offsetWidth, h0 = selEl.offsetHeight, sc = D.scale;
-    const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc; if (rz) { L.w = Math.max(40, Math.round(w0 + dx)); L.h = Math.max(30, Math.round(h0 + dy)); } else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); } applyLayout(selEl, L); drawSel(); };
+    const ratio = !!(rz && !ev0Shift(e) && (selEl.classList.contains('fimg') || selEl.matches('img,.slot') || (selEl.querySelector('.slot,img') && !selEl.querySelector('canvas,[data-tbl],.ftx'))));
+    const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc; if (rz && ratio) { const q = Math.max((w0 + dx) / w0, (h0 + dy) / h0, 40 / w0); L.w = Math.round(w0 * q); L.h = Math.round(h0 * q); } else if (rz) { L.w = Math.max(40, Math.round(w0 + dx)); L.h = Math.max(30, Math.round(h0 + dy)); } else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); } applyLayout(selEl, L); drawSel(); };
     const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); persist(); const s2 = selEl && selEl.closest('.slide'); if (rz && s2) D.fire(s2, 'edited'); };
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
   }, true);
