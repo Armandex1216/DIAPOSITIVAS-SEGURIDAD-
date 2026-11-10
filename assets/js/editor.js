@@ -20,8 +20,8 @@
   bar.innerHTML = `
     <button data-c="bold" title="Negrita (Ctrl+B)"><b>N</b></button><button data-c="italic" title="Cursiva (Ctrl+I)"><i>K</i></button><button data-c="underline" title="Subrayado (Ctrl+U)"><u>S</u></button><button data-c="strikeThrough" title="Tachado"><s>ab</s></button>
     <span class="sep"></span>
-    <select data-c="size" title="Tamaño de letra"><option value="">Tamaño</option><option value=".6">Muy pequeño</option><option value=".8">Pequeño</option><option value="1">Normal</option><option value="1.25">Grande</option><option value="1.6">Muy grande</option><option value="2.2">Enorme</option></select>
-    <button data-c="smaller" title="Achicar letra">A−</button><button data-c="bigger" title="Agrandar letra">A+</button>
+    <button data-c="smaller" title="Achicar letra">A−</button><label class="fs-in" title="Tamaño de letra del texto seleccionado (px)"><input type="number" data-c="px" min="8" max="400" step="1" placeholder="Tam."><span>px</span></label><button data-c="bigger" title="Agrandar letra">A+</button>
+    <select data-c="size" title="Tamaños rápidos"><option value="">Tamaños</option><option value="18">18 · nota</option><option value="24">24 · pequeño</option><option value="32">32 · texto</option><option value="44">44 · subtítulo</option><option value="64">64 · título</option><option value="96">96 · grande</option><option value="140">140 · enorme</option></select>
     <span class="sep"></span>
     <div class="dd"><button data-dd="fc" title="Color de letra"><span class="ic-a">A</span><i class="bar-c" style="background:#d23c3c"></i></button><div class="pal" data-pal="foreColor">${COLORS.map(c => `<i style="background:${c}" data-col="${c}"></i>`).join('')}<label title="Otro color"><input type="color" data-colin="foreColor" value="#c39531">+</label></div></div>
     <div class="dd"><button data-dd="hl" title="Resaltar"><span class="ic-hl">ab</span></button><div class="pal" data-pal="hiliteColor"><i style="background:transparent" data-col="transparent" class="none" title="Sin resaltado">×</i>${['#fff3b8', '#d5f2e0', '#fbe1e1', '#dbe8fa', '#f2e6c8', '#c39531', '#1a1917'].map(c => `<i style="background:${c}" data-col="${c}"></i>`).join('')}</div></div>
@@ -36,12 +36,21 @@
   const activeEd = () => { const a = document.activeElement; return a && a.isContentEditable ? a.closest('[contenteditable="true"]') : null; };
   const keepSel = () => { const s = getSelection(); if (s.rangeCount && lastEd && lastEd.contains(s.anchorNode)) savedRange = s.getRangeAt(0).cloneRange(); };
   const restoreSel = () => { if (!savedRange || !lastEd) return; lastEd.focus(); const s = getSelection(); s.removeAllRanges(); s.addRange(savedRange); };
-  document.addEventListener('selectionchange', () => { if (D.editing() && activeEd()) { lastEd = activeEd(); keepSel(); showBar(); } });
+  document.addEventListener('selectionchange', () => { if (D.editing() && activeEd()) { lastEd = activeEd(); keepSel(); showBar(); showSize(); } });
   document.addEventListener('focusin', e => { if (D.editing() && e.target.isContentEditable) { lastEd = e.target.closest('[contenteditable="true"]'); showBar(); } });
   document.addEventListener('focusout', () => setTimeout(() => { if (!bar.contains(document.activeElement) && !activeEd()) bar.classList.remove('on'); }, 200));
   function showBar() { if (D.moving && D.moving()) return; bar.classList.add('on'); bar.classList.toggle('in-table', !!(lastEd && lastEd.closest('[data-tbl] td, [data-tbl] th'))); }
   const changed = () => { if (!lastEd) return; lastEd.dispatchEvent(new Event('input', { bubbles: true })); const t = lastEd.closest('[data-tbl]'); if (t) saveTable(t); };
   function exec(cmd, val) { restoreSel(); document.execCommand(cmd, false, val); keepSel(); changed(); }
+  function fontPx(px) { // tamaño exacto en píxeles para el texto seleccionado (o todo el cuadro si no hay selección)
+    px = Math.max(8, Math.min(400, Math.round(+px || 0))); if (!px) return;
+    restoreSel(); const s = getSelection();
+    if (!s.rangeCount || s.isCollapsed) { const fr = lastEd && lastEd.closest('.free'); if (fr && D.editor && D.editor.setStyle) { D.editor.setStyle(fr.dataset.fid, { fs: px }); return; } if (lastEd) { lastEd.style.fontSize = px + 'px'; changed(); } return; }
+    document.execCommand('styleWithCSS', false, false); document.execCommand('fontSize', false, '7'); document.execCommand('styleWithCSS', false, true);
+    $$('font[size="7"]', lastEd).forEach(f => { const sp = document.createElement('span'); sp.style.fontSize = px + 'px'; while (f.firstChild) sp.appendChild(f.firstChild); f.replaceWith(sp); });
+    changed(); showSize();
+  }
+  function showSize() { const inp = $('[data-c=px]', bar); if (!inp || document.activeElement === inp) return; const s = getSelection(); const n = s.anchorNode && (s.anchorNode.nodeType === 1 ? s.anchorNode : s.anchorNode.parentElement); if (n && lastEd && lastEd.contains(n)) inp.value = Math.round(parseFloat(getComputedStyle(n).fontSize)); }
   function fontSize(mult, rel) {
     restoreSel(); const s = getSelection(); if (!s.rangeCount || s.isCollapsed) { D.toast('Seleccione el texto que quiere cambiar'); return; }
     document.execCommand('styleWithCSS', false, false); document.execCommand('fontSize', false, '7'); document.execCommand('styleWithCSS', false, true);
@@ -50,7 +59,8 @@
       sp.style.fontSize = m + 'em'; while (f.firstChild) sp.appendChild(f.firstChild); f.replaceWith(sp); });
     changed();
   }
-  bar.addEventListener('mousedown', e => { if (!e.target.closest('select,input')) e.preventDefault(); });
+  bar.addEventListener('mousedown', e => { if (!e.target.closest('select,input,label')) e.preventDefault(); });
+  bar.addEventListener('keydown', e => { if (e.target.dataset.c === 'px' && e.key === 'Enter') { e.preventDefault(); fontPx(e.target.value); } });
   bar.addEventListener('click', e => {
     const b = e.target.closest('button,[data-col]'); if (!b) return;
     if (b.dataset.dd) { const dd = b.parentElement; $$('.dd.open', bar).forEach(x => x !== dd && x.classList.remove('open')); dd.classList.toggle('open'); return; }
@@ -62,7 +72,8 @@
   });
   bar.addEventListener('change', e => {
     const t = e.target;
-    if (t.dataset.c === 'size' && t.value) { fontSize(+t.value); t.value = ''; }
+    if (t.dataset.c === 'size' && t.value) { fontPx(+t.value); t.value = ''; }
+    if (t.dataset.c === 'px' && t.value) fontPx(t.value);
     if (t.dataset.colin) { exec(t.dataset.colin, t.value); $('.bar-c', bar).style.background = t.value; }
     if (t.dataset.t === 'fill') { cellFill(t.value); t.value = ''; }
   });
@@ -105,7 +116,7 @@
     return (ctx, d) => {
       const donut = kind === 'donut', P = d.colors && d.colors.length ? d.colors : pal, ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderWidth: donut ? 4 : (kind === 'line' ? 4 : 0), borderColor: donut ? '#fff' : P[i % P.length],
         backgroundColor: donut ? s.values.map((_, j) => P[j % P.length]) : P[i % P.length], borderRadius: kind === 'line' || donut ? 0 : 8, tension: .3, pointRadius: 7, pointBackgroundColor: P[i % P.length],
-        datalabels: { display: c => c.dataset.data[c.dataIndex] != null && c.dataset.data[c.dataIndex] !== 0, color: donut || kind === 'stack' ? '#fff' : '#1a1917', anchor: donut || kind === 'stack' ? 'center' : 'end', align: donut || kind === 'stack' ? 'center' : (kind === 'hbar' ? 'right' : 'top'), font: { weight: '900', size: 18 } } }));
+        datalabels: { formatter: v => v == null ? '' : (Math.round(v * 100) / 100).toLocaleString('es-PE') + (d.pct ? ' %' : ''), display: c => c.dataset.data[c.dataIndex] != null && c.dataset.data[c.dataIndex] !== 0, color: donut || kind === 'stack' ? '#fff' : '#1a1917', anchor: donut || kind === 'stack' ? 'center' : 'end', align: donut || kind === 'stack' ? 'center' : (kind === 'hbar' ? 'right' : 'top'), font: { weight: '900', size: 18 } } }));
       const cfg = { type: donut ? 'doughnut' : (kind === 'line' ? 'line' : 'bar'), data: { labels: d.labels, datasets: ds },
         options: { maintainAspectRatio: false, indexAxis: kind === 'hbar' ? 'y' : 'x', cutout: donut ? '58%' : undefined, layout: { padding: { top: 26, right: 30 } },
           plugins: { legend: { display: donut || d.series.length > 1, position: donut ? 'right' : 'top', labels: { font: { size: 18, weight: '700' }, boxWidth: 18 } } } } };
@@ -122,7 +133,9 @@
     if (f.t === 'chart') { el.innerHTML = `<div class="chartbox"><canvas id="fc-${fid}"></canvas></div>`; }
     if (f.t === 'table') { el.innerHTML = `<table class="t tt" data-tbl ${f.auto ? 'data-auto' : ''}>${f.html}</table>`; }
     if (f.t === 'box') { el.innerHTML = `<div class="fbox" style="background:${f.bg || '#1a1917'}"><div class="ftx">${f.html || 'Comentario'}</div></div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
-    layerOf(sl).appendChild(el);
+    if (f.t === 'bubble') { el.innerHTML = `<div class="bub"><div class="ftx">${f.html || 'Escriba aquí'}</div></div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
+    el.insertAdjacentHTML('beforeend', '<i class="fgrip" data-noedit contenteditable="false" title="Arrastre para mover">✥</i><i class="frz" data-noedit contenteditable="false" title="Arrastre para cambiar el tamaño"></i>');
+    layerOf(sl).appendChild(el); applyStyle(el, f);
     D.applyLayout(el, store.layout['free:' + fid]);
     if (f.t === 'img') D.initSlot($('.slot', el));
     if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, chartMake(f.kind), f.def); HC.colorable['fc-' + fid] = f.kind === 'donut' ? 'label' : 'series'; }
@@ -130,18 +143,125 @@
     return el;
   }
   function setEditable(root, on) { $$('.ftx, [data-tbl] td, [data-tbl] th', root).forEach(x => x.contentEditable = on && !(D.moving && D.moving()) ? 'true' : 'false'); }
-  Object.keys(store.free).forEach(renderFree);
-  D.onFreeDelete = fid => { const f = store.free[fid]; if (!f) return; delete store.free[fid]; delete store.layout['free:' + fid]; if (f.t === 'img') delete store.images['free-' + fid]; const el = $(`.free[data-fid="${fid}"]`); if (el) el.remove(); D.persist(); D.toast('Elemento eliminado'); };
+  D.onFreeDelete = fid => { const f = store.free[fid]; if (!f) return; if (typeof selectFree === 'function' && selF === fid) selectFree(null); delete store.free[fid]; delete store.layout['free:' + fid]; if (f.t === 'img') delete store.images['free-' + fid]; const el = $(`.free[data-fid="${fid}"]`); if (el) el.remove(); D.persist(); D.toast('Elemento eliminado'); };
 
   function addFree(t, extra) {
     const sl = cur(), fid = uid();
-    const L = { text: { x: 160, y: 300, w: 900, h: 0 }, box: { x: 160, y: 760, w: 1600, h: 170 }, img: { x: 1100, y: 260, w: 640, h: 420 }, chart: { x: 160, y: 260, w: 1000, h: 600 }, table: { x: 120, y: 260, w: 1680, h: 0 } }[t];
+    const L = { text: { x: 160, y: 300, w: 900, h: 0 }, bubble: { x: 640, y: 300, w: 620, h: 340 }, box: { x: 160, y: 760, w: 1600, h: 170 }, img: { x: 1100, y: 260, w: 640, h: 420 }, chart: { x: 160, y: 260, w: 1000, h: 600 }, table: { x: 120, y: 260, w: 1680, h: 0 } }[t];
     store.free[fid] = Object.assign({ s: sl.id, t }, extra || {}); store.layout['free:' + fid] = { x: L.x, y: L.y, w: L.w, h: L.h || undefined };
-    const el = renderFree(fid); D.persist();
+    const el = renderFree(fid); D.persist(); setTimeout(() => selectFree(fid), 60);
     if (t === 'chart') { D.fire(sl, 'enter'); setTimeout(() => HC.editData('fc-' + fid), 600); }
     setTimeout(() => { const tx = $('.ftx', el) || $('td', el); if (tx && D.editing()) { tx.focus(); document.execCommand('selectAll'); } }, 80);
-    D.toast('Elemento agregado · use «✥ Mover» para ubicarlo y cambiar su tamaño', 3200);
+    D.toast('Elemento agregado · arrástrelo con ✥ y cambie el tamaño con la esquina dorada', 3200);
   }
+
+
+  /* ================= lienzo tipo Canva: estilos, nubes, mover y capas ================= */
+  const FONTS = [['', 'Montserrat (de la plantilla)'], ['Montserrat, sans-serif', 'Montserrat'], ['Arial, Helvetica, sans-serif', 'Arial'], ['"Segoe UI", Tahoma, sans-serif', 'Segoe UI'], ['Georgia, "Times New Roman", serif', 'Georgia'], ['"Trebuchet MS", sans-serif', 'Trebuchet'], ['Impact, "Arial Black", sans-serif', 'Impact'], ['"Courier New", monospace', 'Courier'], ['"Comic Sans MS", "Comic Sans", cursive', 'Comic Sans']];
+  const SHAPES = { globo: 'Globo de diálogo', ovalo: 'Globo ovalado', nube: 'Nube de pensamiento', rect: 'Rectángulo', redondo: 'Rectángulo redondeado', circulo: 'Círculo', etiqueta: 'Etiqueta (flecha)', estrella: 'Explosión' };
+  const TAILS = { 'abajo-izq': 'Abajo izquierda', 'abajo-der': 'Abajo derecha', 'arriba-izq': 'Arriba izquierda', 'arriba-der': 'Arriba derecha', izq: 'Izquierda', der: 'Derecha', ninguna: 'Sin cola' };
+  const cloudSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 150' preserveAspectRatio='none'><path d='M58 132c-30 2-50-18-44-42-18-10-12-40 12-44 0-24 28-38 50-26 12-20 46-24 62-6 18-14 50-8 56 16 26 0 42 26 30 48 16 16 4 46-22 46-8 18-36 22-50 8-16 14-44 14-58 0-12 8-28 8-36 0z' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' vector-effect='non-scaling-stroke'/></svg>`)}")`;
+  const burstSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><polygon points='100,4 118,52 168,22 150,74 198,80 156,108 190,150 138,144 140,196 104,160 70,198 66,148 14,162 46,116 2,88 52,72 30,24 82,48' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>`)}")`;
+  function applyStyle(el, f) {
+    const st = f.st || {}, tx = $('.ftx', el);
+    if (tx) { tx.style.fontFamily = st.ff || ''; tx.style.fontSize = st.fs ? st.fs + 'px' : ''; tx.style.color = st.color || ''; tx.style.textAlign = st.al || ''; tx.style.fontWeight = st.bold ? '800' : ''; tx.style.fontStyle = st.it ? 'italic' : ''; tx.style.lineHeight = st.lh || ''; }
+    el.style.opacity = st.op != null && st.op < 1 ? st.op : '';
+    if (f.t === 'box') { const b = $('.fbox', el); if (b) { b.style.background = st.bg || f.bg || '#1a1917'; b.style.border = st.bw ? `${st.bw}px solid ${st.bc || '#c39531'}` : ''; } }
+    if (f.t === 'text') { el.style.background = st.bg || ''; el.style.padding = st.bg || st.bw ? '18px 26px' : ''; el.style.borderRadius = st.bg || st.bw ? '18px' : ''; el.style.border = st.bw ? `${st.bw}px solid ${st.bc || '#c39531'}` : ''; }
+    if (f.t === 'bubble') {
+      const shape = st.shape || 'globo', bg = st.bg || '#ffffff', bc = st.bc || '#c39531', bw = st.bw == null ? 4 : st.bw, b = $('.bub', el);
+      el.dataset.shape = shape; el.dataset.tail = ['globo', 'ovalo'].includes(shape) ? (st.tail || 'abajo-izq') : (shape === 'nube' ? (st.tail || 'abajo-izq') : 'ninguna');
+      el.style.setProperty('--bg', bg); el.style.setProperty('--bc', bc);
+      const svg = shape === 'nube' ? cloudSvg(bg, bw ? bc : 'none', bw) : shape === 'estrella' ? burstSvg(bg, bw ? bc : 'none', bw) : '';
+      b.style.backgroundImage = svg; b.style.backgroundColor = svg ? 'transparent' : bg;
+      // borde que también rodea la cola: varias sombras sin desenfoque
+      el.style.filter = (!svg && bw ? [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([x, y]) => `drop-shadow(${x * bw}px ${y * bw}px 0 ${bc})`).join(' ') + ' ' : '') + 'drop-shadow(0 14px 22px rgba(40,30,10,.22))';
+    }
+  }
+  let selF = null;
+  const fprops = document.createElement('div'); fprops.className = 'fprops'; fprops.setAttribute('data-noedit', '');
+  fprops.innerHTML = `<span class="fp-t">Elemento</span>
+    <select data-p="ff" title="Fuente">${FONTS.map(([v, n]) => `<option value='${v}'>${n}</option>`).join('')}</select>
+    <span class="fp-g"><button data-a="fs-" title="Letra más pequeña">A−</button><input data-p="fs" type="number" min="8" max="400" title="Tamaño de letra (px)"><button data-a="fs+" title="Letra más grande">A+</button></span>
+    <button data-a="bold" title="Negrita"><b>N</b></button><button data-a="it" title="Cursiva"><i>K</i></button>
+    <span class="fp-g"><button data-a="al:left" title="Izquierda">⯇</button><button data-a="al:center" title="Centrar">≡</button><button data-a="al:right" title="Derecha">⯈</button></span>
+    <label class="fp-c" title="Color de letra">A<input type="color" data-p="color"></label>
+    <label class="fp-c fp-bg" title="Color de fondo">▇<input type="color" data-p="bg"></label><button data-a="nobg" title="Quitar fondo">∅</button>
+    <label class="fp-c fp-bc" title="Color del borde">▢<input type="color" data-p="bc"></label>
+    <select data-p="bw" title="Grosor del borde"><option value="0">Sin borde</option><option value="2">Borde fino</option><option value="4">Borde medio</option><option value="8">Borde grueso</option></select>
+    <select data-p="shape" class="fp-sh" title="Forma">${Object.entries(SHAPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+    <select data-p="tail" class="fp-sh" title="Cola de la nube">${Object.entries(TAILS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+    <label class="fp-op" title="Transparencia">◐<input type="range" data-p="op" min="0.2" max="1" step="0.05"></label>
+    <span class="sep"></span>
+    <button data-a="up" title="Traer adelante">⬆</button><button data-a="down" title="Enviar atrás">⬇</button><button data-a="dup" title="Duplicar (Ctrl+D)">⧉ Duplicar</button><button data-a="del" class="fp-del" title="Eliminar (Supr)">🗑</button>`;
+  document.body.appendChild(fprops);
+  const fOf = fid => store.free[fid];
+  function setStyle(fid, patch) { const f = fOf(fid); if (!f) return; f.st = Object.assign({}, f.st, patch); const el = $(`.free[data-fid="${fid}"]`); if (el) applyStyle(el, f); if (f.t === 'chart' && window.HC && HC.builders['fc-' + fid]) HC.builders['fc-' + fid](false); saveSoon(); if (fid === selF) paintProps(); }
+  function paintProps() {
+    const f = fOf(selF); if (!f) return; const st = f.st || {}, el = $(`.free[data-fid="${selF}"]`), tx = el && $('.ftx', el);
+    const hasText = ['text', 'box', 'bubble'].includes(f.t);
+    fprops.classList.toggle('no-text', !hasText); fprops.classList.toggle('is-bub', f.t === 'bubble'); fprops.classList.toggle('no-bg', !['text', 'box', 'bubble'].includes(f.t));
+    $('.fp-t', fprops).textContent = { text: 'Texto', box: 'Recuadro', bubble: 'Nube / forma', img: 'Imagen', chart: 'Gráfico', table: 'Tabla' }[f.t] || 'Elemento';
+    $('[data-p=ff]', fprops).value = st.ff || ''; $('[data-p=fs]', fprops).value = st.fs || (tx ? Math.round(parseFloat(getComputedStyle(tx).fontSize)) : '');
+    $('[data-p=color]', fprops).value = st.color || (f.t === 'box' ? '#ffffff' : '#1a1917'); $('[data-p=bg]', fprops).value = st.bg || (f.t === 'box' ? (f.bg || '#1a1917') : '#ffffff'); $('[data-p=bc]', fprops).value = st.bc || '#c39531';
+    $('[data-p=bw]', fprops).value = String(st.bw == null ? (f.t === 'bubble' ? 4 : 0) : st.bw); $('[data-p=shape]', fprops).value = st.shape || 'globo'; $('[data-p=tail]', fprops).value = st.tail || 'abajo-izq'; $('[data-p=op]', fprops).value = st.op == null ? 1 : st.op;
+    $$('[data-a=bold],[data-a=it]', fprops).forEach(b => b.classList.toggle('on', !!st[b.dataset.a]));
+  }
+  function selectFree(fid) {
+    $$('.free.fsel').forEach(x => x.classList.remove('fsel')); selF = fid && fOf(fid) ? fid : null;
+    if (selF) { const el = $(`.free[data-fid="${selF}"]`); el && el.classList.add('fsel'); paintProps(); fprops.classList.add('on'); } else fprops.classList.remove('on');
+    body.classList.toggle('fp-on', !!selF);
+  }
+  function duplicateFree(fid) {
+    const f = fOf(fid); if (!f) return; const nf = uid(); store.free[nf] = JSON.parse(JSON.stringify(f));
+    const L = Object.assign({}, store.layout['free:' + fid]); L.x = (L.x || 0) + 40; L.y = (L.y || 0) + 40; store.layout['free:' + nf] = L;
+    if (store.images['free-' + fid] !== undefined) store.images['free-' + nf] = store.images['free-' + fid];
+    if (f.t === 'chart' && store.charts['fc-' + fid]) store.charts['fc-' + nf] = JSON.parse(JSON.stringify(store.charts['fc-' + fid]));
+    renderFree(nf); if (f.t === 'chart') D.fire(document.getElementById(f.s), 'enter'); D.persist(); selectFree(nf); D.toast('Elemento duplicado');
+  }
+  function layer(fid, dir) { const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}); const zs = Object.entries(store.free).filter(([, x]) => x.s === fOf(fid).s).map(([k]) => (store.layout['free:' + k] || {}).z || 1); L.z = Math.max(1, dir > 0 ? Math.max(...zs) + 1 : Math.min(...zs) - 1); D.applyLayout($(`.free[data-fid="${fid}"]`), L); D.persist(); }
+  fprops.addEventListener('mousedown', e => { if (!e.target.closest('select,input,label')) e.preventDefault(); });
+  fprops.addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b || !selF) return; const a = b.dataset.a, f = fOf(selF), st = f.st || {};
+    if (a === 'fs-' || a === 'fs+') { const cur = +$('[data-p=fs]', fprops).value || 32; setStyle(selF, { fs: Math.max(8, Math.round(cur * (a === 'fs+' ? 1.12 : 1 / 1.12))) }); }
+    else if (a === 'bold' || a === 'it') setStyle(selF, { [a]: !st[a] });
+    else if (a.startsWith('al:')) setStyle(selF, { al: a.slice(3) });
+    else if (a === 'nobg') setStyle(selF, { bg: f.t === 'bubble' ? 'transparent' : '' });
+    else if (a === 'up' || a === 'down') layer(selF, a === 'up' ? 1 : -1);
+    else if (a === 'dup') duplicateFree(selF);
+    else if (a === 'del') { const id = selF; selectFree(null); D.onFreeDelete(id); }
+  });
+  fprops.addEventListener('input', e => { const t = e.target, k = t.dataset.p; if (!k || !selF) return; if (k === 'fs' && !t.value) return; setStyle(selF, { [k]: ['fs', 'bw', 'op'].includes(k) ? +t.value : t.value }); });
+  // seleccionar con un clic (modo edición); clic fuera para soltar
+  document.addEventListener('pointerdown', e => {
+    if (!D.editing() || (D.moving && D.moving())) return;
+    if (e.target.closest('.fprops,.rt-bar,.ins-menu,.ui,.modal')) return;
+    const fr = e.target.closest('.free'); selectFree(fr ? fr.dataset.fid : null);
+  }, true);
+  // mover y cambiar tamaño sin salir del modo edición: asa ✥ y esquina dorada
+  document.addEventListener('pointerdown', e => {
+    if (!D.editing() || (D.moving && D.moving())) return; const h = e.target.closest('.fgrip,.frz'); if (!h) return;
+    e.preventDefault(); e.stopPropagation(); const el = h.closest('.free'), fid = el.dataset.fid, rz = h.classList.contains('frz');
+    const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = el.offsetWidth, h0 = el.offsetHeight, sc = D.scale || 1;
+    const guide = $('.snap-v', el.closest('.slide')) || el.closest('.slide').appendChild(Object.assign(document.createElement('div'), { className: 'snap-v' }));
+    body.classList.add('dragging');
+    const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc;
+      if (rz) { L.w = Math.max(60, Math.round(w0 + dx)); L.h = Math.max(40, Math.round(h0 + dy)); }
+      else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); const mid = L.x + el.offsetWidth / 2; const snap = Math.abs(mid - 960) < 14; if (snap) L.x = Math.round(960 - el.offsetWidth / 2); guide.classList.toggle('on', snap); }
+      D.applyLayout(el, L); };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); guide.classList.remove('on'); body.classList.remove('dragging'); D.persist(); if (rz) D.fire(el.closest('.slide'), 'edited'); const f = fOf(fid); if (f && f.t === 'chart' && HC.charts['fc-' + fid]) HC.charts['fc-' + fid].resize(); };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  }, true);
+  // teclado: Supr elimina, Ctrl+D duplica, flechas mueven (cuando no se está escribiendo)
+  document.addEventListener('keydown', e => {
+    if (!selF || !D.editing() || (D.moving && D.moving())) return; const a = document.activeElement; if (a && (a.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(a.tagName))) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); e.stopImmediatePropagation(); const id = selF; selectFree(null); D.onFreeDelete(id); }
+    else if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); e.stopImmediatePropagation(); duplicateFree(selF); }
+    else if (/^Arrow/.test(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); const L = store.layout['free:' + selF] || (store.layout['free:' + selF] = {}), d = e.shiftKey ? 10 : 2; if (e.key === 'ArrowLeft') L.x = (L.x || 0) - d; if (e.key === 'ArrowRight') L.x = (L.x || 0) + d; if (e.key === 'ArrowUp') L.y = (L.y || 0) - d; if (e.key === 'ArrowDown') L.y = (L.y || 0) + d; D.applyLayout($(`.free[data-fid="${selF}"]`), L); saveSoon(); }
+    else if (e.key === 'Escape') selectFree(null);
+  }, true);
+
+  Object.keys(store.free).forEach(renderFree); // dibujar los elementos guardados (después de definir estilos y formas)
 
   /* ================= láminas ================= */
   const hasCharts = sl => !!$('canvas, .needle', sl) && !sl.dataset.extra;
@@ -177,8 +297,12 @@
   const ui = $('.ui'); const ins = document.createElement('button'); ins.dataset.k = 'ins'; ins.className = 'ins-btn'; ins.textContent = '＋ Insertar'; ins.title = 'Agregar texto, imagen, gráfico, tabla o una lámina nueva';
   ui && ui.insertBefore(ins, $('[data-k=move]', ui) ? $('[data-k=move]', ui).nextSibling : null);
   const menu = document.createElement('div'); menu.className = 'ins-menu'; menu.setAttribute('data-noedit', '');
-  menu.innerHTML = `<h5>En esta lámina</h5>
-    <button data-i="text">🅃 Cuadro de texto</button><button data-i="box">▭ Recuadro de comentario</button><button data-i="img">🖼 Imagen</button>
+  menu.innerHTML = `<h5>Textos</h5>
+    <div class="sub-ins"><button data-i="text" data-pre="title" class="pre-t">Título</button><button data-i="text" data-pre="sub" class="pre-s">Subtítulo</button><button data-i="text" data-pre="body">Texto normal</button><button data-i="box">▭ Recuadro oscuro</button></div>
+    <h5>Nubes de texto y formas</h5>
+    <div class="sub-ins shapes">${Object.entries(SHAPES).map(([k, v]) => `<button data-i="bubble" data-shape="${k}" title="${v}"><i class="sh-${k}"></i>${v}</button>`).join('')}</div>
+    <h5>En esta lámina</h5>
+    <button data-i="img">🖼 Imagen</button>
     <div class="sub-ins"><span>📊 Gráfico:</span>${Object.entries(KINDS).map(([k, v]) => `<button data-i="chart" data-kind="${k}">${v}</button>`).join('')}</div>
     <button data-i="table">▦ Tabla</button>
     <h5>Láminas</h5>
@@ -190,7 +314,8 @@
   document.addEventListener('click', e => { if (!menu.contains(e.target) && e.target !== ins) menu.classList.remove('on'); if (!e.target.closest('.dd')) $$('.dd.open', bar).forEach(x => x.classList.remove('open')); });
   menu.addEventListener('click', e => {
     const b = e.target.closest('[data-i]'); if (!b) return; e.stopPropagation(); menu.classList.remove('on'); const k = b.dataset.i;
-    if (k === 'text') addFree('text', { html: '<b>Título</b><br>Escriba aquí su texto' });
+    if (k === 'text') { const pre = b.dataset.pre; if (pre === 'title') addFree('text', { html: 'Título', st: { fs: 80, bold: true } }); else if (pre === 'sub') addFree('text', { html: 'Subtítulo', st: { fs: 48, bold: true, color: '#9a7422' } }); else addFree('text', { html: 'Escriba aquí su texto', st: { fs: 32 } }); }
+    else if (k === 'bubble') { const sh = b.dataset.shape; addFree('bubble', { html: sh === 'estrella' ? '<b>¡Atención!</b>' : 'Escriba aquí su mensaje', st: { shape: sh, fs: sh === 'estrella' ? 44 : 32, al: 'center', bg: sh === 'estrella' ? '#e6a316' : sh === 'etiqueta' ? '#c39531' : '#ffffff', bw: ['estrella', 'etiqueta'].includes(sh) ? 0 : 4 } }); }
     else if (k === 'box') addFree('box', { html: 'Escriba aquí el comentario o conclusión.' });
     else if (k === 'img') addFree('img');
     else if (k === 'chart') { const kind = b.dataset.kind; addFree('chart', { kind, def: kind === 'donut' ? { labels: ['Opción A', 'Opción B', 'Opción C'], series: [{ name: 'Valores', values: [50, 30, 20] }] } : { labels: ['Pallancata', 'Selene', 'Presa'], series: [{ name: 'Serie 1', values: [12, 8, 15] }].concat(kind === 'stack' ? [{ name: 'Serie 2', values: [4, 6, 3] }] : []) } }); }
@@ -202,11 +327,11 @@
   const sync = () => { const ed = D.editing(), mv = D.moving && D.moving();
     $$('.free-layer').forEach(l => setEditable(l, ed));
     $$('[data-tbl]').filter(t => !t.closest('.free')).forEach(t => $$('td,th', t).forEach(c => c.contentEditable = ed && !mv ? 'true' : 'false'));
-    if (!ed || mv) { bar.classList.remove('on'); menu.classList.remove('on'); }
+    if (!ed || mv) { bar.classList.remove('on'); menu.classList.remove('on'); if (typeof selectFree === 'function') selectFree(null); }
     if (!ed) $$('[data-tbl]').forEach(paintTable);
   };
   new MutationObserver(sync).observe(body, { attributes: true, attributeFilter: ['class'] }); sync();
   // aparición suave de los elementos libres al entrar a la lámina
-  D.slides.forEach(sl => D.on(sl.id, 'enter', () => { if (D.editing()) return; const els = $$('.free', sl); if (els.length && window.gsap) gsap.fromTo(els, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .7, delay: .35, stagger: .08, ease: 'power3.out', clearProps: 'opacity,transform' }); }));
-  D.editor = { addFree, newSlide, renderFree, paintTable };
+  D.slides.forEach(sl => D.on(sl.id, 'enter', () => { if (D.editing()) return; const els = $$('.free', sl); if (els.length && window.gsap) gsap.fromTo(els, { opacity: 0, marginTop: 30 }, { opacity: 1, marginTop: 0, duration: .7, delay: .35, stagger: .08, ease: 'power3.out', clearProps: 'opacity,marginTop' }); })); // sin tocar «translate», que guarda la posición del elemento
+  D.editor = { addFree, newSlide, renderFree, paintTable, setStyle, selectFree };
 })();

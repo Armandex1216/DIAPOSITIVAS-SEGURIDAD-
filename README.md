@@ -25,12 +25,24 @@ El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con u
 - En el inicio, entrar a una carpeta → **＋ Nueva presentación** → elegir plantilla, fecha y título. Se puede copiar el contenido de la última de la carpeta para solo actualizarla.
 - Plantillas: `gum.html` (Reunión GUM, martes), `riesgos-opt.html` (Análisis de eventos y riesgos críticos, sábados), `riesgos-corp.html` (Riesgos críticos corporativo), `csst-noviembre-2026.html` (CSST) y `blanco.html`.
 - Cada presentación se abre como `<plantilla>.html?d=<id>` y guarda sus cambios en la nube con ese id. Menú «⋯» en la tarjeta: renombrar, cambiar fecha o eliminar.
-- Desde **Safety HOC Intelligence** → «Enviar a PPT GUM» se abre la creación de una GUM con las estadísticas del periodo (`index.html#gum&importar=<id>`).
+- Desde **Safety HOC** (análisis estadístico) → «Enviar a diapositivas» se abre `index.html#enviar&importar=<id>` para elegir dónde van los gráficos.
 
-## Editor
-- **✎ Editar**: barra de formato al escribir (negrita, cursiva, subrayado, tachado, tamaño, color de letra, resaltado, alineación, viñetas). En tablas: + fila / − fila / + columna / − columna y color de celda; los % de avance se colorean solos.
-- **＋ Insertar**: cuadro de texto, recuadro de comentario, imagen, gráfico (barras, horizontal, líneas, dona, apilado) con datos editables en vivo, tabla; láminas en blanco, duplicar, mover o eliminar lámina.
-- **✥ Mover**: arrastrar y cambiar tamaño de cualquier elemento; los elementos agregados se eliminan con «🗑 Eliminar».
+## Editor (como Canva)
+- **✎ Editar** (tecla E) y luego **＋ Insertar**:
+  - **Textos**: Título, Subtítulo, Texto normal o Recuadro oscuro.
+  - **Nubes de texto y formas**: globo de diálogo, globo ovalado, nube de pensamiento, rectángulo, rectángulo redondeado, círculo, etiqueta con flecha y explosión.
+  - Imagen, gráfico (barras, horizontal, líneas, dona, apilado) con datos editables, tabla, y láminas nuevas o duplicadas.
+- **Un clic en un elemento** abre su panel arriba: fuente, **tamaño de letra en px** (A− / A+), negrita, cursiva, alineación, color de letra, color de fondo, borde, forma y cola de la nube, transparencia, traer adelante / enviar atrás, **duplicar** y eliminar.
+- **Mover sin cambiar de modo**: arrastre el círculo dorado ✥ para mover y la esquina dorada para cambiar el tamaño. Al centrar aparece una guía roja. Flechas = ajuste fino (Mayús = 10 px), **Supr** elimina, **Ctrl+D** duplica, **Esc** suelta.
+- **Barra de formato** al escribir: negrita, cursiva, subrayado, tachado, **tamaño exacto en px** para el texto seleccionado (o tamaños rápidos), color, resaltado, alineación y viñetas. En tablas: + fila / − fila / + columna / − columna y color de celda.
+- **✥ Mover** (tecla M) sigue disponible para mover los elementos propios de la plantilla.
+
+## Gráficos enviados desde Safety HOC
+En el análisis estadístico se eligen los gráficos con «Agregar a la presentación» y se envían. Aquí aparece un aviso para elegir:
+- **Presentación nueva**: carpeta y plantilla (la GUM además llena sus cifras automáticamente).
+- **Agregar a una que ya existe**: los gráficos se agregan antes de la lámina de cierre.
+
+Cada gráfico llega como una lámina con título, gráfico editable («✎ Datos del gráfico») y un recuadro con su lectura.
 
 ## Guardado en la nube (Supabase)
 - Edición libre: no hay inicio de sesión. Todo lo que se edita (textos, cifras, gráficos, imágenes, posiciones, láminas ocultas) se guarda solo en la nube y todos lo ven al abrir.

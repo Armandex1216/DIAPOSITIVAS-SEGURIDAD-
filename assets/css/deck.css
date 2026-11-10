@@ -253,3 +253,70 @@ table.tt td.f-gold{background:#c39531;color:#1a1917}table.tt td.f-dark{backgroun
 body.editing [data-tbl] td:focus,body.editing [data-tbl] th:focus{outline:3px solid var(--gold);outline-offset:-3px}
 @media print{.rt-bar,.ins-menu{display:none!important}body .free{outline:none!important}}
 .mtab input.mcol{width:38px;height:30px;padding:0;border:1px solid #e2d8c2;border-radius:6px;background:#fff;margin-top:4px;cursor:pointer}
+
+/* ===== lienzo tipo Canva: nubes de texto, formas, panel de estilo y asas ===== */
+.rt-bar .fs-in{display:inline-flex;align-items:center;gap:2px;border:1px solid #e6dcc6;border-radius:8px;background:#faf6ee;padding:0 6px}
+.rt-bar .fs-in input{width:52px;border:0;background:transparent;font:800 13px Montserrat,sans-serif;padding:6px 2px;text-align:center;outline:0}.rt-bar .fs-in span{font-size:11px;color:#8d8a83;font-weight:700}
+.fprops{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-12px);z-index:97;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;max-width:96vw;background:#1a1917;color:#fff;border-radius:16px;padding:7px 10px;box-shadow:0 20px 50px -18px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:.2s;font:700 13px Montserrat,sans-serif}
+.fprops.on{opacity:1;pointer-events:auto;transform:translateX(-50%)}
+body.fp-on .rt-bar{top:112px}
+.fprops .fp-t{color:#e8c97f;letter-spacing:.14em;text-transform:uppercase;font-size:11px;font-weight:900;padding:0 6px}
+.fprops button,.fprops select,.fprops input[type=number]{font:700 13px Montserrat,sans-serif;border:0;background:rgba(255,255,255,.08);color:#fff;border-radius:9px;padding:7px 9px;cursor:pointer;min-width:30px}
+.fprops select option{color:#1a1917}
+.fprops button:hover,.fprops button.on{background:#c39531;color:#1a1917}
+.fprops input[type=number]{width:58px;text-align:center;cursor:text}
+.fprops .fp-g{display:inline-flex;gap:2px}
+.fprops .fp-c{position:relative;width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-weight:900;cursor:pointer;overflow:hidden}
+.fprops .fp-c input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.fprops .fp-op{display:inline-flex;align-items:center;gap:4px}.fprops .fp-op input{width:70px;accent-color:#c39531}
+.fprops .sep{width:1px;height:24px;background:rgba(255,255,255,.18);margin:0 4px}
+.fprops .fp-del{background:#9e1f1f}
+.fprops:not(.is-bub) .fp-sh{display:none}
+.fprops.no-text [data-p=ff],.fprops.no-text .fp-g,.fprops.no-text [data-a=bold],.fprops.no-text [data-a=it],.fprops.no-text [data-p=color],.fprops.no-text .fp-c:first-of-type{display:none}
+.fprops.no-bg .fp-bg,.fprops.no-bg [data-a=nobg],.fprops.no-bg .fp-bc,.fprops.no-bg [data-p=bw]{display:none}
+/* asas: mover (✥) y tamaño (esquina dorada), visibles en modo edición */
+.free .fgrip,.free .frz{display:none}
+body.editing:not(.moving) .free .fgrip{display:grid;place-items:center;position:absolute;left:-18px;top:-18px;width:36px;height:36px;border-radius:50%;background:#c39531;color:#1a1917;font-style:normal;font-size:20px;font-weight:900;cursor:move;box-shadow:0 6px 14px rgba(0,0,0,.35);z-index:3;opacity:0;transition:opacity .2s;user-select:none}
+body.editing:not(.moving) .free .frz{display:block;position:absolute;right:-14px;bottom:-14px;width:26px;height:26px;border-radius:8px;background:#c39531;border:4px solid #fff;cursor:nwse-resize;box-shadow:0 4px 12px rgba(0,0,0,.35);z-index:3;opacity:0;transition:opacity .2s}
+body.editing .free:hover .fgrip,body.editing .free:hover .frz,body.editing .free.fsel .fgrip,body.editing .free.fsel .frz{opacity:1}
+body.editing .free.fsel{outline:3px solid #c39531!important;outline-offset:6px}
+body.dragging,body.dragging *{user-select:none!important;cursor:move}
+.snap-v{position:absolute;left:960px;top:0;bottom:0;width:0;border-left:2px dashed #d23c3c;z-index:90;display:none;pointer-events:none}.snap-v.on{display:block}
+/* nubes y formas */
+.free.fbubble{--bg:#fff;--bc:#c39531}
+.free.fbubble .bub{position:relative;width:100%;height:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:28px 40px;background:var(--bg);border-radius:40px;background-size:100% 100%;background-repeat:no-repeat}
+.free.fbubble .ftx{width:100%;font-size:32px;color:#1a1917}
+.slide.dark .free.fbubble .ftx{color:#1a1917}
+.free.fbubble[data-shape=ovalo] .bub{border-radius:50%;padding:12% 14%}
+.free.fbubble[data-shape=rect] .bub{border-radius:4px}
+.free.fbubble[data-shape=redondo] .bub{border-radius:28px}
+.free.fbubble[data-shape=circulo] .bub{border-radius:50%;padding:16%}
+.free.fbubble[data-shape=etiqueta] .bub{border-radius:0;clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%);padding-right:16%}
+.free.fbubble[data-shape=nube] .bub{border-radius:0;padding:14% 16% 16%}
+.free.fbubble[data-shape=estrella] .bub{border-radius:0;padding:22% 22%}
+/* cola de los globos */
+.free.fbubble .bub::after{content:"";position:absolute;width:70px;height:62px;background:var(--bg);display:none}
+.free.fbubble[data-shape=globo] .bub::after,.free.fbubble[data-shape=ovalo] .bub::after{display:block}
+.free.fbubble[data-tail=ninguna] .bub::after{display:none!important}
+.free.fbubble[data-tail=abajo-izq] .bub::after{left:14%;top:calc(100% - 2px);clip-path:polygon(0 0,100% 0,8% 100%)}
+.free.fbubble[data-tail=abajo-der] .bub::after{right:14%;top:calc(100% - 2px);clip-path:polygon(0 0,100% 0,92% 100%)}
+.free.fbubble[data-tail=arriba-izq] .bub::after{left:14%;bottom:calc(100% - 2px);clip-path:polygon(8% 0,100% 100%,0 100%)}
+.free.fbubble[data-tail=arriba-der] .bub::after{right:14%;bottom:calc(100% - 2px);clip-path:polygon(92% 0,100% 100%,0 100%)}
+.free.fbubble[data-tail=izq] .bub::after{right:calc(100% - 2px);top:40%;clip-path:polygon(0 50%,100% 0,100% 100%)}
+.free.fbubble[data-tail=der] .bub::after{left:calc(100% - 2px);top:40%;clip-path:polygon(0 0,100% 50%,0 100%)}
+/* nube de pensamiento: burbujas pequeñas */
+.free.fbubble[data-shape=nube] .bub::before,.free.fbubble[data-shape=nube] .bub::after{content:"";position:absolute;display:block;border-radius:50%;background:var(--bg);border:4px solid var(--bc);clip-path:none;box-sizing:border-box}
+.free.fbubble[data-shape=nube] .bub::before{width:46px;height:46px;left:16%;top:calc(100% - 4px)}
+.free.fbubble[data-shape=nube] .bub::after{width:26px;height:26px;left:10%;top:calc(100% + 40px)}
+.free.fbubble[data-shape=nube][data-tail=ninguna] .bub::before{display:none}
+.free.fbubble[data-shape=nube][data-tail=abajo-der] .bub::before{left:auto;right:16%}.free.fbubble[data-shape=nube][data-tail=abajo-der] .bub::after{left:auto;right:10%}
+/* íconos del menú insertar */
+.ins-menu .shapes button{display:inline-flex;align-items:center;gap:8px}
+.ins-menu .shapes i{display:inline-block;width:26px;height:18px;background:#fff;border:2px solid #c39531;flex:none}
+.ins-menu .sh-globo{border-radius:9px}.ins-menu .sh-ovalo,.ins-menu .sh-circulo{border-radius:50%}.ins-menu .sh-circulo{width:18px!important}
+.ins-menu .sh-redondo{border-radius:6px}.ins-menu .sh-nube{border-radius:10px 12px 8px 12px;box-shadow:4px -3px 0 -1px #fff,4px -3px 0 1px #c39531}
+.ins-menu .sh-etiqueta{clip-path:polygon(0 0,75% 0,100% 50%,75% 100%,0 100%);background:#c39531!important}
+.ins-menu .sh-estrella{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:#e6a316!important;border:0!important}
+.ins-menu .pre-t{font-size:17px!important;font-weight:900!important}.ins-menu .pre-s{font-size:15px!important;color:#9a7422!important}
+.ins-menu{max-height:calc(100vh - 110px);overflow:auto;width:min(560px,94vw)}
+@media print{.fprops,.snap-v{display:none!important}.free .fgrip,.free .frz{display:none!important}}

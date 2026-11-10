@@ -20,14 +20,15 @@
   let local = null; try { local = JSON.parse(localStorage.getItem(LSK) || 'null'); } catch (e) { }
   const store = merge(fileEdits, local);
   /* ---------- láminas creadas por el usuario (en blanco o duplicadas) ---------- */
-  const BLANK = t => `<div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><div class="sh"><div class="kick" data-a="left">Sección</div><h2 data-a="up">${t || 'Título de la lámina'}</h2></div>`;
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const BLANK = (t, k) => `<div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><div class="sh"><div class="kick" data-a="left">${esc(k || 'Sección')}</div><h2 data-a="up">${esc(t || 'Título de la lámina')}</h2></div>`;
   (function buildExtraSlides() {
     const base = {}; $$('.slide', stage).forEach(sl => base[sl.id] = sl.cloneNode(true));
     const list = Object.entries(store.slides).filter(([, v]) => v && !v.removed).sort((a, b) => (a[1].n || 0) - (b[1].n || 0));
     list.forEach(([id, v]) => {
       let sl;
       if (v.base && base[v.base]) { sl = base[v.base].cloneNode(true); sl.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); sl.querySelectorAll('[data-slot]').forEach(e => e.dataset.slot = e.dataset.slot + '@' + id); sl.removeAttribute('data-hidden'); }
-      else { sl = document.createElement('section'); sl.className = 'slide ' + (v.dark ? 'dark' : 'light'); sl.innerHTML = BLANK(v.title); }
+      else { sl = document.createElement('section'); sl.className = 'slide ' + (v.dark ? 'dark' : 'light'); sl.innerHTML = BLANK(v.title, v.kick); }
       sl.id = id; sl.dataset.title = v.title || (v.base ? 'Copia' : 'Lámina nueva'); sl.dataset.extra = '1';
       const after = v.after && document.getElementById(v.after);
       if (after && after.parentNode === stage) after.after(sl); else stage.appendChild(sl);
@@ -96,16 +97,20 @@
     rise: { y: 140, opacity: 0, scale: .96 }, blur: { opacity: 0, filter: 'blur(14px)', scale: 1.06 }
   };
   const animTargets = sl => $$('[data-a]', sl).filter(el => !el.closest('[data-frag]'));
+  // Los elementos animados guardan su posición de «Mover» dentro de GSAP (x/y): si se usara la propiedad CSS «translate»,
+  // GSAP la absorbe al animar y el elemento vuelve a su lugar original.
+  const ANIM_SEL = '[data-a],[data-frag],[data-tbl] tbody tr,.rich li,ul.cmb li,.rings .r,.gpct,.cm,.side-txt,.fl';
+  const bx = el => (el._lay && el._lay.x) || 0, by = el => (el._lay && el._lay.y) || 0;
   function resetSlide(sl) {
     if (D.editing()) return;
-    animTargets(sl).forEach(el => { gsap.killTweensOf(el); const f = FROM[el.dataset.a] || FROM.up; const { ease, ...st } = f; gsap.set(el, st); });
-    $$('[data-frag]', sl).forEach(el => { gsap.set(el, { opacity: 0, y: 30 }); el.classList.remove('shown'); });
+    animTargets(sl).forEach(el => { gsap.killTweensOf(el); const f = FROM[el.dataset.a] || FROM.up; const { ease, ...st } = f; st.x = (st.x || 0) + bx(el); st.y = (st.y || 0) + by(el); gsap.set(el, st); });
+    $$('[data-frag]', sl).forEach(el => { gsap.set(el, { opacity: 0, x: bx(el), y: by(el) + 30 }); el.classList.remove('shown'); });
     $$('[data-draw]', sl).forEach(p => { const L = p.getTotalLength ? p.getTotalLength() : 1000; gsap.set(p, { strokeDasharray: L, strokeDashoffset: L }); });
     $$('[data-count]', sl).forEach(el => { el.textContent = fmtNum(0, el); });
   }
   function showAll(sl) {
-    animTargets(sl).forEach(el => { gsap.killTweensOf(el); gsap.set(el, { opacity: 1, x: 0, y: 0, scale: 1, scaleX: 1, rotationX: 0, filter: 'none' }); });
-    $$('[data-frag]', sl).forEach(el => { gsap.set(el, { opacity: 1, y: 0 }); el.classList.add('shown'); });
+    animTargets(sl).forEach(el => { gsap.killTweensOf(el); gsap.set(el, { opacity: 1, x: bx(el), y: by(el), scale: 1, scaleX: 1, rotationX: 0, filter: 'none' }); });
+    $$('[data-frag]', sl).forEach(el => { gsap.set(el, { opacity: 1, x: bx(el), y: by(el) }); el.classList.add('shown'); });
     $$('[data-draw]', sl).forEach(p => gsap.set(p, { strokeDashoffset: 0 }));
     $$('[data-count]', sl).forEach(el => { gsap.killTweensOf(el._o || {}); el.textContent = fmtNum(parseFloat(el.dataset.count), el); });
   }
@@ -114,7 +119,7 @@
     const tl = gsap.timeline({ delay: base }); let t = 0;
     animTargets(sl).forEach(el => {
       const f = FROM[el.dataset.a] || FROM.up; const d = parseFloat(el.dataset.d || 0);
-      const to = { x: 0, y: 0, scale: 1, scaleX: 1, rotationX: 0, opacity: 1, duration: parseFloat(el.dataset.dur || .8), ease: f.ease || 'power3.out' };
+      const to = { x: bx(el), y: by(el), scale: 1, scaleX: 1, rotationX: 0, opacity: 1, duration: parseFloat(el.dataset.dur || .8), ease: f.ease || 'power3.out' };
       if (el.dataset.a === 'blur') { to.filter = 'blur(0px)'; to.clearProps = 'filter'; }
       const at = el.dataset.at != null ? parseFloat(el.dataset.at) : t + d;
       tl.to(el, to, at); t = at + parseFloat(el.dataset.gap || .09);
@@ -126,7 +131,7 @@
     D.fire(sl, 'enter');
   }
   function countUp(el, delay) { const target = parseFloat(el.dataset.count); const o = el._o = { v: 0 }; gsap.to(o, { v: target, duration: parseFloat(el.dataset.cdur || 1.6), delay, ease: 'power2.out', onUpdate: () => { el.textContent = fmtNum(o.v, el); } }); }
-  function showFrag(el) { el.classList.add('shown'); gsap.to(el, { opacity: 1, y: 0, duration: .55, ease: 'power3.out' }); $$('[data-count]', el).forEach(c => countUp(c, .1)); D.fire(slides[D.i], 'frag'); }
+  function showFrag(el) { el.classList.add('shown'); gsap.to(el, { opacity: 1, y: by(el), duration: .55, ease: 'power3.out' }); $$('[data-count]', el).forEach(c => countUp(c, .1)); D.fire(slides[D.i], 'frag'); }
 
   /* ---------- láminas ocultas ---------- */
   const isHidden = sl => store.hidden[sl.id] != null ? store.hidden[sl.id] : sl.hasAttribute('data-hidden');
@@ -293,7 +298,10 @@
   const MOVE_SEL = '.free,.card,.insight,.chartbox,.slot,.sh,.gauge,.mo,.ac,.ag,.ag-hub,.photos,.lab,.hx,.slogan,.ttl,.logo,.lg,.q,.donut,.kv,.months,.units,.unit,.mark,.tags,.hht,.big,.date,.kick,h1,h2,h3,dl,ul,table,.pill,.evd>*,.ins>*,.passo>*';
   const movables = sl => $$(MOVE_SEL, sl).filter(el => (!el.closest('.chartbox') || el.classList.contains('chartbox')) && !el.closest('.free-layer'));
   const mkey = (sl, el) => el.dataset.fid ? 'free:' + el.dataset.fid : sl.id + ':' + movables(sl).indexOf(el);
-  function applyLayout(el, L) { el.style.translate = L && (L.x || L.y) ? `${L.x || 0}px ${L.y || 0}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
+  function applyLayout(el, L) {
+    const x = (L && L.x) || 0, y = (L && L.y) || 0;
+    if (window.gsap && el.matches(ANIM_SEL)) { el._lay = { x, y }; el.style.translate = ''; gsap.set(el, { x, y }); }
+    else el.style.translate = x || y ? `${x}px ${y}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
   function loadLayout() { slides.forEach(sl => movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); })); }
   let selEl = null; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
   D.moving = () => body.classList.contains('moving');
@@ -324,7 +332,7 @@
   document.addEventListener('keydown', e => { if (!D.moving() || !selEl || !/^Arrow/.test(e.key)) return; e.preventDefault(); e.stopImmediatePropagation(); const [k, L] = lay(selEl), d = e.shiftKey ? 10 : 1;
     if (e.key === 'ArrowLeft') L.x = (L.x || 0) - d; if (e.key === 'ArrowRight') L.x = (L.x || 0) + d; if (e.key === 'ArrowUp') L.y = (L.y || 0) - d; if (e.key === 'ArrowDown') L.y = (L.y || 0) + d; applyLayout(selEl, L); drawSel(); persist(); }, true);
   addEventListener('resize', drawSel);
-  D.toggleMove = toggleMove; D.applyLayout = applyLayout; D.drawSel = drawSel; D.select = el => { selEl = el; drawSel(); }; D.textKey = el => { const sl = el.closest('.slide'), list = editablesIn(sl); return keyOf(sl, el, list); };
+  D.toggleMove = toggleMove; D.applyLayout = applyLayout; D.ANIM_SEL = ANIM_SEL; D.base = el => ({ x: bx(el), y: by(el) }); D.drawSel = drawSel; D.select = el => { selEl = el; drawSel(); }; D.textKey = el => { const sl = el.closest('.slide'), list = editablesIn(sl); return keyOf(sl, el, list); };
 
   /* ---------- seguro para proyector (HDMI) ---------- */
   // pantalla negra / blanca: B o . (control remoto) · W o ,
