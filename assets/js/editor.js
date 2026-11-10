@@ -285,11 +285,9 @@
       store.slides[sl.id].removed = true; for (const [fid, f] of Object.entries(store.free)) if (f.s === sl.id) delete store.free[fid];
       return goReload(Math.max(0, D.i - 1));
     }
-    if (kind === 'left' || kind === 'right') { // mover lámina creada
-      if (!sl.dataset.extra) { D.toast('Solo se pueden mover las láminas creadas por usted'); return; }
-      const ids = D.slides.map(s => s.id), i = D.i, j = kind === 'left' ? i - 1 : i + 1; if (j < 0 || j >= ids.length) return;
-      const target = kind === 'left' ? ids[j - 1] : ids[j]; store.slides[sl.id].after = target || null; store.slides[sl.id].n = Date.now();
-      if (!target) store.slides[sl.id].after = null; return goReload(j);
+    if (kind === 'left' || kind === 'right') { // mover la lámina actual (cualquiera) junto a la lámina visible vecina
+      const vis = D.slides.map((s, i) => i).filter(i => !D.slides[i].classList.contains('is-hidden')), p = vis.indexOf(D.i), q = vis[p + (kind === 'left' ? -1 : 1)];
+      if (q == null) return; D.move(D.i, q); D.toast('Lámina movida', 1200); return;
     }
   }
 
