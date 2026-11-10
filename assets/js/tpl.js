@@ -57,7 +57,7 @@
   // animaciones automáticas: filas de tablas, viñetas, anillos y medidores aparecen uno tras otro
   const AUTO = '[data-tbl] tbody tr, .rich li, ul.cmb li, .rings .r, .gpct, .cm, .side-txt, .fl';
   D.slides.forEach(sl => D.on(sl.id, 'enter', () => { if (D.editing() || !window.gsap || document.body.classList.contains('printing')) return; const els = $$(AUTO, sl).filter(e => !e.closest('.free')); if (!els.length) return;
-    gsap.fromTo(els, { opacity: 0, x: -36 }, { opacity: 1, x: 0, duration: .55, delay: .55, stagger: Math.min(.09, 1.2 / els.length), ease: 'power3.out', clearProps: 'opacity,transform' }); }));
+    gsap.fromTo(els, { opacity: 0, x: i => D.base(els[i]).x - 36, y: i => D.base(els[i]).y }, { opacity: 1, x: i => D.base(els[i]).x, duration: .55, delay: .55, stagger: Math.min(.09, 1.2 / els.length), ease: 'power3.out', clearProps: 'opacity' }); }));
 
   // fecha de la reunión: texto con data-fecha (al crear la presentación se completa desde ?fecha=)
   const qs = new URLSearchParams(location.search);
@@ -69,13 +69,19 @@
     D.store.meta.fechaPuesta = qs.get('fecha'); D.persist();
   }
 
-  /* ---------- importación desde Safety HOC Intelligence ---------- */
+  /* ---------- importación desde Safety HOC (análisis estadístico) ---------- */
+  // Espera a tener la última versión de la nube para no perder los gráficos recibidos.
   const imp = qs.get('importar'); const cfg = window.NUBE || {};
   if (imp && cfg.url && cfg.key && D.store.meta.importado !== imp) {
-    fetch(`${cfg.url}/rest/v1/diapo_importaciones?id=eq.${encodeURIComponent(imp)}&select=data,periodo`, { headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key } })
-      .then(r => r.json()).then(rows => { if (!rows || !rows[0]) { D.toast('No se encontró la importación de Safety HOC'); return; } applyImport(rows[0].data || {}); D.store.meta.importado = imp; D.persist(); D.toast('Estadísticas de Safety HOC cargadas en la presentación', 4000);
-        const u = new URL(location.href); u.searchParams.delete('importar'); history.replaceState(null, '', u); setTimeout(() => location.reload(), 900); })
-      .catch(() => D.toast('No se pudo leer la importación (¿sin internet?)'));
+    D.toast('Recibiendo los gráficos de Safety HOC…', 6000);
+    (D.nubeLista || Promise.resolve()).then(() => fetch(`${cfg.url}/rest/v1/diapo_importaciones?id=eq.${encodeURIComponent(imp)}&select=data,periodo`, { headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key } }))
+      .then(r => r.json()).then(rows => {
+        if (!rows || !rows[0]) { D.toast('No se encontró el envío de Safety HOC'); return; }
+        const first = applyImport(rows[0].data || {}); D.store.meta.importado = imp; D.persist();
+        const n = ((rows[0].data || {}).graficos || []).length;
+        D.toast(n ? `${n} gráfico${n > 1 ? 's' : ''} de Safety HOC agregado${n > 1 ? 's' : ''} como láminas nuevas` : 'Estadísticas de Safety HOC cargadas en la presentación', 4000);
+        const u = new URL(location.href); u.searchParams.delete('importar'); if (first) u.hash = '#' + first; history.replaceState(null, '', u); setTimeout(() => location.reload(), 1200); })
+      .catch(() => D.toast('No se pudo leer el envío (¿sin internet?)'));
   }
   function setBind(name, val) { $$(`[data-bind="${name}"]`).forEach(el => { el.innerHTML = String(val); if (el.hasAttribute('data-count')) { el.dataset.count = String(val).replace(/[^\d.\-]/g, ''); } keep(el); }); }
   const ser = (rows, name) => ({ labels: rows.map(r => r.name), series: [{ name: name || 'Reportes', values: rows.map(r => r.value) }] });
@@ -88,6 +94,30 @@
       if (p.abiertos.total != null) setBind('abiertos_total', p.abiertos.total); }
     if (p.retraso) { if (p.retraso.filas) C['g-retraso'] = ser(p.retraso.filas); if (p.retraso.total != null) setBind('retraso_total', p.retraso.total); if (p.retraso.texto) setBind('retraso_texto', p.retraso.texto); }
     if (p.oto) { if (p.oto.por_zona) C['g-oto-zona'] = ser(p.oto.por_zona); if (p.oto.tipo) C['g-oto-tipo'] = ser(p.oto.tipo); if (p.oto.total != null) setBind('oto_total', p.oto.total); }
+    return Array.isArray(p.graficos) && p.graficos.length ? addChartSlides(p.graficos) : 0;
+  }
+  /* Cada gráfico elegido en Safety HOC llega como una lámina nueva: título, gráfico editable y recuadro de conclusiones.
+     Se insertan antes de la lámina de cierre (o al final). Devuelve el número de la primera lámina nueva. */
+  function addChartSlides(list) {
+    const S = D.store, sl = D.slides, uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const KINDS = ['bar', 'hbar', 'line', 'donut', 'stack'];
+    let at = sl.length - 1; const last = sl[at];
+    if (!(last && (/cierre/i.test(last.id) || /cierre|gracias/i.test(last.dataset.title || '')))) at = sl.length;
+    let after = at > 0 ? sl[at - 1].id : null; const n0 = Date.now();
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    list.forEach((g, i) => {
+      const id = 'x' + uid(), fid = uid();
+      S.slides[id] = { n: n0 + i, after, title: g.titulo || 'Gráfico', kick: g.subtitulo || 'Safety HOC', dark: false }; after = id;
+      const notes = (g.conclusiones || []).filter(Boolean);
+      S.free[fid] = { s: id, t: 'chart', kind: KINDS.includes(g.tipo) ? g.tipo : 'bar', def: { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined, pct: !!g.porcentaje } };
+      S.layout['free:' + fid] = notes.length ? { x: 110, y: 255, w: 1150, h: 700 } : { x: 160, y: 255, w: 1600, h: 700 };
+      if (notes.length || g.nota) {
+        const bid = uid();
+        S.free[bid] = { s: id, t: 'box', bg: '#1a1917', html: `<b style="color:#e8c97f">Lectura del gráfico</b><ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>${g.nota ? `<small>${esc(g.nota)}</small>` : ''}`, st: { fs: 24 } };
+        S.layout['free:' + bid] = { x: 1300, y: 255, w: 510, h: 700 };
+      }
+    });
+    return at + 1;
   }
   D.applyImport = applyImport;
 })();

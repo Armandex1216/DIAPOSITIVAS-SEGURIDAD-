@@ -77,7 +77,8 @@
   addEventListener('offline', () => paint('err')); if (!navigator.onLine) setTimeout(() => paint('err'), 0);
 
   /* ---------- bajar: al abrir, traer la última versión ---------- */
-  const done = () => document.documentElement.classList.remove('nube-cargando');
+  let listo; D.nubeLista = new Promise(r => { listo = r; }); // las importaciones esperan a tener la última versión
+  const done = () => { document.documentElement.classList.remove('nube-cargando'); listo && listo(); };
   setTimeout(done, 3500);
   (async () => {
     paint();
