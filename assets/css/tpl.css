@@ -74,3 +74,8 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .ph-full{position:absolute;left:200px;right:200px;top:140px;bottom:70px}
 .ph-full .slot{position:absolute;inset:0;border-radius:10px}
 .end-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px}
+
+/* lecturas automáticas de la GUM (llegan desde Safety HOC) */
+#g-hall .g2{bottom:250px}
+.gum-lect{position:absolute;bottom:118px;width:830px;font-size:24px!important;font-weight:600!important;color:#3b3a36!important;background:#faf6ee;border-left:6px solid #c39531;border-radius:12px;padding:14px 20px;text-align:left!important;box-sizing:border-box}
+.gum-lect.l{left:70px}.gum-lect.r{right:70px}

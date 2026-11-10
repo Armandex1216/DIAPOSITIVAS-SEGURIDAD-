@@ -94,7 +94,16 @@
       if (p.abiertos.total != null) setBind('abiertos_total', p.abiertos.total); }
     if (p.retraso) { if (p.retraso.filas) C['g-retraso'] = ser(p.retraso.filas); if (p.retraso.total != null) setBind('retraso_total', p.retraso.total); if (p.retraso.texto) setBind('retraso_texto', p.retraso.texto); }
     if (p.oto) { if (p.oto.por_zona) C['g-oto-zona'] = ser(p.oto.por_zona); if (p.oto.tipo) C['g-oto-tipo'] = ser(p.oto.tipo); if (p.oto.total != null) setBind('oto_total', p.oto.total); }
-    return Array.isArray(p.graficos) && p.graficos.length ? addChartSlides(p.graficos) : 0;
+    // lecturas automáticas: comentarios de cada lámina de la GUM
+    if (p.lecturas) Object.entries(p.lecturas).forEach(([k, v]) => { if (v) setBind(k, v); });
+    // un gráfico con «lugar» que existe en esta plantilla reemplaza ese gráfico; los demás llegan como láminas nuevas
+    const list = (Array.isArray(p.graficos) ? p.graficos : []).filter(g => {
+      const cv = g.lugar && document.getElementById(g.lugar);
+      if (!cv || cv.tagName !== 'CANVAS') return true;
+      C[g.lugar] = { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined };
+      return false;
+    });
+    return list.length ? addChartSlides(list) : 0;
   }
   /* Cada gráfico elegido en Safety HOC llega como una lámina nueva: título, gráfico editable y recuadro de conclusiones.
      Se insertan antes de la lámina de cierre (o al final). Devuelve el número de la primera lámina nueva. */

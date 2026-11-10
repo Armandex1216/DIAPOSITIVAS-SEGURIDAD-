@@ -10,18 +10,61 @@
   Chart.defaults.plugins.tooltip.backgroundColor = '#1a1917'; Chart.defaults.plugins.tooltip.padding = 14;
   Chart.defaults.plugins.tooltip.titleFont = { weight: '700', size: 18 }; Chart.defaults.plugins.tooltip.bodyFont = { size: 17 };
   Chart.defaults.plugins.datalabels = Object.assign(Chart.defaults.plugins.datalabels || {}, { display: false });
+  /* ---------- efectos: sombra suave, total en el centro de las donas y animaciones de entrada ---------- */
+  const shade = (hex, amt) => { const h = String(hex || '').replace('#', ''); if (!/^[0-9a-f]{6}$/i.test(h)) return hex; const n = parseInt(h, 16); const f = c => Math.max(0, Math.min(255, Math.round(c + (amt > 0 ? (255 - c) * amt : c * amt)))); return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join(''); };
+  Chart.register({ id: 'hcShadow',
+    beforeDatasetDraw(c) { if (c.config.options.hcShadow === false) return; const x = c.ctx; x.save(); x.shadowColor = 'rgba(40,30,10,.22)'; x.shadowBlur = 18; x.shadowOffsetY = 8; },
+    afterDatasetDraw(c) { if (c.config.options.hcShadow === false) return; c.ctx.restore(); } });
+  Chart.register({ id: 'hcCenter', // total que sube contando en el centro de la dona
+    beforeInit(c) { c.$hcT0 = performance.now(); },
+    afterDraw(c) { const o = c.config.options.hcCenter; if (!o || c.config.type !== 'doughnut') return; const m = c.getDatasetMeta(0); if (!m || !m.data[0]) return;
+      const { x: cx, y: cy } = m.data[0], tot = (c.data.datasets[0].data || []).reduce((a, b) => a + (+b || 0), 0);
+      const t = c.config.options.animation === false ? 1 : Math.min(1, (performance.now() - c.$hcT0) / 1500), e = 1 - Math.pow(1 - t, 3), v = Math.round(tot * e);
+      const x = c.ctx, r = m.data[0].innerRadius || 80; x.save(); x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#1a1917';
+      x.font = `900 ${Math.round(r * .62)}px Montserrat, sans-serif`; x.fillText(v.toLocaleString('es-PE'), cx, cy - r * .1);
+      x.font = `700 ${Math.round(r * .2)}px Montserrat, sans-serif`; x.fillStyle = '#8d8a83'; x.fillText(o.label || 'TOTAL', cx, cy + r * .36); x.restore();
+      if (t < 1) requestAnimationFrame(() => { try { c.draw(); } catch (e) { } }); } });
+  // aplica las animaciones y el estilo «Hochschild» a una configuración de Chart.js
+  function fx(cfg) {
+    const type = cfg.type, o = cfg.options = cfg.options || {}, ds = (cfg.data && cfg.data.datasets) || [];
+    const ix = c => c.type === 'data' && c.mode === 'default' ? c.dataIndex : 0, di = c => c.type === 'data' && c.mode === 'default' ? c.datasetIndex : 0;
+    if (type === 'doughnut' || type === 'pie') {
+      o.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 1700, easing: 'easeOutQuart' }, o.animation || {});
+      if (o.hcCenter === undefined) o.hcCenter = { label: 'TOTAL' };
+      ds.forEach(d => { const v = (d.data || []).map(Number), max = Math.max(...v); d.offset = v.map(x => x === max && v.length > 1 ? 22 : 0); d.hoverOffset = 30; d.spacing = d.spacing == null ? 3 : d.spacing; d.borderRadius = d.borderRadius == null ? 8 : d.borderRadius; d.borderWidth = d.borderWidth == null ? 0 : d.borderWidth; });
+    } else if (type === 'line') {
+      const n = Math.max(1, ...ds.map(d => (d.data || []).length)), step = Math.min(90, 1600 / n);
+      o.animations = Object.assign({ x: { type: 'number', easing: 'linear', duration: step, from: NaN, delay: c => c.type === 'data' && !c.xStarted ? (c.xStarted = true, c.index * step) : 0 },
+        y: { type: 'number', easing: 'easeOutQuad', duration: step, from: c => c.index === 0 ? c.chart.scales.y.getPixelForValue(0) : c.chart.getDatasetMeta(c.datasetIndex).data[c.index - 1].getProps(['y'], true).y, delay: c => c.type === 'data' && !c.yStarted ? (c.yStarted = true, c.index * step) : 0 } }, o.animations || {});
+      ds.forEach(d => { const col = d.borderColor || '#c39531', v = (d.data || []).map(Number), max = Math.max(...v);
+        d.borderWidth = d.borderWidth || 5; d.tension = .25; d.cubicInterpolationMode = 'monotone'; d.clip = false; d.fill = d.fill == null ? 'origin' : d.fill;
+        d.backgroundColor = c => { const a = c.chart.chartArea; if (!a) return shade(col, .7); const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom); g.addColorStop(0, shade(col, .45) + 'aa'); g.addColorStop(1, shade(col, .9) + '11'); return g; };
+        d.pointRadius = v.map(x => x === max ? 11 : x === 0 ? 8 : 6); d.pointHoverRadius = 13; d.pointBorderWidth = 3; d.pointBorderColor = '#fff';
+        d.pointBackgroundColor = v.map(x => x === max ? '#c39531' : x === 0 ? '#e11d1d' : col); });
+    } else if (type === 'bar') {
+      o.animation = Object.assign({ duration: 1100, easing: 'easeOutBack', delay: c => ix(c) * 110 + di(c) * 200 }, o.animation || {});
+      const horiz = o.indexAxis === 'y', stacked = !!(o.scales && ((o.scales.x && o.scales.x.stacked) || (o.scales.y && o.scales.y.stacked)));
+      ds.forEach(d => { const base = d.backgroundColor; if (typeof base === 'function' || Array.isArray(base)) { if (Array.isArray(base)) d.backgroundColor = c => grad(c, base[c.dataIndex % base.length], horiz); return; } d.backgroundColor = c => grad(c, base, horiz); if (d.borderRadius == null) d.borderRadius = 10; if (!stacked) d.borderSkipped = false; });
+    }
+    // escalas: números enteros cuando todos los datos lo son; espacio arriba para la etiqueta del máximo
+    if (o.scales) { const ints = ds.every(d => (d.data || []).every(v => v == null || Number.isInteger(+v)));
+      Object.values(o.scales).forEach(sc => { if (sc && ints) sc.ticks = Object.assign({ precision: 0 }, sc.ticks || {}); }); }
+    if (type === 'line') { o.layout = o.layout || {}; o.layout.padding = Object.assign({}, o.layout.padding || {}, { top: 44, right: 34 }); }
+    return cfg;
+  }
+  function grad(c, col, horiz) { const a = c.chart.chartArea; if (!a || !col) return col; const g = horiz ? c.chart.ctx.createLinearGradient(a.left, 0, a.right, 0) : c.chart.ctx.createLinearGradient(0, a.bottom, 0, a.top); g.addColorStop(0, col); g.addColorStop(1, shade(col, .28)); return g; }
   const HC = window.HC = {
     gold: '#c39531', goldD: '#9a7422', goldL: '#e8c97f', char: '#2b2a28', gray: '#b4b5b7', grid: 'rgba(60,50,30,.09)',
     ok: '#1f9d5c', warn: '#e6a316', bad: '#d23c3c', blue: '#2f6db5', violet: '#7a5bd6', lime: '#c6d800',
     zone: { Presa: '#2f6db5', Selene: '#e07b39', Pallancata: '#1f9d8a' },
     lvl: { BAJO: '#9aa7b6', MEDIO: '#e6a316', ALTO: '#d23c3c' },
-    charts: {},
+    charts: {}, fx, shade,
     grad(ctx, a, b, h = 700) { const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, a); g.addColorStop(1, b); return g; },
     // crea al entrar a la lámina (para que la animación se repita) y destruye al salir.
     // def (opcional) = datos por defecto {labels:[], series:[{name, values:[]}]}; si se da, el gráfico se puede editar en modo edición.
     bind(slideId, canvasId, make, def) {
       const getData = () => def ? JSON.parse(JSON.stringify((DECK.store.charts[canvasId]) || def)) : null;
-      const build = (anim = true, over) => { const cv = document.getElementById(canvasId); if (!cv) return; if (HC.charts[canvasId]) HC.charts[canvasId].destroy(); const cfg = make(cv.getContext('2d'), over || getData()); if (!anim) { cfg.options = cfg.options || {}; cfg.options.animation = false; } HC.charts[canvasId] = new Chart(cv, cfg); };
+      const build = (anim = true, over) => { const cv = document.getElementById(canvasId); if (!cv) return; if (HC.charts[canvasId]) HC.charts[canvasId].destroy(); const cfg = fx(make(cv.getContext('2d'), over || getData())); if (!anim) { cfg.options = cfg.options || {}; cfg.options.animation = false; cfg.options.animations = false; } HC.charts[canvasId] = new Chart(cv, cfg); };
       HC.builders[canvasId] = build; HC.defs[canvasId] = def; HC.getData[canvasId] = getData;
       DECK.on(slideId, 'enter', () => setTimeout(() => build(!DECK.editing()), DECK.editing() ? 50 : 450));
       DECK.on(slideId, 'edit', () => build(false));
