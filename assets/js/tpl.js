@@ -77,11 +77,38 @@
     (D.nubeLista || Promise.resolve()).then(() => fetch(`${cfg.url}/rest/v1/diapo_importaciones?id=eq.${encodeURIComponent(imp)}&select=data,periodo`, { headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key } }))
       .then(r => r.json()).then(rows => {
         if (!rows || !rows[0]) { D.toast('No se encontró el envío de Safety HOC'); return; }
-        const first = applyImport(rows[0].data || {}); D.store.meta.importado = imp; D.persist();
-        const n = ((rows[0].data || {}).graficos || []).length;
-        D.toast(n ? `${n} gráfico${n > 1 ? 's' : ''} de Safety HOC agregado${n > 1 ? 's' : ''} como láminas nuevas` : 'Estadísticas de Safety HOC cargadas en la presentación', 4000);
-        const u = new URL(location.href); u.searchParams.delete('importar'); if (first) u.hash = '#' + first; history.replaceState(null, '', u); setTimeout(() => location.reload(), 1200); })
+        const data = rows[0].data || {}, n = (data.graficos || []).length;
+        const done = () => { const first = applyImport(data); D.store.meta.importado = imp; D.persist();
+          D.toast(n ? `${n} gráfico${n > 1 ? 's' : ''} de Safety HOC colocado${n > 1 ? 's' : ''} en la presentación` : 'Estadísticas de Safety HOC cargadas en la presentación', 4000);
+          const u = new URL(location.href); u.searchParams.delete('importar'); if (first) u.hash = '#' + first; history.replaceState(null, '', u); setTimeout(() => location.reload(), 1200); };
+        if (n) chooseDest(data).then(ok => { if (ok) done(); else { const u = new URL(location.href); u.searchParams.delete('importar'); history.replaceState(null, '', u); D.toast('Envío cancelado: no se cambió nada'); } }); else done(); })
       .catch(() => D.toast('No se pudo leer el envío (¿sin internet?)'));
+  }
+
+  /* ---------- elegir dónde va cada gráfico recibido ---------- */
+  function chooseDest(data) {
+    return new Promise(res => {
+      const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+      const vis = D.slides.filter(sl => !sl.classList.contains('is-hidden')), title = sl => (sl.dataset.title || ($('h2,h1', sl) || {}).textContent || 'Lámina').trim();
+      const repl = vis.filter((sl, i) => i > 0 && !/cierre/i.test(sl.id + ' ' + (sl.dataset.title || '')));
+      const ac = vis.find(sl => /acuerdo/i.test(sl.id + ' ' + (sl.dataset.title || ''))), end = vis.find(sl => /cierre/i.test(sl.id + ' ' + (sl.dataset.title || '')));
+      const def = (ac || end || {}).id || '';
+      const slotSlide = g => { const cv = g.lugar && document.getElementById(g.lugar); return cv && cv.tagName === 'CANVAS' ? cv.closest('.slide') : null; };
+      let m = $('.modal.dest'); if (!m) { m = document.createElement('div'); m.className = 'modal dest'; document.body.appendChild(m); }
+      m.innerHTML = `<div class="mbox dest-box"><h4>¿Dónde va cada gráfico?</h4><p>${esc(data.paquete || 'Envío de Safety HOC')} · ${esc(data.periodo || '')}. Elija «Lámina nueva» o la lámina que reemplaza (la reemplazada queda oculta y se puede volver a mostrar en «Láminas»).</p>
+        <label class="dest-at">Las láminas nuevas van antes de: <select data-at>${vis.slice(1).map(sl => `<option value="${sl.id}" ${sl.id === def ? 'selected' : ''}>${esc(title(sl))}</option>`).join('')}<option value="">Al final</option></select></label>
+        <div class="dest-list">${data.graficos.map((g, i) => { const ss = slotSlide(g); return `<div class="dest-row"><span class="dest-n">${i + 1}</span><div><b>${esc(g.titulo)}</b><small>${esc(g.subtitulo || '')}</small></div>
+          <select data-i="${i}"><option value="new">Lámina nueva</option>${ss ? `<option value="slot">Usar la lámina de la plantilla «${esc(title(ss))}»</option>` : ''}${repl.map(sl => `<option value="rep:${sl.id}">Reemplazar «${esc(title(sl))}»</option>`).join('')}</select></div>`; }).join('')}</div>
+        <div class="macts"><button data-x="all">Todo como láminas nuevas</button><span style="flex:1"></span><button data-x="no">Cancelar</button><button data-x="ok" class="ok">Colocar gráficos</button></div></div>`;
+      m.classList.add('on');
+      m.onclick = e => { const b = e.target.closest('[data-x]'); if (!b) return; e.stopPropagation();
+        if (b.dataset.x === 'all') { $$('select[data-i]', m).forEach(x => x.value = 'new'); return; }
+        m.classList.remove('on');
+        if (b.dataset.x === 'no') return res(false);
+        data._antes = $('[data-at]', m).value;
+        $$('select[data-i]', m).forEach(x => { const v = x.value, g = data.graficos[+x.dataset.i]; g._dest = v === 'new' ? { mode: 'new' } : v === 'slot' ? { mode: 'slot' } : { mode: 'rep', id: v.slice(4) }; });
+        res(true); };
+    });
   }
   function setBind(name, val) { $$(`[data-bind="${name}"]`).forEach(el => { el.innerHTML = String(val); if (el.hasAttribute('data-count')) { el.dataset.count = String(val).replace(/[^\d.\-]/g, ''); } keep(el); }); }
   const ser = (rows, name) => ({ labels: rows.map(r => r.name), series: [{ name: name || 'Reportes', values: rows.map(r => r.value) }] });
@@ -99,23 +126,31 @@
     // un gráfico con «lugar» que existe en esta plantilla reemplaza ese gráfico; los demás llegan como láminas nuevas
     const list = (Array.isArray(p.graficos) ? p.graficos : []).filter(g => {
       const cv = g.lugar && document.getElementById(g.lugar);
-      if (!cv || cv.tagName !== 'CANVAS') return true;
+      if (!cv || cv.tagName !== 'CANVAS' || (g._dest && g._dest.mode !== 'slot')) return true;
       C[g.lugar] = { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined };
+      const sl = cv.closest('.slide'); if (sl && g._dest) D.store.hidden[sl.id] = false; // la lámina de la plantilla vuelve a mostrarse
       return false;
     });
-    return list.length ? addChartSlides(list) : 0;
+    return list.length ? addChartSlides(list, p._antes) : 0;
   }
   /* Cada gráfico elegido en Safety HOC llega como una lámina nueva: título, gráfico editable y recuadro de conclusiones.
      Se insertan antes de la lámina de cierre (o al final). Devuelve el número de la primera lámina nueva. */
-  function addChartSlides(list) {
+  function addChartSlides(list, antes) {
     const S = D.store, sl = D.slides, uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     const KINDS = ['bar', 'hbar', 'line', 'donut', 'stack'];
     let at = sl.length - 1; const last = sl[at];
     if (!(last && (/cierre/i.test(last.id) || /cierre|gracias/i.test(last.dataset.title || '')))) at = sl.length;
+    if (antes !== undefined) { const j = antes ? sl.findIndex(x => x.id === antes) : -1; at = j > 0 ? j : sl.length; } // «antes de»: elegido al recibir
+    else { const ac = sl.findIndex(x => /acuerdo/i.test(x.id) && !x.classList.contains('is-hidden')); if (ac > 0 && ac < at) at = ac; }
     let after = at > 0 ? sl[at - 1].id : null; const n0 = Date.now();
     const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-    let k = 0; const slide = (title, kick) => { const id = 'x' + uid(); S.slides[id] = { n: n0 + (k++), after, title, kick, dark: false }; after = id; return id; };
+    let k = 0, firstIdx = 0; const main = { after };
+    const slide = (title, kick) => { const id = 'x' + uid(); S.slides[id] = { n: n0 + (k++), after: cur.after, title, kick, dark: false }; cur.after = id; return id; };
+    let cur = main;
     list.forEach(g => {
+      // reemplazar: la lámina nueva va justo después de la elegida y esa se oculta
+      if (g._dest && g._dest.mode === 'rep' && document.getElementById(g._dest.id)) { cur = { after: g._dest.id }; S.hidden[g._dest.id] = true; if (!firstIdx) firstIdx = sl.findIndex(x => x.id === g._dest.id) + 2; }
+      else { cur = main; if (!firstIdx) firstIdx = at + 1; }
       // tabla de seguimiento: 10 filas por lámina
       if (g.tipo === 'tabla') {
         const cols = g.columnas || [], rows = g.filas || [], pages = Math.max(1, Math.ceil(rows.length / 10));
@@ -145,7 +180,7 @@
         S.layout['free:' + bid] = { x: 1300, y: 255, w: 510, h: 700 };
       }
     });
-    return at + 1;
+    return firstIdx || at + 1;
   }
   D.applyImport = applyImport;
 })();
