@@ -88,6 +88,6 @@
 <script src="assets/js/charts.js?v=20261110a"></script>
 <script src="assets/js/tpl.js?v=20261110a"></script>
 <script src="assets/js/editor.js?v=20261110a"></script>
-<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;location.reload()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>

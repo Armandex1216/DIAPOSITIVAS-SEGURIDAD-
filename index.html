@@ -74,11 +74,11 @@ h1 span{color:#c39531}
   <div class="nmodal" id="nmodal"></div>
   <div class="keys"><span><b>→</b>siguiente</span><span><b>←</b>anterior</span><span><b>F</b>pantalla completa</span><span><b>O</b>láminas</span><span><b>E</b>editar</span><span><b>M</b>mover</span><span><b>P</b>PDF</span></div>
 </main>
-<script src="data/catalogo.js?v=20261110a"></script>
+<script src="data/catalogo.js?v=20261110b"></script>
 <script src="data/nube.js?v=1" onerror="void 0"></script>
 <script>
 (function () {
-  const C = window.CATALOGO || [], P = window.PLANTILLAS || {}, N = window.NUBE || {}, $ = s => document.querySelector(s), esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const C = window.CATALOGO || [], P = window.PLANTILLAS || { blanco: { nombre: 'En blanco', archivo: 'blanco.html', titulo: 'Nueva presentación' } }, N = window.NUBE || {}, $ = s => document.querySelector(s), esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const api = (path, opt = {}) => fetch(N.url + '/rest/v1/' + path, Object.assign({}, opt, { headers: Object.assign({ apikey: N.key, Authorization: 'Bearer ' + N.key, 'Content-Type': 'application/json' }, opt.headers || {}) })).then(async r => { if (!r.ok) throw new Error(await r.text()); return r.status === 204 ? null : r.json().catch(() => null); });
   const cloud = !!(N.url && N.key);
   let DECKS = []; try { DECKS = JSON.parse(localStorage.getItem('decks-cache') || '[]'); } catch (e) { }
@@ -156,6 +156,6 @@ h1 span{color:#c39531}
   const hp = new URLSearchParams(location.hash.slice(1).split('&').slice(1).join('&')); if (hp.get('importar')) openNew(location.hash.slice(1).split('&')[0] || 'gum', hp.get('importar'));
 })();
 </script>
-<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;location.reload()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>

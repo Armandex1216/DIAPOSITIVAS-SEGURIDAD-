@@ -36,8 +36,10 @@ self.addEventListener('fetch', e => {
   }
   // archivos (js, css, imágenes, fuentes): copia guardada al instante y se actualiza en segundo plano
   e.respondWith((async () => {
-    const c = await caches.open(STATIC), hit = await c.match(req, { ignoreSearch: true });
-    const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }).catch(() => null);
-    return hit || (await net) || Response.error();
+    // versión exacta (con ?v=) primero; si no está, la red; sin internet, cualquier versión guardada
+    const c = await caches.open(STATIC), hit = await c.match(req);
+    if (hit) { fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); }).catch(() => {}); return hit; }
+    try { const r = await timeout(fetch(req), 8000); if (r.ok) c.put(req, r.clone()); return r; }
+    catch (err) { return (await c.match(req, { ignoreSearch: true })) || Response.error(); }
   })());
 });
