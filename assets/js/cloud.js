@@ -87,7 +87,8 @@
       if (error) throw error;
       if (!data) { done(); if (user && localStorage.getItem(DIRTY)) push(); return; }
       const mine = localStorage.getItem(STAMP);
-      if (localStorage.getItem(DIRTY) && user) { done(); if (!mine || mine >= data.updated_at) { push(); return; } }
+      // primera vez en este equipo (sin marca de la nube): manda la versión de la nube, aunque la página ya haya guardado algo (p. ej. la fecha)
+      if (localStorage.getItem(DIRTY) && user && mine) { done(); if (mine >= data.updated_at) { push(); return; } }
       if (mine === data.updated_at && !localStorage.getItem(DIRTY)) { done(); return; }
       const remote = JSON.stringify(data.data);
       if (canon(data.data) !== canon(D.store) && sessionStorage.getItem(STAMP) !== data.updated_at) {
