@@ -82,8 +82,15 @@
   const fileIn = document.createElement('input'); fileIn.type = 'file'; fileIn.accept = '.js,.json'; fileIn.hidden = true; document.body.appendChild(fileIn);
   lb.onclick = () => lb.classList.remove('on');
   document.addEventListener('click', e => { const z = e.target.closest('.zoomable'); if (z && !D.editing()) { e.stopPropagation(); const im = z.tagName === 'IMG' ? z : z.querySelector('img'); if (!im || !im.src) return; $('img', lb).src = im.src; lb.classList.add('on'); } }, true);
-  let uiT; const wake = () => { body.classList.add('ui-on'); clearTimeout(uiT); uiT = setTimeout(() => body.classList.remove('ui-on'), 2200); };
+  // la barra de controles solo aparece al acercar el mouse al borde derecho (o al editar), y se puede ocultar del todo con «Ocultar» o la tecla H
+  let uiT; const wake = e => { if (body.classList.contains('ui-hidden')) return; if (e && !D.editing() && !body.classList.contains('moving') && e.clientX < innerWidth - 170) return; body.classList.add('ui-on'); clearTimeout(uiT); uiT = setTimeout(() => body.classList.remove('ui-on'), 2200); };
   addEventListener('mousemove', wake);
+  const UIH = 'deck-ui-oculta', setUiHidden = h => { body.classList.toggle('ui-hidden', h); body.classList.remove('ui-on'); try { h ? localStorage.setItem(UIH, '1') : localStorage.removeItem(UIH); } catch (e) { } };
+  try { if (localStorage.getItem(UIH)) body.classList.add('ui-hidden'); } catch (e) { }
+  const hideB = document.createElement('button'); hideB.dataset.k = 'hide'; hideB.className = 'ui-hide'; hideB.title = 'Ocultar esta barra (tecla H)'; hideB.textContent = 'Ocultar ⟩'; ui.prepend(hideB);
+  const tab = document.createElement('button'); tab.className = 'ui-tab'; tab.title = 'Mostrar los controles (tecla H)'; tab.textContent = '⟨'; tab.onclick = e => { e.stopPropagation(); setUiHidden(false); }; document.body.appendChild(tab);
+  hideB.addEventListener('click', e => { e.stopPropagation(); setUiHidden(true); });
+  addEventListener('keydown', e => { if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && (document.activeElement.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))) setUiHidden(!body.classList.contains('ui-hidden')); });
   ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click() })[b.dataset.k]; if (typeof f === 'function') f(); };
 
   /* ---------- números ---------- */
