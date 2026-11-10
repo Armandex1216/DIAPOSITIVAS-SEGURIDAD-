@@ -59,6 +59,9 @@
   D.slides.forEach(sl => D.on(sl.id, 'enter', () => { if (D.editing() || !window.gsap || document.body.classList.contains('printing')) return; const els = $$(AUTO, sl).filter(e => !e.closest('.free')); if (!els.length) return;
     gsap.fromTo(els, { opacity: 0, x: i => D.base(els[i]).x - 36, y: i => D.base(els[i]).y }, { opacity: 1, x: i => D.base(els[i]).x, duration: .55, delay: .55, stagger: Math.min(.09, 1.2 / els.length), ease: 'power3.out', clearProps: 'opacity' }); }));
 
+  // portada: efecto Ken Burns sobre la foto (como en la presentación del comité)
+  const kbEl = $('.g-kb'); if (kbEl && window.gsap) { let kb; const go = () => { kb && kb.kill(); gsap.set(kbEl, { scale: 1.12, x: 30 }); kb = gsap.to(kbEl, { scale: 1, x: -20, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1 }); };
+    const sl = kbEl.closest('.slide'); D.on(sl.id, 'enter', go); if (sl.classList.contains('active')) go(); }
   // fecha de la reunión: texto con data-fecha (al crear la presentación se completa desde ?fecha=)
   const qs = new URLSearchParams(location.search);
   if (qs.get('fecha') && !D.store.meta.fechaPuesta) {

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reunión GUM · Seguridad Industrial</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261110m">
-<link rel="stylesheet" href="assets/css/tpl.css?v=20261110m">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261110n">
+<link rel="stylesheet" href="assets/css/tpl.css?v=20261110n">
 <style></style>
 <script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
 </head>
@@ -13,9 +13,14 @@
 <div class="viewport"><div class="stage">
 
 <section class="slide dark" id="g-portada" data-transition="zoom" data-title="Portada">
-  <div class="cover-bg"><div class="slot cover" data-slot="portada" data-src="assets/img/portada.jpg" data-ph="Pegue la foto de portada"></div></div>
-  <div class="cover-logo" data-a="down"><img src="assets/img/logo-mark.png?v=2" alt=""></div>
-  <div class="cover-band" data-a="left"><h1>REUNIÓN GUM</h1><p class="rich">Seguridad Industrial · <span class="edit dt" data-fecha>03/11/2026</span></p></div>
+  <div class="cover-bg g-kb"><div class="slot cover" data-slot="portada" data-src="assets/img/portada.jpg" data-ph="Pegue la foto de portada"></div></div>
+  <div class="g-shade"></div><div class="topbar" data-a="grow"></div>
+  <div class="g-logo" data-a="down"><img src="assets/img/logo-hochschild-blanco.png" alt="Hochschild"></div>
+  <div class="g-ttl">
+    <h1 data-a="up">Reunión<span>GUM</span></h1>
+    <div class="g-date" data-a="left" data-d=".25"><i></i><p class="rich">Seguridad Industrial · <span class="edit dt" data-fecha>03/11/2026</span></p></div>
+    <div class="kick" data-a="left" data-d=".1">U.M. PALLANCATA · SELENE</div>
+  </div>
 </section>
 <section class="slide light white" id="g-ambiental" data-title="Momento ambiental">
   <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g c" data-a="up">Momento Ambiental</h2><p class="subk" data-a="left">Gestión Social</p>
@@ -108,19 +113,21 @@
   <div class="ph-full" style="top:200px;bottom:150px" data-a="zoom"><div class="slot" data-slot="campana" data-ph="Pegue aquí la imagen de la campaña del mes"></div></div>
   <p class="cm camp-t" data-a="up" data-d=".3">Escriba aquí el mensaje de la campaña.</p>
 </section>
-<section class="slide light white" id="g-cierre" data-transition="zoom" data-title="Cierre">
-  <img class="end-logo" src="assets/img/logo-hochschild.png" alt="Hochschild" data-a="blur">
+<section class="slide dark" id="g-cierre" data-transition="zoom" data-title="Cierre">
+  <div class="hexbg"></div><div class="topbar" data-a="grow"></div>
+  <div class="g-end-lg" data-a="blur"><img src="assets/img/logo-hochschild-blanco.png" alt="Hochschild"></div>
+  <div class="g-end-q" data-a="up" data-d=".3"><h3>Gracias.</h3><h2>Actúo con responsabilidad,<br><span>trabajo con seguridad.</span></h2></div>
 </section>
 </div></div>
 <script src="assets/lib/gsap.min.js"></script>
 <script src="assets/lib/chart.umd.min.js"></script>
 <script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
-<script src="assets/js/deck.js?v=20261110m"></script>
+<script src="assets/js/deck.js?v=20261110n"></script>
 <script src="assets/lib/supabase.min.js?v=2.119"></script>
-<script src="assets/js/cloud.js?v=20261110m"></script>
-<script src="assets/js/charts.js?v=20261110m"></script>
-<script src="assets/js/tpl.js?v=20261110m"></script>
-<script src="assets/js/editor.js?v=20261110m"></script>
+<script src="assets/js/cloud.js?v=20261110n"></script>
+<script src="assets/js/charts.js?v=20261110n"></script>
+<script src="assets/js/tpl.js?v=20261110n"></script>
+<script src="assets/js/editor.js?v=20261110n"></script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;location.reload()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>
