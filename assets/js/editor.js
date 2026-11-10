@@ -179,7 +179,10 @@
     el.insertAdjacentHTML('beforeend', '<i class="fgrip" data-noedit contenteditable="false" title="Arrastre para mover">✥</i><i class="frz" data-noedit contenteditable="false" title="Arrastre para cambiar el tamaño"></i>');
     layerOf(sl).appendChild(el); applyStyle(el, f);
     D.applyLayout(el, store.layout['free:' + fid]);
-    if (f.t === 'img') D.initSlot($('.slot', el));
+    if (f.t === 'img') { D.initSlot($('.slot', el));
+      // al poner una imagen, el cuadro toma su proporción (así no se recorta ni se estira)
+      el.addEventListener('load', ev => { const im = ev.target; if (im.tagName !== 'IMG' || !im.naturalWidth) return; const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}); const w = L.w || el.offsetWidth, h = Math.round(w * im.naturalHeight / im.naturalWidth);
+        if (L.ar === im.currentSrc.slice(-40)) return; L.ar = im.currentSrc.slice(-40); if (Math.abs((L.h || el.offsetHeight) - h) > 3) { L.h = h; D.applyLayout(el, L); D.persist(); } }, true); }
     if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, KINDS[f.kind] ? chartMake(f.kind) : HC.maker(f.kind), f.def); HC.colorable['fc-' + fid] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(f.kind) || (f.def && f.def.porBarra) ? 'label' : 'series'; }
     if (D.editing()) setEditable(el, true);
     return el;
@@ -288,9 +291,10 @@
     e.preventDefault(); e.stopPropagation(); const el = h.closest('.free'), fid = el.dataset.fid, rz = h.classList.contains('frz');
     const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = el.offsetWidth, h0 = el.offsetHeight, sc = D.scale || 1;
     const guide = $('.snap-v', el.closest('.slide')) || el.closest('.slide').appendChild(Object.assign(document.createElement('div'), { className: 'snap-v' }));
-    body.classList.add('dragging');
+    body.classList.add('dragging'); const keepRatio = el.classList.contains('fimg') && !e.shiftKey;
     const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc;
-      if (rz) { L.w = Math.max(60, Math.round(w0 + dx)); L.h = Math.max(40, Math.round(h0 + dy)); }
+      if (rz && keepRatio) { const k = Math.max((w0 + dx) / w0, (h0 + dy) / h0, 60 / w0); L.w = Math.round(w0 * k); L.h = Math.round(h0 * k); } // imágenes: solo agrandar o achicar, sin estirar
+      else if (rz) { L.w = Math.max(60, Math.round(w0 + dx)); L.h = Math.max(40, Math.round(h0 + dy)); }
       else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); const mid = L.x + el.offsetWidth / 2; const snap = Math.abs(mid - 960) < 14; if (snap) L.x = Math.round(960 - el.offsetWidth / 2); guide.classList.toggle('on', snap); }
       D.applyLayout(el, L); };
     const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); guide.classList.remove('on'); body.classList.remove('dragging'); D.persist(); if (rz) D.fire(el.closest('.slide'), 'edited'); const f = fOf(fid); if (f && f.t === 'chart' && HC.charts['fc-' + fid]) HC.charts['fc-' + fid].resize(); };
@@ -306,6 +310,15 @@
   }, true);
 
   Object.keys(store.free).forEach(renderFree); // dibujar los elementos guardados (después de definir estilos y formas)
+
+  /* doble clic en un espacio vacío de la lámina (modo edición) → cuadro de texto ahí mismo */
+  const stage = document.querySelector('.stage');
+  stage.addEventListener('dblclick', e => { if (!D.editing() || (D.moving && D.moving())) return; const sl = e.target.closest('.slide'); if (!sl || sl !== cur()) return;
+    if (e.target.closest('[contenteditable="true"],.free,.chartbox,.slot,[data-tbl],button,img,canvas,.rt-bar,.fprops')) return;
+    const a = sl.getBoundingClientRect(), k = D.scale || 1, x = Math.round((e.clientX - a.left) / k), y = Math.round((e.clientY - a.top) / k);
+    addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: Math.max(0, x - 20), y: Math.max(0, y - 24), w: 600 };
+    const el = $(`.free[data-fid="${fid}"]`); if (el) D.applyLayout(el, store.layout['free:' + fid]); D.persist(); });
+  D.addText = () => { addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); };
 
   /* ================= láminas ================= */
   const hasCharts = sl => !!$('canvas, .needle', sl) && !sl.dataset.extra;
@@ -338,6 +351,9 @@
   /* ================= menú «＋ Insertar» ================= */
   const ui = $('.ui'); const ins = document.createElement('button'); ins.dataset.k = 'ins'; ins.className = 'ins-btn'; ins.textContent = '＋ Insertar'; ins.title = 'Agregar texto, imagen, gráfico, tabla o una lámina nueva';
   ui && ui.insertBefore(ins, $('[data-k=move]', ui) ? $('[data-k=move]', ui).nextSibling : null);
+  const tbtn = document.createElement('button'); tbtn.dataset.k = 'txt'; tbtn.textContent = 'T Texto'; tbtn.title = 'Agregar un cuadro de texto (también: doble clic en un espacio vacío en modo edición)';
+  tbtn.onclick = e => { e.stopPropagation(); if (!D.editing()) document.querySelector('.ui [data-k=edit]').click(); setTimeout(() => D.addText(), 80); };
+  ui && ui.insertBefore(tbtn, ins.nextSibling);
   const menu = document.createElement('div'); menu.className = 'ins-menu'; menu.setAttribute('data-noedit', '');
   menu.innerHTML = `<h5>Textos</h5>
     <div class="sub-ins"><button data-i="text" data-pre="title" class="pre-t">Título</button><button data-i="text" data-pre="sub" class="pre-s">Subtítulo</button><button data-i="text" data-pre="body">Texto normal</button><button data-i="box">▭ Recuadro oscuro</button></div>
