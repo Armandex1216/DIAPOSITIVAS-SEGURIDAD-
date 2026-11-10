@@ -138,7 +138,7 @@
     layerOf(sl).appendChild(el); applyStyle(el, f);
     D.applyLayout(el, store.layout['free:' + fid]);
     if (f.t === 'img') D.initSlot($('.slot', el));
-    if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, chartMake(f.kind), f.def); HC.colorable['fc-' + fid] = f.kind === 'donut' ? 'label' : 'series'; }
+    if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, KINDS[f.kind] ? chartMake(f.kind) : HC.maker(f.kind), f.def); HC.colorable['fc-' + fid] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(f.kind) || (f.def && f.def.porBarra) ? 'label' : 'series'; }
     if (D.editing()) setEditable(el, true);
     return el;
   }

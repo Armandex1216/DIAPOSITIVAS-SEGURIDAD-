@@ -141,6 +141,8 @@
       const cv = g.lugar && document.getElementById(g.lugar);
       if (!cv || cv.tagName !== 'CANVAS' || (g._dest && g._dest.mode !== 'slot')) return true;
       C[g.lugar] = { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined };
+      // el tipo elegido en Safety HOC (barras, barra de proporción, cuadrícula…) reemplaza al de la plantilla
+      const tipos = D.store.meta.tipos = Object.assign({}, D.store.meta.tipos || {}); if (g.tipo && HC.KINDS[g.tipo] && g.tipo !== cv.dataset.chart) tipos[g.lugar] = g.tipo; else delete tipos[g.lugar];
       const sl = cv.closest('.slide'); if (sl && g._dest) D.store.hidden[sl.id] = false; // la lámina de la plantilla vuelve a mostrarse
       return false;
     });
@@ -150,7 +152,7 @@
      Se insertan antes de la lámina de cierre (o al final). Devuelve el número de la primera lámina nueva. */
   function addChartSlides(list, antes) {
     const S = D.store, sl = D.slides, uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    const KINDS = ['bar', 'hbar', 'line', 'donut', 'stack'];
+    const KINDS = ['bar', 'hbar', 'line', 'donut', 'stack', 'split', 'waffle', 'pie', 'polar', 'radar'];
     let at = sl.length - 1; const last = sl[at];
     if (!(last && (/cierre/i.test(last.id) || /cierre|gracias/i.test(last.dataset.title || '')))) at = sl.length;
     if (antes !== undefined) { const j = antes ? sl.findIndex(x => x.id === antes) : -1; at = j > 0 ? j : sl.length; } // «antes de»: elegido al recibir
