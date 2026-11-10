@@ -93,3 +93,20 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .camp-t{position:absolute;left:200px;right:200px;bottom:60px;font-size:30px}
 .undo-imp{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;background:#1a1917;color:#fff;border:0;border-radius:999px;padding:10px 20px;font:600 14px system-ui;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);cursor:pointer}
 .tt td.rk{font-weight:800}.tt td.rk.b{color:#1f5fa8}.tt td.rk.m{color:#b7791f}.tt td.rk.a{color:#e11d1d}
+/* GUM: portada y cierre al estilo del comité */
+#g-portada .g-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(18,16,12,.92) 0%,rgba(18,16,12,.55) 48%,rgba(18,16,12,.05) 75%),linear-gradient(0deg,rgba(18,16,12,.7),transparent 45%)}
+#g-portada .cover-bg{inset:-40px}
+#g-portada .g-logo{position:absolute;left:110px;top:70px;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45))}#g-portada .g-logo img{height:150px;display:block}
+#g-portada .g-ttl{position:absolute;left:110px;top:330px;width:1050px;color:#fff;display:flex;flex-direction:column;pointer-events:none}
+#g-portada .g-ttl>*{pointer-events:auto}
+#g-portada .g-ttl .kick{order:-1;font-size:26px;letter-spacing:.42em;font-weight:700;color:var(--gold-l)}
+#g-portada .g-ttl h1{font-size:128px;line-height:.98;margin:22px 0 0;font-weight:900;letter-spacing:-.02em;color:#fff}
+#g-portada .g-ttl h1 span{display:block;color:var(--gold)}
+#g-portada .g-date{margin-top:40px;display:inline-flex;align-items:center;gap:22px;font-size:34px;font-weight:600}
+#g-portada .g-date p{margin:0;color:#fff}#g-portada .g-date .dt{font-weight:800;color:var(--gold-l)}
+#g-portada .g-date i{display:block;width:90px;height:5px;background:var(--gold);border-radius:4px;flex:none}
+#g-cierre .g-end-lg{position:absolute;left:150px;top:210px;width:560px}#g-cierre .g-end-lg img{width:100%;display:block}
+#g-cierre .g-end-q{position:absolute;left:150px;top:650px;width:1100px;color:#fff}
+#g-cierre .g-end-q h3{font-size:44px;font-weight:700;margin:0 0 14px;color:#d8d1c2}
+#g-cierre .g-end-q h2{font-size:72px;font-weight:900;line-height:1.08;margin:0;color:#fff}
+#g-cierre .g-end-q h2 span{color:var(--gold-l)}
