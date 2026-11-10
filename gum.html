@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reunión GUM · Seguridad Industrial</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261110e">
-<link rel="stylesheet" href="assets/css/tpl.css?v=20261110e">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261110g">
+<link rel="stylesheet" href="assets/css/tpl.css?v=20261110g">
 <style></style>
 <script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
 </head>
@@ -37,12 +37,14 @@
     <div class="gp"><h4>POR ZONA</h4><div class="chartbox"><canvas id="g-zona" data-chart="donut" data-colors="#e11d1d,#16a34a,#1f5fa8" data-def='{"labels": ["Presa de relave", "Pallancata", "Selene"], "series": [{"name": "Reportes", "values": [162, 107, 76]}]}'></canvas></div></div>
   </div>
   <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="hall_total">345</b> Reportes</p>
+  <p class="cm gum-lect l" data-bind="obs_texto" data-a="up" data-d=".4">Predominan las condiciones inseguras: el foco es cerrar físicamente las condiciones y sostener las inspecciones planeadas.</p>
+  <p class="cm gum-lect r" data-bind="zona_texto" data-a="up" data-d=".5">Pallancata concentra la mayor parte de los hallazgos del mes.</p>
 </section>
 <section class="slide light white" id="g-abiertos" data-title="Hallazgos abiertos">
   <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Reporte de hallazgos abiertos</h2>
   <div class="g2" style="bottom:110px" data-a="up">
-    <div class="gp"><div class="chartbox" style="flex:1"><canvas id="g-abz" data-chart="stack" data-colors="#1f5fa8,#f6c343,#e11d1d" data-def='{"labels": ["Selene", "Presa / Rápida", "Pallancata"], "series": [{"name": "Bajos", "values": [8, 18, 14]}, {"name": "Medio", "values": [5, 10, 5]}, {"name": "Alto", "values": [2, 1, 0]}]}'></canvas></div><ul class="cmb"><li>Se evidencia mayor concentración de reportes abiertos en la presa de relaves (26).</li></ul></div>
-    <div class="gp"><h4>POR ESTADO</h4><div class="chartbox"><canvas id="g-estado" data-chart="donut" data-colors="#e11d1d,#16a34a" data-def='{"labels": ["Abierto", "Cerrado"], "series": [{"name": "Reportes", "values": [63, 2916]}]}'></canvas></div><ul class="cmb"><li>Se incrementó el número de reportes abiertos respecto a la semana pasada (8.6 %).</li></ul></div>
+    <div class="gp"><div class="chartbox" style="flex:1"><canvas id="g-abz" data-chart="stack" data-colors="#1f5fa8,#f6c343,#e11d1d" data-def='{"labels": ["Selene", "Presa / Rápida", "Pallancata"], "series": [{"name": "Bajos", "values": [8, 18, 14]}, {"name": "Medio", "values": [5, 10, 5]}, {"name": "Alto", "values": [2, 1, 0]}]}'></canvas></div><ul class="cmb"><li data-bind="abz_texto">Se evidencia mayor concentración de reportes abiertos en la presa de relaves (26).</li></ul></div>
+    <div class="gp"><h4>POR ESTADO</h4><div class="chartbox"><canvas id="g-estado" data-chart="donut" data-colors="#e11d1d,#16a34a" data-def='{"labels": ["Abierto", "Cerrado"], "series": [{"name": "Reportes", "values": [63, 2916]}]}'></canvas></div><ul class="cmb"><li data-bind="estado_texto">Se incrementó el número de reportes abiertos respecto a la semana pasada (8.6 %).</li></ul></div>
   </div>
   <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="abiertos_total">63</b> Reportes abiertos</p>
 </section>
@@ -61,8 +63,8 @@
 <section class="slide light white" id="g-oto" data-title="Reporte OTO">
   <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Reporte OTO</h2>
   <div class="g2" style="bottom:110px" data-a="up">
-    <div class="gp"><h4>POR ZONAS</h4><div class="chartbox"><canvas id="g-oto-zona" data-chart="donut" data-colors="#e11d1d,#16a34a,#1f5fa8" data-def='{"labels": ["Presa", "Selene", "Pallancata"], "series": [{"name": "OTO", "values": [29, 19, 7]}]}'></canvas></div><p class="cm">Se evidencia un aumento en reportes en Selene y Presa, sin embargo la reportabilidad sigue siendo baja.</p></div>
-    <div class="gp"><h4>TIPO DE OTO</h4><div class="chartbox"><canvas id="g-oto-tipo" data-chart="donut" data-colors="#16a34a,#e11d1d" data-def='{"labels": ["Seguro", "Desvío"], "series": [{"name": "OTO", "values": [46, 9]}]}'></canvas></div><p class="cm">De los desvíos 6 corresponden a PROYECTOS, 1 a PLANTA y 2 a MANTENIMIENTO.</p></div>
+    <div class="gp"><h4>POR ZONAS</h4><div class="chartbox"><canvas id="g-oto-zona" data-chart="donut" data-colors="#e11d1d,#16a34a,#1f5fa8" data-def='{"labels": ["Presa", "Selene", "Pallancata"], "series": [{"name": "OTO", "values": [29, 19, 7]}]}'></canvas></div><p class="cm" data-bind="oto_zona_texto">Se evidencia un aumento en reportes en Selene y Presa, sin embargo la reportabilidad sigue siendo baja.</p></div>
+    <div class="gp"><h4>TIPO DE OTO</h4><div class="chartbox"><canvas id="g-oto-tipo" data-chart="donut" data-colors="#16a34a,#e11d1d" data-def='{"labels": ["Seguro", "Desvío"], "series": [{"name": "OTO", "values": [46, 9]}]}'></canvas></div><p class="cm" data-bind="oto_tipo_texto">De los desvíos 6 corresponden a PROYECTOS, 1 a PLANTA y 2 a MANTENIMIENTO.</p></div>
   </div>
   <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="oto_total">55</b> Reportes</p>
 </section>
@@ -82,12 +84,12 @@
 <script src="assets/lib/gsap.min.js"></script>
 <script src="assets/lib/chart.umd.min.js"></script>
 <script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
-<script src="assets/js/deck.js?v=20261110e"></script>
+<script src="assets/js/deck.js?v=20261110g"></script>
 <script src="assets/lib/supabase.min.js?v=2.119"></script>
-<script src="assets/js/cloud.js?v=20261110e"></script>
-<script src="assets/js/charts.js?v=20261110e"></script>
-<script src="assets/js/tpl.js?v=20261110e"></script>
-<script src="assets/js/editor.js?v=20261110e"></script>
+<script src="assets/js/cloud.js?v=20261110g"></script>
+<script src="assets/js/charts.js?v=20261110g"></script>
+<script src="assets/js/tpl.js?v=20261110g"></script>
+<script src="assets/js/editor.js?v=20261110g"></script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;location.reload()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>
