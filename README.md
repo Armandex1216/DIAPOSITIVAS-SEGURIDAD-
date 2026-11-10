@@ -21,6 +21,17 @@ La página de inicio muestra carpetas; cada carpeta agrupa sus presentaciones. P
 
 El minero 3D (solo en la página de inicio) se puede girar arrastrándolo; con un clic saluda.
 
+## Crear presentaciones nuevas (como en Canva)
+- En el inicio, entrar a una carpeta → **＋ Nueva presentación** → elegir plantilla, fecha y título. Se puede copiar el contenido de la última de la carpeta para solo actualizarla.
+- Plantillas: `gum.html` (Reunión GUM, martes), `riesgos-opt.html` (Análisis de eventos y riesgos críticos, sábados), `riesgos-corp.html` (Riesgos críticos corporativo), `csst-noviembre-2026.html` (CSST) y `blanco.html`.
+- Cada presentación se abre como `<plantilla>.html?d=<id>` y guarda sus cambios en la nube con ese id. Menú «⋯» en la tarjeta: renombrar, cambiar fecha o eliminar.
+- Desde **Safety HOC Intelligence** → «Enviar a PPT GUM» se abre la creación de una GUM con las estadísticas del periodo (`index.html#gum&importar=<id>`).
+
+## Editor
+- **✎ Editar**: barra de formato al escribir (negrita, cursiva, subrayado, tachado, tamaño, color de letra, resaltado, alineación, viñetas). En tablas: + fila / − fila / + columna / − columna y color de celda; los % de avance se colorean solos.
+- **＋ Insertar**: cuadro de texto, recuadro de comentario, imagen, gráfico (barras, horizontal, líneas, dona, apilado) con datos editables en vivo, tabla; láminas en blanco, duplicar, mover o eliminar lámina.
+- **✥ Mover**: arrastrar y cambiar tamaño de cualquier elemento; los elementos agregados se eliminan con «🗑 Eliminar».
+
 ## Guardado en la nube (Supabase)
 - Edición libre: no hay inicio de sesión. Todo lo que se edita (textos, cifras, gráficos, imágenes, posiciones, láminas ocultas) se guarda solo en la nube y todos lo ven al abrir.
 - Botón **☁ Guardado**: muestra el estado y permite **restaurar una versión anterior** (se guardan las últimas 300 por presentación).

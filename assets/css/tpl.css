@@ -1,0 +1,76 @@
+/* Estilos compartidos de las plantillas GUM / Riesgos Críticos */
+.slide.white{background:#fff}
+.slide.white .hexbg{opacity:.5}
+.tline{position:absolute;left:0;right:0;bottom:0;height:12px;background:linear-gradient(90deg,#f0a020,#f7c15a)}
+.ttl-g{position:absolute;left:70px;top:46px;font-size:56px;font-weight:900;color:#c39531;margin:0;letter-spacing:-.01em}
+.ttl-g.c{left:0;right:0;text-align:center}
+.ttl-n{position:absolute;left:0;right:0;top:44px;text-align:center;font-size:50px;font-weight:900;color:#1a1917;margin:0;letter-spacing:.01em}
+.subk{position:absolute;left:72px;top:128px;font-size:26px;font-weight:800;color:#1a1917;margin:0}
+.fl{position:absolute;left:72px;bottom:44px;margin:0;font-size:30px;font-weight:900;color:#c39531}
+.fl b{color:#c39531}
+/* portada */
+.cover-bg{position:absolute;inset:0}
+.cover-bg .slot{position:absolute;inset:0;border-radius:0}
+.cover-band{position:absolute;left:0;right:0;bottom:120px;height:220px;background:linear-gradient(90deg,rgba(168,120,30,.92),rgba(195,149,49,.78) 55%,rgba(195,149,49,.25));display:flex;flex-direction:column;justify-content:center;padding:0 70px}
+.cover-band h1{margin:0;color:#fff;font-size:86px;font-weight:900;letter-spacing:.01em;line-height:1}
+.cover-band p{margin:10px 0 0;color:#fff;font-size:40px;font-weight:300;letter-spacing:.04em}
+.cover-band .dt{font-weight:800;font-size:38px}
+.cover-band.gray{background:linear-gradient(90deg,rgba(220,220,220,.95),rgba(220,220,220,.85) 60%,rgba(220,220,220,.55));}
+.cover-band.gray h1{color:#1a1917;font-size:62px}.cover-band.gray p{color:#1a1917}
+.cover-logo{position:absolute;right:70px;top:40px;width:90px;height:90px;border-radius:0 0 18px 18px;background:#fff;display:grid;place-items:center}
+.cover-logo img{height:64px}
+/* índices GUM */
+.idxs{position:absolute;left:150px;top:200px;width:820px;display:flex;flex-direction:column;gap:46px}
+.idx{display:grid;grid-template-columns:200px 1fr;align-items:center;position:relative}
+.idx .circ{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#e9e9e9);box-shadow:0 10px 30px -12px rgba(0,0,0,.35),inset 0 0 0 10px #f4f4f4;display:grid;place-items:center;font-size:54px;font-weight:900;color:#16a34a;z-index:2}
+.idx.bad .circ{color:#e11d1d}
+.idx .lbl2{margin-left:-40px;background:#efefef;border-radius:0 26px 26px 0;padding:22px 30px 22px 70px;font-size:36px;font-weight:800;color:#16a34a;text-align:center;line-height:1.1}
+.idx.bad .lbl2{color:#e11d1d}
+.idx .exc{position:absolute;left:220px;bottom:-34px;background:#fff;border:3px solid #ddd;border-radius:26px;padding:6px 60px;font-size:28px;font-weight:600;color:#4c4a46;box-shadow:0 6px 14px -8px rgba(0,0,0,.3)}
+.idx .exc::before{content:"";position:absolute;left:-14px;top:50%;width:26px;height:26px;border-radius:50%;background:#4c4a46;transform:translateY(-50%)}
+.hht{position:absolute;right:90px;top:170px;width:700px;height:560px;border-radius:28px;background:linear-gradient(#eef0f3,#e3e6ea);box-shadow:0 20px 40px -20px rgba(0,0,0,.35);text-align:center;padding-top:200px;box-sizing:border-box}
+.hht .hd{position:absolute;left:-40px;top:40px;width:600px;background:linear-gradient(90deg,#1d4f9c,#2f6db5);color:#fff;font-size:40px;font-weight:800;padding:26px 34px;border-radius:14px 14px 14px 0;text-align:left;box-shadow:0 12px 24px -12px rgba(0,0,0,.45)}
+.hht .big2{font-size:46px;font-weight:800;color:#1a1917;margin:0}
+.hht .sm{font-size:36px;font-weight:700;color:#1a1917;margin:50px 0 0;line-height:1.3}
+.prod{position:absolute;right:60px;bottom:50px;width:190px}
+/* paneles de gráficos */
+.g2{position:absolute;left:70px;right:70px;top:170px;bottom:120px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.gp{display:flex;flex-direction:column}
+.gp h4{margin:0 0 6px;text-align:center;font-size:26px;font-weight:800;letter-spacing:.04em;color:#1a1917}
+.gp .chartbox{flex:1;min-height:0}
+.cm{margin:8px 0 0;font-size:25px;font-weight:700;line-height:1.35;color:#1a1917;text-align:center}
+ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-height:1.35;text-align:justify}
+.side-txt{font-size:31px;font-weight:800;line-height:1.45;color:#1a1917;text-align:center;align-self:center;margin:0 30px}
+/* tablas posicionadas */
+.tbx{position:absolute;left:60px;right:60px;top:180px}
+.tbx.n{top:140px}
+/* paneles oscuros (Riesgos críticos) */
+.navy{position:absolute;left:0;top:0;bottom:12px;width:540px;background:#1d2a4d;color:#fff;padding:240px 60px 0;box-sizing:border-box}
+.navy img{position:absolute;left:60px;top:60px;height:80px}
+.navy .bar{width:180px;height:4px;background:#f0a020;margin-bottom:40px}
+.navy h2{margin:0;font-size:48px;font-weight:800;line-height:1.15;color:#fff}
+.navy p{margin:40px 0 0 60px;font-size:34px;font-weight:800}
+.circle-ph{position:absolute;left:740px;top:70px;width:900px;height:900px;border-radius:50%;overflow:hidden;box-shadow:0 30px 70px -30px rgba(0,0,0,.5)}
+.circle-ph .slot{position:absolute;inset:0;border-radius:50%}
+/* fatiga / indicadores (corporativo) */
+.cg{position:absolute;left:70px;top:150px;bottom:80px;width:1060px}
+.cg .chartbox{height:100%}
+.rings{position:absolute;right:80px;top:160px;width:560px;display:flex;flex-direction:column;gap:46px}
+.rings .r{display:flex;gap:16px;justify-content:center}
+.rings .r div{width:190px;height:190px;border-radius:50%;background:#eee;box-shadow:inset 0 0 0 12px #f7f7f7,0 0 0 4px #d6d6d6;display:grid;place-items:center;text-align:center;font-size:24px;font-weight:800;color:#1a1917}
+.rings .r div span{display:block;font-size:22px}
+.gps{position:absolute;right:70px;top:250px;width:620px;display:flex;flex-direction:column;gap:70px}
+.gpct{display:grid;grid-template-columns:240px 1fr;align-items:center;gap:30px}
+.gpct svg{width:240px;height:130px;overflow:visible}
+.gpct .g-val{font-size:30px;font-weight:900;fill:#1a1917}
+.gpct p{margin:0;text-align:center;font-size:24px;font-weight:800}
+/* detalle OPT */
+.optd{position:absolute;left:60px;right:60px;top:150px}
+.optd .rich{font-size:24px;line-height:1.45;margin-top:22px}
+.optd .rich h5{font-size:24px;margin:16px 0 4px;font-weight:800}
+.optd .rich ul{margin:0;padding-left:44px}
+.ph-big{position:absolute;left:110px;right:520px;top:160px;bottom:60px}
+.ph-big .slot{position:absolute;inset:0;border-radius:6px}
+.ph-full{position:absolute;left:200px;right:200px;top:140px;bottom:70px}
+.ph-full .slot{position:absolute;inset:0;border-radius:10px}
+.end-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px}

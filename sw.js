@@ -1,13 +1,18 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: fccbe6e36a */
-const VERSION = 'fccbe6e36a';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 39e4a6301f */
+const VERSION = '39e4a6301f';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
+"blanco.html",
 "csst-noviembre-2026.html",
 "gum-octubre-2026.html",
+"gum.html",
 "index.html",
+"riesgos-corp.html",
+"riesgos-opt.html",
 "assets/css/deck.css",
+"assets/css/tpl.css",
 "assets/fonts/montserrat-latin-400-normal.woff2",
 "assets/fonts/montserrat-latin-500-normal.woff2",
 "assets/fonts/montserrat-latin-600-normal.woff2",
@@ -31,9 +36,11 @@ const FILES = [
 "assets/js/csst-build.js",
 "assets/js/csst.js",
 "assets/js/deck.js",
+"assets/js/editor.js",
 "assets/js/gum-build.js",
 "assets/js/gum.js",
 "assets/js/miner3d.js",
+"assets/js/tpl.js",
 "assets/lib/MotionPathPlugin.min.js",
 "assets/lib/chart.umd.min.js",
 "assets/lib/chartjs-plugin-datalabels.min.js",

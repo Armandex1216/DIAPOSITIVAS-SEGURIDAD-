@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reunión GUM · Seguridad Industrial</title>
+<link rel="stylesheet" href="assets/css/deck.css?v=20261110a">
+<link rel="stylesheet" href="assets/css/tpl.css?v=20261110a">
+<style></style>
+<script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
+</head>
+<body data-deck="gum-plantilla" data-transition="push">
+<div class="viewport"><div class="stage">
+
+<section class="slide dark" id="g-portada" data-transition="zoom" data-title="Portada">
+  <div class="cover-bg"><div class="slot cover" data-slot="portada" data-src="assets/img/portada.jpg" data-ph="Pegue la foto de portada"></div></div>
+  <div class="cover-logo" data-a="down"><img src="assets/img/logo-mark.png?v=2" alt=""></div>
+  <div class="cover-band" data-a="left"><h1>REUNIÓN GUM</h1><p class="rich">Seguridad Industrial · <span class="edit dt" data-fecha>03/11/2026</span></p></div>
+</section>
+<section class="slide light white" id="g-ambiental" data-title="Momento ambiental">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g c" data-a="up">Momento Ambiental</h2><p class="subk" data-a="left">Gestión Social</p>
+  <div class="ph-full" style="top:190px" data-a="zoom"><div class="slot" data-slot="ambiental" data-ph="Pegue aquí la imagen del Momento Ambiental"></div></div>
+</section>
+<section class="slide light white" id="g-estad" data-title="Estadísticas">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Estadísticas</h2>
+  <div class="idxs">
+    <div class="idx" data-a="left"><div class="circ" data-count="1.17" data-dec="2" data-exc="1.35">1.17</div><div class="lbl2"><p style="margin:0">Índice de<br>Frecuencia</p></div><div class="exc"><p style="margin:0">Exc. 1.35</p></div></div>
+    <div class="idx" data-a="left" data-d=".15"><div class="circ" data-count="164" data-exc="150">164</div><div class="lbl2"><p style="margin:0">Índice de<br>Severidad</p></div><div class="exc"><p style="margin:0">Exc. 150</p></div></div>
+    <div class="idx" data-a="left" data-d=".3"><div class="circ" data-count="0" data-dec="2" data-exc="1">0.00</div><div class="lbl2"><p style="margin:0">Índice de Alto<br>Potencial</p></div><div class="exc"><p style="margin:0">Exc. 1.00</p></div></div>
+  </div>
+  <div class="hht" data-a="right"><div class="hd"><p style="margin:0">PALLANCATA - SELENE</p></div><p class="big2 rich"><span data-count="79085">79,085</span> HHT SIN ACTP</p><p class="sm">ÚLTIMO ACTP<br><span class="edit">21/10/2026</span></p></div>
+</section>
+<section class="slide light white" id="g-hall" data-title="Reporte de hallazgos">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Reporte de hallazgos</h2>
+  <div class="g2" data-a="up">
+    <div class="gp"><h4>POR OBSERVACIÓN</h4><div class="chartbox"><canvas id="g-obs" data-chart="donut" data-colors="#1f5fa8,#16a34a,#e11d1d" data-def='{"labels": ["Condición insegura", "Acto inseguro", "Sin clasificación"], "series": [{"name": "Reportes", "values": [252, 90, 3]}]}'></canvas></div></div>
+    <div class="gp"><h4>POR ZONA</h4><div class="chartbox"><canvas id="g-zona" data-chart="donut" data-colors="#e11d1d,#16a34a,#1f5fa8" data-def='{"labels": ["Presa de relave", "Pallancata", "Selene"], "series": [{"name": "Reportes", "values": [162, 107, 76]}]}'></canvas></div></div>
+  </div>
+  <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="hall_total">345</b> Reportes</p>
+</section>
+<section class="slide light white" id="g-abiertos" data-title="Hallazgos abiertos">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Reporte de hallazgos abiertos</h2>
+  <div class="g2" style="bottom:110px" data-a="up">
+    <div class="gp"><div class="chartbox" style="flex:1"><canvas id="g-abz" data-chart="stack" data-colors="#1f5fa8,#f6c343,#e11d1d" data-def='{"labels": ["Selene", "Presa / Rápida", "Pallancata"], "series": [{"name": "Bajos", "values": [8, 18, 14]}, {"name": "Medio", "values": [5, 10, 5]}, {"name": "Alto", "values": [2, 1, 0]}]}'></canvas></div><ul class="cmb"><li>Se evidencia mayor concentración de reportes abiertos en la presa de relaves (26).</li></ul></div>
+    <div class="gp"><h4>POR ESTADO</h4><div class="chartbox"><canvas id="g-estado" data-chart="donut" data-colors="#e11d1d,#16a34a" data-def='{"labels": ["Abierto", "Cerrado"], "series": [{"name": "Reportes", "values": [63, 2916]}]}'></canvas></div><ul class="cmb"><li>Se incrementó el número de reportes abiertos respecto a la semana pasada (8.6 %).</li></ul></div>
+  </div>
+  <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="abiertos_total">63</b> Reportes abiertos</p>
+</section>
+<section class="slide light white" id="g-s-retraso" data-title="Retraso en reportes">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Retraso en reportes</h2>
+  <div class="g2" data-a="up" style="grid-template-columns:1.05fr .95fr">
+    <div class="gp"><h4>RETRASO EN REPORTE</h4><div class="chartbox"><canvas id="g-retraso" data-chart="donut" data-colors="#1f5fa8,#16a34a,#e11d1d,#7f95c3,#8d8a83" data-def='{"labels": ["Mismo día", "1 día", "2 días", "3 - 6 días"], "series": [{"name": "Reportes", "values": [220, 71, 31, 23]}]}'></canvas></div></div>
+    <p class="side-txt" data-bind="retraso_texto">El 37,3 % de los hallazgos se registra fuera del día de detección y el 14,5 % tarda entre 2 y 6 días. La brecha está en la oportunidad del registro: estos hallazgos ingresan tarde al seguimiento formal, retrasando su visibilidad para gestionar acciones.</p>
+  </div>
+  <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="retraso_total">245</b> Reportes</p>
+</section>
+<section class="slide light white" id="g-resumen" data-title="Resumen">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" style="top:80px" data-a="up">RESUMEN</h2>
+  <div class="tbx" style="left:90px;right:760px;top:250px;zoom:1.35" data-a="up"><table class="tt gold" data-tbl data-auto><thead><tr><th>Item</th><th>Cumplimiento</th></tr></thead><tbody><tr><td>HALLAZGOS</td><td class="pc">100%</td></tr><tr><td>OPT</td><td class="pc">100%</td></tr><tr><td>OTO</td><td class="pc">100%</td></tr><tr><td>INSPECCIÓN GERENCIAL</td><td class="pc">100%</td></tr></tbody></table></div>
+</section>
+<section class="slide light white" id="g-oto" data-title="Reporte OTO">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Reporte OTO</h2>
+  <div class="g2" style="bottom:110px" data-a="up">
+    <div class="gp"><h4>POR ZONAS</h4><div class="chartbox"><canvas id="g-oto-zona" data-chart="donut" data-colors="#e11d1d,#16a34a,#1f5fa8" data-def='{"labels": ["Presa", "Selene", "Pallancata"], "series": [{"name": "OTO", "values": [29, 19, 7]}]}'></canvas></div><p class="cm">Se evidencia un aumento en reportes en Selene y Presa, sin embargo la reportabilidad sigue siendo baja.</p></div>
+    <div class="gp"><h4>TIPO DE OTO</h4><div class="chartbox"><canvas id="g-oto-tipo" data-chart="donut" data-colors="#16a34a,#e11d1d" data-def='{"labels": ["Seguro", "Desvío"], "series": [{"name": "OTO", "values": [46, 9]}]}'></canvas></div><p class="cm">De los desvíos 6 corresponden a PROYECTOS, 1 a PLANTA y 2 a MANTENIMIENTO.</p></div>
+  </div>
+  <p class="fl rich"><span data-bind="periodo" data-mes>Octubre</span>: <b data-bind="oto_total">55</b> Reportes</p>
+</section>
+<section class="slide light white" id="g-acuerdos" data-title="Acuerdos y pedidos del CSST">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">Acuerdos y pedidos del CSST - <span data-mes="upper">OCTUBRE</span></h2>
+  <div class="tbx n" style="top:150px" data-a="up"><table class="tt gray" data-tbl data-auto="lt100-red"><thead><tr><th>Ubicación</th><th>Preocupación</th><th>Control</th><th>Responsable</th><th>Fecha</th><th>Avance</th></tr></thead><tbody><tr><td>Zona Virgen del Carmen</td><td>Protocolo de ingreso a mina presenta deficiencias de comunicación</td><td>Evaluación del protocolo de ingreso a mina / verificar cumplimiento y efectividad</td><td>Henry Meza</td><td>28/10/2026</td><td class="pc">50%</td></tr><tr><td>Zona Virgen del Carmen</td><td>Deficiente comunicación radial entre el óvalo hasta la subestación (Virgen del Carmen)</td><td>Evaluación física del cable</td><td>José Flores<br>Gonzalo Condo</td><td>20/10/2026</td><td class="pc">100%</td></tr><tr><td>Grifo Pallancata</td><td>Acumulación de vehículos móviles durante el abastecimiento de combustible</td><td>Evaluación de los horarios de abastecimiento del grifo</td><td>Jim Jove</td><td>25/10/2026</td><td class="pc">100%</td></tr><tr><td>Ingreso y salida de Selene (cruce de Huallunca / carretera nacional)</td><td>Equipos transitan a velocidad</td><td>Implementar badén para reducir la velocidad</td><td>Elvis Cordova</td><td>20/10/2026</td><td class="pc">100%</td></tr></tbody></table></div>
+</section>
+<section class="slide light white" id="g-insp" data-title="Inspección CSST">
+  <img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><h2 class="rich ttl-g" data-a="up">INSPECCIÓN CSST SELENE</h2>
+  <div class="tbx n" style="top:160px;right:560px" data-a="up"><table class="tt gray" data-tbl data-auto="lt100-red"><thead><tr><th>Ubicación</th><th>Observación</th><th>Control</th><th>Responsable</th><th>Fecha</th><th>Avance</th></tr></thead><tbody><tr><td>Paso peatonal Oficinas - Planta</td><td>Paso peatonal de oficinas a planta presenta desnivel con riesgo de caída durante el tránsito.</td><td>Habilitar paso peatonal hacia planta.</td><td>Elvis Cordova</td><td>31/10/2026</td><td class="pc">0%</td></tr></tbody></table></div>
+  <div style="position:absolute;right:60px;top:160px;width:460px;height:420px" data-a="zoom"><div class="slot cover zoomable" data-slot="insp-evid" data-ph="Evidencia (foto)" style="position:absolute;inset:0;border-radius:16px"></div></div>
+</section>
+<section class="slide light white" id="g-cierre" data-transition="zoom" data-title="Cierre">
+  <img class="end-logo" src="assets/img/logo-hochschild.png" alt="Hochschild" data-a="blur">
+</section>
+</div></div>
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/chart.umd.min.js"></script>
+<script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
+<script src="assets/js/deck.js?v=20261110a"></script>
+<script src="assets/lib/supabase.min.js?v=2.119"></script>
+<script src="assets/js/cloud.js?v=20261110a"></script>
+<script src="assets/js/charts.js?v=20261110a"></script>
+<script src="assets/js/tpl.js?v=20261110a"></script>
+<script src="assets/js/editor.js?v=20261110a"></script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
+</body>
+</html>

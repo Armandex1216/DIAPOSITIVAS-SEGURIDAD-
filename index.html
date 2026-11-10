@@ -42,6 +42,19 @@ h1 span{color:#c39531}
 .dk .in{padding:18px 22px;display:flex;align-items:center;gap:14px}
 .dk .in div{flex:1}.dk h3{margin:0;font-size:18px;font-weight:800}.dk p{margin:4px 0 0;font-size:14px;color:#8d8a83;font-weight:600}
 .dk .go{background:#c39531;color:#1a1917;font-weight:800;padding:10px 16px;border-radius:12px;font-size:14px;white-space:nowrap}
+.dkw{position:relative}.dk-menu{position:absolute;right:12px;top:12px;z-index:3;width:40px;height:40px;border-radius:12px;border:0;background:rgba(255,255,255,.92);font-size:22px;font-weight:900;cursor:pointer}
+.dk-new{border:2px dashed #d9c79c;background:#fffdf7;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;cursor:pointer;font-family:Montserrat,sans-serif;color:#1a1917}
+.dk-new .plus{width:74px;height:74px;border-radius:50%;background:#c39531;color:#1a1917;font-size:44px;font-weight:900;display:grid;place-items:center;margin-bottom:14px}
+.dk-new h3{margin:0;font-size:20px;font-weight:900}.dk-new p{margin:6px 16px 0;font-size:14px;color:#8d8a83;font-weight:600;text-align:center}
+.nmodal{position:fixed;inset:0;background:rgba(20,18,14,.55);display:none;place-items:center;z-index:50;padding:20px}.nmodal.on{display:grid}
+.nbox{background:#fff;border-radius:22px;padding:26px 28px;width:min(520px,94vw);display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
+.nbox h3{margin:0;font-size:24px;font-weight:900}.nsub{margin:-6px 0 0;color:#8d8a83;font-weight:600;font-size:14px}
+.nbox label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:800;letter-spacing:.04em;color:#6c6960}
+.nbox input,.nbox select{font:600 15px Montserrat,sans-serif;border:1px solid #e2d8c2;border-radius:10px;padding:11px 12px;color:#1a1917}
+.nbox .chk{flex-direction:row;align-items:flex-start;gap:10px;font-weight:600;letter-spacing:0;font-size:14px;color:#1a1917}.nbox .chk input{margin-top:3px}
+.nerr{margin:0;min-height:18px;color:#b02a2a;font-weight:700;font-size:13px}
+.nacts{display:flex;gap:10px;justify-content:flex-end}.nacts button{font:800 14px Montserrat,sans-serif;border:1px solid #e2d8c2;background:#fff;border-radius:12px;padding:11px 18px;cursor:pointer}
+.nacts .ok{background:#c39531;border-color:#c39531}.nacts .del{color:#b02a2a;border-color:#f0caca}
 .none{padding:60px;text-align:center;color:#8d8a83;font-weight:600;font-size:17px;background:#fff;border:2px dashed #e3d6b8;border-radius:22px}
 .keys{margin-top:44px;display:flex;flex-wrap:wrap;gap:10px 18px;color:#8d8a83;font-size:14px;font-weight:600}
 .keys span b{display:inline-block;min-width:28px;text-align:center;padding:3px 8px;border-radius:7px;background:#fff;border:1px solid #e6dcc6;color:#1a1917;margin-right:6px}
@@ -58,22 +71,31 @@ h1 span{color:#c39531}
   <nav class="crumb" id="crumb"></nav>
   <h1 id="ttl"></h1>
   <div id="view"></div>
+  <div class="nmodal" id="nmodal"></div>
   <div class="keys"><span><b>→</b>siguiente</span><span><b>←</b>anterior</span><span><b>F</b>pantalla completa</span><span><b>O</b>láminas</span><span><b>E</b>editar</span><span><b>M</b>mover</span><span><b>P</b>PDF</span></div>
 </main>
-<script src="data/catalogo.js?v=20261109e"></script>
+<script src="data/catalogo.js?v=20261110a"></script>
+<script src="data/nube.js?v=1" onerror="void 0"></script>
 <script>
 (function () {
-  const C = window.CATALOGO || [], $ = s => document.querySelector(s), esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  const n = f => f.items.length === 1 ? '1 elemento' : f.items.length + ' elementos';
-  const folder = f => `<a class="fd ${f.items.length ? '' : 'empty'}" href="#${f.id}"><div class="ico"><div class="back"></div><div class="ph ${f.portada && f.items.length ? '' : 'doc'}" style="${f.portada && f.items.length ? `background-image:url(${f.portada})` : ''}"></div><div class="front"></div></div><div><h3>${esc(f.nombre)}</h3><p>${n(f)}</p></div></a>`;
-  const deck = d => `<a class="dk" href="${d.archivo}"><div class="th" style="background-image:url(${d.portada || 'assets/img/portada.jpg'})"><b><span>${esc(d.fecha)}</span>${esc(d.titulo)}</b></div><div class="in"><div><h3>${esc(d.titulo)}</h3><p>${esc(d.fecha)}${d.laminas ? ' · ' + d.laminas + ' láminas' : ''}</p></div><span class="go">Presentar ▶</span></div></a>`;
+  const C = window.CATALOGO || [], P = window.PLANTILLAS || {}, N = window.NUBE || {}, $ = s => document.querySelector(s), esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const api = (path, opt = {}) => fetch(N.url + '/rest/v1/' + path, Object.assign({}, opt, { headers: Object.assign({ apikey: N.key, Authorization: 'Bearer ' + N.key, 'Content-Type': 'application/json' }, opt.headers || {}) })).then(async r => { if (!r.ok) throw new Error(await r.text()); return r.status === 204 ? null : r.json().catch(() => null); });
+  const cloud = !!(N.url && N.key);
+  let DECKS = []; try { DECKS = JSON.parse(localStorage.getItem('decks-cache') || '[]'); } catch (e) { }
+  const fdate = d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+  const dayName = d => d ? ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][new Date(d + 'T12:00:00').getDay()] : '';
+  const itemsOf = f => [...DECKS.filter(d => d.carpeta === f.id).map(d => ({ titulo: d.titulo, fecha: d.fecha ? dayName(d.fecha)[0].toUpperCase() + dayName(d.fecha).slice(1) + ' ' + fdate(d.fecha) : '', archivo: (P[d.plantilla] || P.blanco).archivo + '?d=' + encodeURIComponent(d.id), deck: d.id, cloud: d, laminas: (P[d.plantilla] || {}).laminas, portada: f.portada || 'assets/img/portada.jpg' })), ...f.items];
+  const n = f => { const k = itemsOf(f).length; return k === 1 ? '1 elemento' : k + ' elementos'; };
+  const folder = f => { const has = itemsOf(f).length; return `<a class="fd ${has ? '' : 'empty'}" href="#${f.id}"><div class="ico"><div class="back"></div><div class="ph ${f.portada && has ? '' : 'doc'}" style="${f.portada && has ? `background-image:url(${f.portada})` : ''}"></div><div class="front"></div></div><div><h3>${esc(f.nombre)}</h3><p>${n(f)}</p></div></a>`; };
+  const deck = d => `<div class="dkw"><a class="dk" href="${d.archivo}"><div class="th" style="background-image:url(${d.portada || 'assets/img/portada.jpg'})"><b><span>${esc(d.fecha)}</span>${esc(d.titulo)}</b></div><div class="in"><div><h3>${esc(d.titulo)}</h3><p>${esc(d.fecha)}${d.laminas ? ' · ' + d.laminas + ' láminas' : ''}</p></div><span class="go">Abrir ▶</span></div></a>${d.cloud ? `<button class="dk-menu" data-menu="${esc(d.deck)}" title="Opciones">⋯</button>` : ''}</div>`;
+  const newCard = f => `<button class="dk dk-new" data-new="${f.id}"><div class="plus">＋</div><h3>Nueva presentación</h3><p>Plantilla: ${esc((P[f.plantilla] || P.blanco).nombre)}</p></button>`;
   function render() {
-    const id = decodeURIComponent(location.hash.slice(1)), f = C.find(x => x.id === id), q = $('#q').value.trim().toLowerCase();
+    const id = decodeURIComponent(location.hash.slice(1)).split('&')[0], f = C.find(x => x.id === id), q = $('#q').value.trim().toLowerCase();
     if (f) {
       $('#crumb').innerHTML = `<a href="#">Inicio</a><span>›</span><span>${esc(f.nombre)}</span>`; $('#ttl').innerHTML = esc(f.nombre);
-      $('#view').innerHTML = f.items.length ? `<div class="decks">${f.items.map(deck).join('')}</div>` : `<div class="none">Esta carpeta todavía no tiene presentaciones.</div>`;
+      $('#view').innerHTML = `<div class="decks">${newCard(f)}${itemsOf(f).map(deck).join('')}</div>`;
     } else if (q) {
-      const fs = C.filter(x => x.nombre.toLowerCase().includes(q)), ds = C.flatMap(x => x.items).filter(d => (d.titulo + ' ' + d.fecha).toLowerCase().includes(q));
+      const fs = C.filter(x => x.nombre.toLowerCase().includes(q)), ds = C.flatMap(itemsOf).filter(d => (d.titulo + ' ' + d.fecha).toLowerCase().includes(q));
       $('#crumb').innerHTML = `<a href="#">Inicio</a><span>›</span><span>Búsqueda</span>`; $('#ttl').innerHTML = `Resultados para <span>“${esc(q)}”</span>`;
       $('#view').innerHTML = (fs.length ? `<div class="grid">${fs.map(folder).join('')}</div>` : '') + (ds.length ? `<div class="decks" style="margin-top:30px">${ds.map(deck).join('')}</div>` : '') || `<div class="none">No se encontró nada.</div>`;
     } else {
@@ -81,7 +103,57 @@ h1 span{color:#c39531}
       $('#view').innerHTML = `<div class="grid">${C.map(folder).join('')}</div>`;
     }
   }
-  addEventListener('hashchange', () => { $('#q').value = ''; render(); scrollTo(0, 0); }); $('#q').addEventListener('input', render); render();
+  async function loadDecks() {
+    if (!cloud) return;
+    try { DECKS = await api('diapo_decks?borrado=eq.false&select=*&order=fecha.desc.nullslast,creado.desc') || []; localStorage.setItem('decks-cache', JSON.stringify(DECKS)); render(); } catch (e) { console.warn('Sin conexión: se muestran las presentaciones guardadas en este equipo', e); }
+  }
+  /* ---------- crear presentación ---------- */
+  const nextDay = dow => { const d = new Date(); d.setHours(12); if (dow == null) return d.toISOString().slice(0, 10); const add = (dow - d.getDay() + 7) % 7; d.setDate(d.getDate() + add); return d.toISOString().slice(0, 10); };
+  function openNew(folderId, importId) {
+    const f = C.find(x => x.id === folderId) || C[0]; const m = $('#nmodal');
+    m.innerHTML = `<form class="nbox"><h3>Nueva presentación</h3><p class="nsub">Carpeta: <b>${esc(f.nombre)}</b>${importId ? ' · con las estadísticas enviadas desde Safety HOC' : ''}</p>
+      <label>Plantilla<select name="p">${Object.entries(P).map(([k, v]) => `<option value="${k}" ${k === f.plantilla ? 'selected' : ''}>${esc(v.nombre)}</option>`).join('')}</select></label>
+      <label>Fecha de la reunión<input type="date" name="fecha" required></label>
+      <label>Título<input name="t" required maxlength="120"></label>
+      <label class="chk"><input type="checkbox" name="copy" checked> Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla</label>
+      <p class="nerr"></p><div class="nacts"><button type="button" data-x>Cancelar</button><button class="ok">Crear y abrir</button></div></form>`;
+    const fm = $('form', m), sync = () => { const pl = P[fm.p.value] || P.blanco; fm.fecha.value = fm.fecha.value || nextDay(pl.dia); fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; };
+    fm.p.onchange = () => { fm.fecha.value = ''; sync(); }; fm.fecha.onchange = () => { const pl = P[fm.p.value] || P.blanco; fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; }; sync();
+    const prev = itemsOf(f)[0]; if (!prev) { fm.copy.checked = false; fm.copy.closest('label').style.display = 'none'; }
+    m.classList.add('on'); $('[data-x]', m).onclick = () => m.classList.remove('on');
+    fm.onsubmit = async e => { e.preventDefault(); const err = $('.nerr', m); if (!cloud) { err.textContent = 'La nube no está configurada.'; return; }
+      if (!navigator.onLine) { err.textContent = 'Necesita internet para crear una presentación nueva.'; return; }
+      const pl = fm.p.value, fecha = fm.fecha.value, id = `${pl}-${fecha.replace(/-/g, '')}-${Math.random().toString(36).slice(2, 6)}`;
+      err.textContent = 'Creando…';
+      try {
+        await api('diapo_decks', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ id, carpeta: f.id, plantilla: pl, titulo: fm.t.value.trim(), fecha }) });
+        const src = prev && fm.copy.checked ? prev : null;
+        if (src && src.deck && (!src.cloud || src.cloud.plantilla === pl) && !(src.archivo || '').startsWith('gum-octubre')) {
+          const rows = await api(`diapo_cambios?deck_id=eq.${encodeURIComponent(src.deck)}&select=data`);
+          if (rows && rows[0]) { const data = rows[0].data || {}; data.meta = {}; await api('diapo_cambios', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ deck_id: id, data, updated_at: new Date().toISOString(), updated_by: 'copia' }) }); }
+        }
+        location.href = `${(P[pl] || P.blanco).archivo}?d=${encodeURIComponent(id)}&fecha=${fecha}${importId ? '&importar=' + encodeURIComponent(importId) : ''}`;
+      } catch (ex) { console.error(ex); err.textContent = 'No se pudo crear: ' + ex.message.slice(0, 160); }
+    };
+  }
+  /* ---------- renombrar / eliminar ---------- */
+  function menu(id, btn) {
+    const d = DECKS.find(x => x.id === id); if (!d) return; const m = $('#nmodal');
+    m.innerHTML = `<form class="nbox"><h3>${esc(d.titulo)}</h3><label>Título<input name="t" value="${esc(d.titulo)}" maxlength="120"></label><label>Fecha<input type="date" name="fecha" value="${d.fecha || ''}"></label><p class="nerr"></p>
+      <div class="nacts"><button type="button" class="del" data-del>🗑 Eliminar</button><span style="flex:1"></span><button type="button" data-x>Cancelar</button><button class="ok">Guardar</button></div></form>`;
+    m.classList.add('on'); const fm = $('form', m); $('[data-x]', m).onclick = () => m.classList.remove('on');
+    fm.onsubmit = async e => { e.preventDefault(); try { await api(`diapo_decks?id=eq.${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ titulo: fm.t.value.trim(), fecha: fm.fecha.value || null }) }); m.classList.remove('on'); loadDecks(); } catch (ex) { $('.nerr', m).textContent = 'No se pudo guardar.'; } };
+    $('[data-del]', m).onclick = async () => { if (!confirm('¿Eliminar «' + d.titulo + '»? Dejará de aparecer en la carpeta.')) return; try { await api(`diapo_decks?id=eq.${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ borrado: true }) }); m.classList.remove('on'); DECKS = DECKS.filter(x => x.id !== id); render(); loadDecks(); } catch (ex) { $('.nerr', m).textContent = 'No se pudo eliminar.'; } };
+  }
+  document.addEventListener('click', e => {
+    const nb = e.target.closest('[data-new]'); if (nb) { e.preventDefault(); openNew(nb.dataset.new); return; }
+    const mb = e.target.closest('[data-menu]'); if (mb) { e.preventDefault(); menu(mb.dataset.menu, mb); return; }
+    if (e.target.id === 'nmodal') e.target.classList.remove('on');
+  });
+  addEventListener('hashchange', () => { $('#q').value = ''; render(); scrollTo(0, 0); }); $('#q').addEventListener('input', render);
+  render(); loadDecks();
+  // llegada desde Safety HOC: #gum&importar=<id>
+  const hp = new URLSearchParams(location.hash.slice(1).split('&').slice(1).join('&')); if (hp.get('importar')) openNew(location.hash.slice(1).split('&')[0] || 'gum', hp.get('importar'));
 })();
 </script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>

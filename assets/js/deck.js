@@ -8,20 +8,37 @@
   'use strict';
   const W = 1920, H = 1080;
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const body = document.body, deckId = body.dataset.deck || 'deck', LSK = 'deck:' + deckId;
-  const stage = $('.stage'), slides = $$('.slide', stage);
+  const qs = new URLSearchParams(location.search);
+  const body = document.body, deckId = (qs.get('d') || body.dataset.deck || 'deck').replace(/[^\w\-]/g, ''), LSK = 'deck:' + deckId;
+  const stage = $('.stage'); let slides = [];
   const hooks = {};
 
   /* ---------- almacén de cambios ---------- */
-  const blank = () => ({ text: {}, charts: {}, images: {}, hidden: {}, layout: {} });
+  const blank = () => ({ text: {}, charts: {}, images: {}, hidden: {}, layout: {}, slides: {}, free: {}, tables: {}, meta: {} });
   const merge = (a, b) => { const o = blank(); for (const k of Object.keys(o)) o[k] = Object.assign({}, (a || {})[k], (b || {})[k]); return o; };
   let fileEdits = (window.DECK_EDITS && window.DECK_EDITS[deckId]) || null;
   let local = null; try { local = JSON.parse(localStorage.getItem(LSK) || 'null'); } catch (e) { }
   const store = merge(fileEdits, local);
+  /* ---------- láminas creadas por el usuario (en blanco o duplicadas) ---------- */
+  const BLANK = t => `<div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><div class="sh"><div class="kick" data-a="left">Sección</div><h2 data-a="up">${t || 'Título de la lámina'}</h2></div>`;
+  (function buildExtraSlides() {
+    const base = {}; $$('.slide', stage).forEach(sl => base[sl.id] = sl.cloneNode(true));
+    const list = Object.entries(store.slides).filter(([, v]) => v && !v.removed).sort((a, b) => (a[1].n || 0) - (b[1].n || 0));
+    list.forEach(([id, v]) => {
+      let sl;
+      if (v.base && base[v.base]) { sl = base[v.base].cloneNode(true); sl.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); sl.querySelectorAll('[data-slot]').forEach(e => e.dataset.slot = e.dataset.slot + '@' + id); sl.removeAttribute('data-hidden'); }
+      else { sl = document.createElement('section'); sl.className = 'slide ' + (v.dark ? 'dark' : 'light'); sl.innerHTML = BLANK(v.title); }
+      sl.id = id; sl.dataset.title = v.title || (v.base ? 'Copia' : 'Lámina nueva'); sl.dataset.extra = '1';
+      const after = v.after && document.getElementById(v.after);
+      if (after && after.parentNode === stage) after.after(sl); else stage.appendChild(sl);
+    });
+  })();
+  slides = $$('.slide', stage);
+
   const persist = () => { try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
   const D = window.DECK = {
-    i: 0, slides, busy: false, frags: [], store, deckId, LSK,
+    i: 0, slides, busy: false, frags: [], store, deckId, LSK, $, $$,
     on(id, ev, fn) { (hooks[id + ':' + ev] = hooks[id + ':' + ev] || []).push(fn); },
     fire(sl, ev) { (hooks[sl.id + ':' + ev] || []).forEach(f => { try { f(sl); } catch (e) { console.error(e); } }); },
     go, next, prev, persist, editing: () => body.classList.contains('editing'),
@@ -53,7 +70,7 @@
   document.addEventListener('click', e => { const z = e.target.closest('.zoomable'); if (z && !D.editing()) { e.stopPropagation(); const im = z.tagName === 'IMG' ? z : z.querySelector('img'); if (!im || !im.src) return; $('img', lb).src = im.src; lb.classList.add('on'); } }, true);
   let uiT; const wake = () => { body.classList.add('ui-on'); clearTimeout(uiT); uiT = setTimeout(() => body.classList.remove('ui-on'), 2200); };
   addEventListener('mousemove', wake);
-  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click() })[b.dataset.k](); };
+  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click() })[b.dataset.k]; if (typeof f === 'function') f(); };
 
   /* ---------- números ---------- */
   function parseNum(t) {
@@ -184,15 +201,15 @@
   function toggleFs() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => { }); else document.exitFullscreen(); }
 
   /* ---------- edición de textos y cifras ---------- */
-  const EDIT_SEL = 'h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,[data-count],[data-ed]';
-  const editablesIn = sl => $$(EDIT_SEL, sl).filter(el => !el.closest('[data-noedit]') && !el.querySelector(EDIT_SEL) && !el.closest('.chartbox'));
+  const EDIT_SEL = 'h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]';
+  const editablesIn = sl => $$(EDIT_SEL, sl).filter(el => !el.closest('[data-noedit]') && (el.classList.contains('rich') || !el.querySelector(EDIT_SEL)) && !(el.parentElement && el.parentElement.closest('.rich')) && !el.closest('.chartbox') && !el.closest('[data-tbl]') && !el.closest('.free-layer'));
   const keyOf = (sl, el, list) => sl.id + ':' + list.indexOf(el);
   function loadEdits() {
-    slides.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { const k = keyOf(sl, el, list); if (store.text[k] != null) { el.innerHTML = store.text[k]; } if (el.hasAttribute('data-count')) { if (store.text[k] != null) syncCount(el); el.dataset.orig0 = el.dataset.count; } }); });
+    slides.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { const k = keyOf(sl, el, list); if (store.text[k] != null) { el.innerHTML = store.text[k]; if (el.classList.contains('rich')) $$('[data-count]', el).forEach(syncCount); } if (el.hasAttribute('data-count')) { if (store.text[k] != null) syncCount(el); el.dataset.orig0 = el.dataset.count; } }); });
   }
   function commitEdits(scope) {
     const sls = scope ? [scope] : slides;
-    sls.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { if (el.dataset.orig == null) return; if (el.hasAttribute('data-count')) syncCount(el); const k = keyOf(sl, el, list); if (el.innerHTML !== el.dataset.orig) store.text[k] = el.innerHTML; el.dataset.orig = el.innerHTML; }); });
+    sls.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { if (el.dataset.orig == null) return; if (el.hasAttribute('data-count')) syncCount(el); if (el.classList.contains('rich')) $$('[data-count]', el).forEach(syncCount); const k = keyOf(sl, el, list); if (el.innerHTML !== el.dataset.orig) store.text[k] = el.innerHTML; el.dataset.orig = el.innerHTML; }); });
     persist();
   }
   function toggleEdit() {
@@ -215,7 +232,11 @@
     if (src && src.startsWith('dbimg:')) { slot.dataset.ref = src; slot.classList.add('has'); if (D.resolveImg) D.resolveImg(src).then(u => { if (u && slot.dataset.ref === src) im.src = u; }); return; } // imagen guardada en la nube
     if (src) { im.src = src; slot.classList.add('has'); } else { im.removeAttribute('src'); slot.classList.remove('has'); } }
   function initSlots() {
-    $$('.slot').forEach(slot => {
+    $$('.slot').forEach(initSlot);
+    document.addEventListener('paste', e => { if (!D.editing() || e.target.isContentEditable) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; const sl = slides[D.i]; const slot = $('.slot:not(.has)', sl) || $('.slot', sl); if (slot) { e.preventDefault(); slot._put(it.getAsFile()); } });
+  }
+  function initSlot(slot) {
+    if (slot._put) return; {
       const key = slot.dataset.slot; if (!$('img', slot)) slot.insertAdjacentHTML('afterbegin', '<img alt="">');
       if (!$('.slot-ui', slot)) slot.insertAdjacentHTML('beforeend', `<div class="slot-ui"><b>${slot.dataset.ph || 'Pegue aquí una imagen'}</b><span>Modo edición: clic para elegir archivo, arrastre la imagen o péguela con Ctrl+V</span><div class="slot-btns"><button data-s="pick">Elegir imagen</button><button data-s="clear">Quitar</button></div></div>`);
       const def = slot.dataset.src || '';
@@ -228,9 +249,9 @@
       slot.addEventListener('dragleave', () => slot.classList.remove('drag'));
       slot.addEventListener('drop', e => { if (!D.editing()) return; e.preventDefault(); slot.classList.remove('drag'); put(e.dataTransfer.files[0]); });
       slot._put = put;
-    });
-    document.addEventListener('paste', e => { if (!D.editing() || e.target.isContentEditable) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; const sl = slides[D.i]; const slot = $('.slot:not(.has)', sl) || $('.slot', sl); if (slot) { e.preventDefault(); slot._put(it.getAsFile()); } });
+    }
   }
+  D.initSlot = initSlot;
 
   /* ---------- exportar / importar cambios ---------- */
   function exportEdits() {
@@ -269,14 +290,14 @@
     }));
   }
   /* ---------- mover y cambiar tamaño (como Canva) ---------- */
-  const MOVE_SEL = '.card,.insight,.chartbox,.slot,.sh,.gauge,.mo,.ac,.ag,.ag-hub,.photos,.lab,.hx,.slogan,.ttl,.logo,.lg,.q,.donut,.kv,.months,.units,.unit,.mark,.tags,.hht,.big,.date,.kick,h1,h2,h3,dl,ul,table,.pill,.evd>*,.ins>*,.passo>*';
-  const movables = sl => $$(MOVE_SEL, sl).filter(el => !el.closest('.chartbox') || el.classList.contains('chartbox'));
-  const mkey = (sl, el) => sl.id + ':' + movables(sl).indexOf(el);
+  const MOVE_SEL = '.free,.card,.insight,.chartbox,.slot,.sh,.gauge,.mo,.ac,.ag,.ag-hub,.photos,.lab,.hx,.slogan,.ttl,.logo,.lg,.q,.donut,.kv,.months,.units,.unit,.mark,.tags,.hht,.big,.date,.kick,h1,h2,h3,dl,ul,table,.pill,.evd>*,.ins>*,.passo>*';
+  const movables = sl => $$(MOVE_SEL, sl).filter(el => (!el.closest('.chartbox') || el.classList.contains('chartbox')) && !el.closest('.free-layer'));
+  const mkey = (sl, el) => el.dataset.fid ? 'free:' + el.dataset.fid : sl.id + ':' + movables(sl).indexOf(el);
   function applyLayout(el, L) { el.style.translate = L && (L.x || L.y) ? `${L.x || 0}px ${L.y || 0}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
   function loadLayout() { slides.forEach(sl => movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); })); }
-  let selEl = null; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button></div>';
+  let selEl = null; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
   D.moving = () => body.classList.contains('moving');
-  function drawSel() { if (!selEl || !D.moving()) { selBox.remove(); return; } const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
+  function drawSel() { if (!selEl || !D.moving()) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
     Object.assign(selBox.style, { left: (r.left - a.left) / k + 'px', top: (r.top - a.top) / k + 'px', width: r.width / k + 'px', height: r.height / k + 'px' }); }
   const lay = el => { const sl = el.closest('.slide'), k = mkey(sl, el); return [k, store.layout[k] || (store.layout[k] = {})]; };
   function toggleMove() {
@@ -289,7 +310,7 @@
   stage.addEventListener('pointerdown', e => {
     if (!D.moving()) return; if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
     const sl = slides[D.i]; const rz = e.target.closest('.rz');
-    if (!rz) { let el = e.target.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el;
+    if (!rz) { let el = e.target.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
       if (!el || !sl.contains(el)) { selEl = null; drawSel(); return; } selEl = el; drawSel(); }
     if (!selEl) return; const [k, L] = lay(selEl), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = selEl.offsetWidth, h0 = selEl.offsetHeight, sc = D.scale;
     const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc; if (rz) { L.w = Math.max(40, Math.round(w0 + dx)); L.h = Math.max(30, Math.round(h0 + dy)); } else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); } applyLayout(selEl, L); drawSel(); };
@@ -298,11 +319,12 @@
   }, true);
   stage.addEventListener('click', e => { if (D.moving() && !e.target.closest('.sel-bar')) { e.preventDefault(); e.stopPropagation(); } }, true);
   selBox.addEventListener('click', e => { const b = e.target.closest('[data-mv]'); if (!b || !selEl) return; e.stopPropagation(); const [k, L] = lay(selEl);
+    if (b.dataset.mv === 'del') { const f = selEl.dataset.fid; if (f && D.onFreeDelete) { D.onFreeDelete(f); selEl = null; drawSel(); } return; }
     if (b.dataset.mv === 'reset') { delete store.layout[k]; applyLayout(selEl, null); } else { L.z = (L.z || 1) + 5; applyLayout(selEl, L); } persist(); drawSel(); D.fire(selEl.closest('.slide'), 'edited'); });
   document.addEventListener('keydown', e => { if (!D.moving() || !selEl || !/^Arrow/.test(e.key)) return; e.preventDefault(); e.stopImmediatePropagation(); const [k, L] = lay(selEl), d = e.shiftKey ? 10 : 1;
     if (e.key === 'ArrowLeft') L.x = (L.x || 0) - d; if (e.key === 'ArrowRight') L.x = (L.x || 0) + d; if (e.key === 'ArrowUp') L.y = (L.y || 0) - d; if (e.key === 'ArrowDown') L.y = (L.y || 0) + d; applyLayout(selEl, L); drawSel(); persist(); }, true);
   addEventListener('resize', drawSel);
-  D.toggleMove = toggleMove;
+  D.toggleMove = toggleMove; D.applyLayout = applyLayout; D.drawSel = drawSel; D.select = el => { selEl = el; drawSel(); }; D.textKey = el => { const sl = el.closest('.slide'), list = editablesIn(sl); return keyOf(sl, el, list); };
 
   /* ---------- seguro para proyector (HDMI) ---------- */
   // pantalla negra / blanca: B o . (control remoto) · W o ,
