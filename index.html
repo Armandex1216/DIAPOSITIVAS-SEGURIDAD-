@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diapositivas de Seguridad · U.M. Pallancata – Selene</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261110k">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261110m">
 <style>
 html,body{overflow:auto;height:auto;background:#f7f2e8;color:#1a1917}
 .top{position:sticky;top:0;z-index:5;background:rgba(247,242,232,.9);backdrop-filter:blur(10px);border-bottom:1px solid #ebe1cc}
@@ -124,7 +124,7 @@ h1 span{color:#c39531}
     const fm = $('form', m), sync = () => { const pl = P[fm.p.value] || P.blanco; fm.fecha.value = fm.fecha.value || nextDay(pl.dia); fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; };
     fm.p.onchange = () => { fm.fecha.value = ''; sync(); }; fm.fecha.onchange = () => { const pl = P[fm.p.value] || P.blanco; fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; }; sync();
     const prev = itemsOf(f)[0]; if (!prev) { fm.copy.checked = false; fm.copy.closest('label').style.display = 'none'; }
-    const copyTxt = () => { const lab = fm.copy.closest('label'); lab.lastChild.textContent = fm.p.value === 'gum' ? ' Copiar los acuerdos y pedidos del CSST (y textos) de la última GUM para solo actualizarlos. La GUM empieza vacía: portada, acuerdos y cierre; los gráficos se agregan después.' : ' Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla'; };
+    const copyTxt = () => { const lab = fm.copy.closest('label'); lab.lastChild.textContent = fm.p.value === 'gum' ? ' Copiar los acuerdos y pedidos del CSST (y textos) de la última GUM para solo actualizarlos. La GUM empieza con portada, índices por unidad, acta del CSST, campaña del mes y cierre; los gráficos de Safety HOC se agregan después.' : ' Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla'; };
     fm.p.addEventListener('change', copyTxt); copyTxt();
     m.classList.add('on'); $('[data-x]', m).onclick = () => m.classList.remove('on');
     fm.onsubmit = async e => { e.preventDefault(); const err = $('.nerr', m); if (!cloud) { err.textContent = 'La nube no está configurada.'; return; }
@@ -144,6 +144,7 @@ h1 span{color:#c39531}
           data.layout = Object.fromEntries(Object.entries(data.layout || {}).filter(([k]) => !k.startsWith('free:') && !k.startsWith('x')));
           data.images = Object.fromEntries(Object.entries(data.images || {}).filter(([k]) => !k.startsWith('free-') && !k.includes('@x')));
           data.hidden = Object.fromEntries(GUM_OCULTAS.map(k => [k, true]));
+          ['g-idx-pal', 'g-idx-sel', 'g-pedidos', 'g-campana'].forEach(k => data.hidden[k] = false); // índices por unidad, acta y campaña del mes
         }
         if (data) await api('diapo_cambios', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ deck_id: id, data, updated_at: new Date().toISOString(), updated_by: src ? 'copia' : 'nueva' }) });
         location.href = `${(P[pl] || P.blanco).archivo}?d=${encodeURIComponent(id)}&fecha=${fecha}${importId ? '&importar=' + encodeURIComponent(importId) : ''}`;
