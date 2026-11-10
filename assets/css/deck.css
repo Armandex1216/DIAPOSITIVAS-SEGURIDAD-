@@ -190,7 +190,7 @@ body.moving [data-editable]{outline:none!important}
 @media print{.sel-box{display:none!important}}
 
 /* proyector: cursor oculto al presentar, cortina negra/blanca */
-body:not(.ui-on):not(.editing):not(.printing) .viewport{cursor:none}
+/* el puntero del mouse siempre visible (antes se ocultaba al no estar la barra) */
 .curtain{position:fixed;inset:0;z-index:200;display:none}.curtain.on{display:block}.curtain.black{background:#000}.curtain.white{background:#fff}
 @media (prefers-reduced-motion:reduce){.slide *{transition-duration:.01s!important}}
 /* nube */
