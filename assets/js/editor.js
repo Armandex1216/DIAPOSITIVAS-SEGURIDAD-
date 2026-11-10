@@ -115,7 +115,7 @@
     const pal = ['#c39531', '#2f6db5', '#1f9d5c', '#d23c3c', '#e6a316', '#6b46c1', '#8d8a83'];
     return (ctx, d) => {
       const donut = kind === 'donut', P = d.colors && d.colors.length ? d.colors : pal, ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderWidth: donut ? 4 : (kind === 'line' ? 4 : 0), borderColor: donut ? '#fff' : P[i % P.length],
-        backgroundColor: donut ? s.values.map((_, j) => P[j % P.length]) : P[i % P.length], borderRadius: kind === 'line' || donut ? 0 : 8, tension: .3, pointRadius: 7, pointBackgroundColor: P[i % P.length],
+        backgroundColor: donut || (d.porBarra && d.series.length === 1) ? s.values.map((_, j) => P[j % P.length]) : P[i % P.length], borderRadius: kind === 'line' || donut ? 0 : 8, tension: .3, pointRadius: 7, pointBackgroundColor: P[i % P.length],
         datalabels: { formatter: v => v == null ? '' : (Math.round(v * 100) / 100).toLocaleString('es-PE') + (d.pct ? ' %' : ''), display: c => c.dataset.data[c.dataIndex] != null && c.dataset.data[c.dataIndex] !== 0, color: donut || kind === 'stack' ? '#fff' : '#1a1917', anchor: donut || kind === 'stack' ? 'center' : 'end', align: donut || kind === 'stack' ? 'center' : (kind === 'hbar' ? 'right' : 'top'), font: { weight: '900', size: 18 } } }));
       const cfg = { type: donut ? 'doughnut' : (kind === 'line' ? 'line' : 'bar'), data: { labels: d.labels, datasets: ds },
         options: { maintainAspectRatio: false, indexAxis: kind === 'hbar' ? 'y' : 'x', cutout: donut ? '58%' : undefined, layout: { padding: { top: 26, right: 30 } },
@@ -163,7 +163,7 @@
   const cloudSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 150' preserveAspectRatio='none'><path d='M58 132c-30 2-50-18-44-42-18-10-12-40 12-44 0-24 28-38 50-26 12-20 46-24 62-6 18-14 50-8 56 16 26 0 42 26 30 48 16 16 4 46-22 46-8 18-36 22-50 8-16 14-44 14-58 0-12 8-28 8-36 0z' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' vector-effect='non-scaling-stroke'/></svg>`)}")`;
   const burstSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><polygon points='100,4 118,52 168,22 150,74 198,80 156,108 190,150 138,144 140,196 104,160 70,198 66,148 14,162 46,116 2,88 52,72 30,24 82,48' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>`)}")`;
   function applyStyle(el, f) {
-    const st = f.st || {}, tx = $('.ftx', el);
+    const st = f.st || {}, tx = $('.ftx', el) || (f.t === 'table' ? $('table', el) : null);
     if (tx) { tx.style.fontFamily = st.ff || ''; tx.style.fontSize = st.fs ? st.fs + 'px' : ''; tx.style.color = st.color || ''; tx.style.textAlign = st.al || ''; tx.style.fontWeight = st.bold ? '800' : ''; tx.style.fontStyle = st.it ? 'italic' : ''; tx.style.lineHeight = st.lh || ''; }
     el.style.opacity = st.op != null && st.op < 1 ? st.op : '';
     if (f.t === 'box') { const b = $('.fbox', el); if (b) { b.style.background = st.bg || f.bg || '#1a1917'; b.style.border = st.bw ? `${st.bw}px solid ${st.bc || '#c39531'}` : ''; } }
@@ -199,7 +199,7 @@
   function setStyle(fid, patch) { const f = fOf(fid); if (!f) return; f.st = Object.assign({}, f.st, patch); const el = $(`.free[data-fid="${fid}"]`); if (el) applyStyle(el, f); if (f.t === 'chart' && window.HC && HC.builders['fc-' + fid]) HC.builders['fc-' + fid](false); saveSoon(); if (fid === selF) paintProps(); }
   function paintProps() {
     const f = fOf(selF); if (!f) return; const st = f.st || {}, el = $(`.free[data-fid="${selF}"]`), tx = el && $('.ftx', el);
-    const hasText = ['text', 'box', 'bubble'].includes(f.t);
+    const hasText = ['text', 'box', 'bubble', 'table'].includes(f.t);
     fprops.classList.toggle('no-text', !hasText); fprops.classList.toggle('is-bub', f.t === 'bubble'); fprops.classList.toggle('no-bg', !['text', 'box', 'bubble'].includes(f.t));
     $('.fp-t', fprops).textContent = { text: 'Texto', box: 'Recuadro', bubble: 'Nube / forma', img: 'Imagen', chart: 'Gráfico', table: 'Tabla' }[f.t] || 'Elemento';
     $('[data-p=ff]', fprops).value = st.ff || ''; $('[data-p=fs]', fprops).value = st.fs || (tx ? Math.round(parseFloat(getComputedStyle(tx).fontSize)) : '');

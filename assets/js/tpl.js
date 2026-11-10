@@ -114,11 +114,30 @@
     if (!(last && (/cierre/i.test(last.id) || /cierre|gracias/i.test(last.dataset.title || '')))) at = sl.length;
     let after = at > 0 ? sl[at - 1].id : null; const n0 = Date.now();
     const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-    list.forEach((g, i) => {
-      const id = 'x' + uid(), fid = uid();
-      S.slides[id] = { n: n0 + i, after, title: g.titulo || 'Gráfico', kick: g.subtitulo || 'Safety HOC', dark: false }; after = id;
+    let k = 0; const slide = (title, kick) => { const id = 'x' + uid(); S.slides[id] = { n: n0 + (k++), after, title, kick, dark: false }; after = id; return id; };
+    list.forEach(g => {
+      // tabla de seguimiento: 10 filas por lámina
+      if (g.tipo === 'tabla') {
+        const cols = g.columnas || [], rows = g.filas || [], pages = Math.max(1, Math.ceil(rows.length / 10));
+        for (let pg = 0; pg < pages; pg++) {
+          const id = slide(g.titulo + (pages > 1 ? ` (${pg + 1}/${pages})` : ''), g.subtitulo || 'Safety HOC'), tid = uid();
+          const body = rows.slice(pg * 10, pg * 10 + 10).map(r => `<tr>${r.map((v, j) => `<td${/d[ií]as/i.test(cols[j] || '') && +v > 20 ? ' class="f-bad"' : ''}>${esc(v)}</td>`).join('')}</tr>`).join('');
+          S.free[tid] = { s: id, t: 'table', html: `<thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody>`, st: { fs: 20 } };
+          S.layout['free:' + tid] = { x: 90, y: 250, w: 1740 };
+          if (pg === 0 && (g.conclusiones || []).length) { const bid = uid(); S.free[bid] = { s: id, t: 'box', bg: '#1a1917', html: (g.conclusiones || []).map(t => esc(t)).join('<br>'), st: { fs: 22 } }; S.layout['free:' + bid] = { x: 90, y: 905, w: 1740, h: 110 }; }
+        }
+        return;
+      }
+      // conclusiones: lámina de texto
+      if (g.tipo === 'texto') {
+        const id = slide(g.titulo || 'Conclusiones', g.subtitulo || 'Safety HOC'), bid = uid();
+        S.free[bid] = { s: id, t: 'text', html: `<ol class="concl-list">${(g.conclusiones || []).map(t => `<li>${esc(t)}</li>`).join('')}</ol>`, st: { fs: 30 } };
+        S.layout['free:' + bid] = { x: 110, y: 250, w: 1700 };
+        return;
+      }
+      const id = slide(g.titulo || 'Gráfico', g.subtitulo || 'Safety HOC'), fid = uid();
       const notes = (g.conclusiones || []).filter(Boolean);
-      S.free[fid] = { s: id, t: 'chart', kind: KINDS.includes(g.tipo) ? g.tipo : 'bar', def: { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined, pct: !!g.porcentaje } };
+      S.free[fid] = { s: id, t: 'chart', kind: KINDS.includes(g.tipo) ? g.tipo : 'bar', def: { labels: g.labels || [], series: (g.series || []).map(x => ({ name: x.name, values: x.values })), colors: g.colores && g.colores.length ? g.colores : undefined, pct: !!g.porcentaje, porBarra: !!g.porBarra } };
       S.layout['free:' + fid] = notes.length ? { x: 110, y: 255, w: 1150, h: 700 } : { x: 160, y: 255, w: 1600, h: 700 };
       if (notes.length || g.nota) {
         const bid = uid();
