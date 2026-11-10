@@ -42,6 +42,12 @@
       o.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 1700, easing: 'easeOutQuart' }, o.animation || {});
       if (o.hcCenter === undefined) o.hcCenter = { label: 'TOTAL' };
       ds.forEach(d => { const v = (d.data || []).map(Number), max = Math.max(...v); d.offset = v.map(x => x === max && v.length > 1 ? 22 : 0); d.hoverOffset = 30; d.spacing = d.spacing == null ? 3 : d.spacing; d.borderRadius = d.borderRadius == null ? 8 : d.borderRadius; d.borderWidth = d.borderWidth == null ? 0 : d.borderWidth; });
+    } else if (type === 'polarArea') {
+      o.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 1800, easing: 'easeOutBack' }, o.animation || {});
+      ds.forEach(d => { d.borderWidth = 3; d.borderColor = '#fff'; d.hoverOffset = 18; });
+    } else if (type === 'radar') {
+      o.animation = Object.assign({ duration: 1600, easing: 'easeOutElastic' }, o.animation || {});
+      ds.forEach(d => { const col = d.borderColor || '#c39531'; d.backgroundColor = shade(col, .55) + '88'; d.borderWidth = 4; d.pointRadius = 7; d.pointBackgroundColor = col; d.pointBorderColor = '#fff'; d.pointBorderWidth = 3; });
     } else if (type === 'line') {
       const n = Math.max(1, ...ds.map(d => (d.data || []).length)), step = Math.min(90, 1600 / n);
       o.animations = Object.assign({ x: { type: 'number', easing: 'linear', duration: step, from: NaN, delay: c => c.type === 'data' && !c.xStarted ? (c.xStarted = true, c.index * step) : 0 },
@@ -79,16 +85,62 @@
     // def (opcional) = datos por defecto {labels:[], series:[{name, values:[]}]}; si se da, el gráfico se puede editar en modo edición.
     bind(slideId, canvasId, make, def) {
       const getData = () => def ? JSON.parse(JSON.stringify((DECK.store.charts[canvasId]) || def)) : null;
-      const build = (anim = true, over) => { const cv = document.getElementById(canvasId); if (!cv) return; if (HC.charts[canvasId]) HC.charts[canvasId].destroy(); const cfg = fx(make(cv.getContext('2d'), over || getData())); if (!anim) { cfg.options = cfg.options || {}; cfg.options.animation = false; cfg.options.animations = false; } HC.charts[canvasId] = new Chart(cv, cfg); };
+      const build = (anim = true, over) => { const cv = document.getElementById(canvasId); if (!cv) return; if (HC.charts[canvasId]) HC.charts[canvasId].destroy(); const k = HC.kindOf(canvasId), mk = k ? HC.maker(k, HC.defColors[canvasId]) : make; const cfg = fx(mk(cv.getContext('2d'), over || getData())); if (!anim) { cfg.options = cfg.options || {}; cfg.options.animation = false; cfg.options.animations = false; } HC.charts[canvasId] = new Chart(cv, cfg); };
       HC.builders[canvasId] = build; HC.defs[canvasId] = def; HC.getData[canvasId] = getData;
       DECK.on(slideId, 'enter', () => setTimeout(() => build(!DECK.editing()), DECK.editing() ? 50 : 450));
       DECK.on(slideId, 'edit', () => build(false));
       DECK.on(slideId, 'leave', () => setTimeout(() => { if (HC.charts[canvasId]) { HC.charts[canvasId].destroy(); delete HC.charts[canvasId]; } }, 900));
       DECK.on(slideId, 'print', () => build(false));
-      if (def) { const cv = document.getElementById(canvasId); const box = cv && cv.closest('.chartbox'); if (box) { const b = document.createElement('button'); b.className = 'data-btn'; b.textContent = '✎ Datos del gráfico'; b.onclick = e => { e.stopPropagation(); HC.editData(canvasId); }; box.appendChild(b); } }
+      if (def) { const cv = document.getElementById(canvasId); const box = cv && cv.closest('.chartbox'); if (box) { const b = document.createElement('button'); b.className = 'data-btn'; b.textContent = '✎ Datos del gráfico'; b.onclick = e => { e.stopPropagation(); HC.editData(canvasId); }; box.appendChild(b);
+        const t = document.createElement('button'); t.className = 'data-btn kind-btn'; t.textContent = '◐ Tipo de gráfico'; t.onclick = e => { e.stopPropagation(); HC.kindMenu(canvasId, t); }; box.appendChild(t); } }
       if (document.getElementById(slideId).classList.contains('active')) setTimeout(() => build(true), 700);
     },
     builders: {}, defs: {}, getData: {}, colorable: {}, defColors: {},
+    /* ---------- tipo de gráfico elegido por el usuario: la misma data en otra forma ---------- */
+    KINDS: { donut: ['◍', 'Dona'], pie: ['◕', 'Pastel'], polar: ['✺', 'Área polar'], bar: ['▮', 'Barras'], hbar: ['▬', 'Barras horizontales'], line: ['⟋', 'Líneas'], radar: ['⬡', 'Radar'], stack: ['▤', 'Barras apiladas'] },
+    kindOf(id) { const t = DECK.store.meta && DECK.store.meta.tipos; return (t && t[id]) || null; },
+    setKind(id, k) { const m = DECK.store.meta; m.tipos = Object.assign({}, m.tipos || {}); if (k) m.tipos[id] = k; else delete m.tipos[id]; HC.colorable[id] = ['donut', 'pie', 'polar'].includes(k) ? 'label' : HC.colorable0[id] || HC.colorable[id]; DECK.persist(); if (HC.builders[id]) HC.builders[id](true); },
+    colorable0: {},
+    kindMenu(id, btn) {
+      let m = document.querySelector('.kind-pop'); if (m) { m.remove(); if (m.dataset.id === id) return; }
+      const d = HC.getData[id] ? HC.getData[id]() : null, multi = d && d.series.length > 1, cur = HC.kindOf(id);
+      m = document.createElement('div'); m.className = 'kind-pop'; m.dataset.id = id;
+      m.innerHTML = `<b>Mostrar la misma data como</b>${Object.entries(HC.KINDS).filter(([k]) => k !== 'stack' || multi).map(([k, [ic, n]]) => `<button data-k="${k}" class="${k === cur ? 'on' : ''}"><i>${ic}</i>${n}</button>`).join('')}<button data-k="" class="${cur ? '' : 'on'}"><i>↺</i>Original</button>${multi ? '<small>Dona, pastel y área polar muestran la primera serie.</small>' : ''}`;
+      btn.closest('.chartbox').appendChild(m); if (HC.colorable0[id] == null) HC.colorable0[id] = HC.colorable[id];
+      m.onclick = e => { e.stopPropagation(); const b = e.target.closest('[data-k]'); if (!b) return; m.remove(); HC.setKind(id, b.dataset.k || null); DECK.toast('Tipo de gráfico: ' + (b.dataset.k ? HC.KINDS[b.dataset.k][1] : 'original'), 1500); };
+      setTimeout(() => document.addEventListener('click', function off() { m.remove(); document.removeEventListener('click', off); }), 0);
+    },
+    maker(kind, cols0) {
+      const cols = cols0 && cols0.length ? cols0 : ['#c39531', '#2f6db5', '#1f9d5c', '#d23c3c', '#e6a316', '#6b46c1', '#8d8a83'];
+      const fmt = v => v == null ? '' : (Math.round(v * 100) / 100).toLocaleString('es-PE');
+      return (ctx, d) => {
+        const C = d.colors && d.colors.length ? d.colors : cols, one = d.series.length === 1, pc = d.pct ? ' %' : '';
+        const perLabel = d.labels.map((_, i) => C[i % C.length]);
+        if (kind === 'donut' || kind === 'pie' || kind === 'polar') {
+          const v = d.series[0].values, tot = v.reduce((a, b) => a + (+b || 0), 0), share = x => tot ? Math.round(x / tot * 1000) / 10 : 0;
+          const lab = kind === 'donut'
+            ? { display: c => +c.dataset.data[c.dataIndex] > 0, anchor: 'end', align: 'end', offset: 8, textAlign: 'center', color: '#1a1917', font: { weight: '800', size: 16 }, formatter: (x, c) => String(c.chart.data.labels[c.dataIndex]).toUpperCase() + '\n' + fmt(x) + pc }
+            : { display: c => +c.dataset.data[c.dataIndex] > 0, anchor: 'center', align: 'center', textAlign: 'center', color: '#fff', textStrokeColor: 'rgba(0,0,0,.35)', textStrokeWidth: 3, font: { weight: '900', size: 20 }, formatter: x => fmt(x) + pc + (kind === 'pie' && !d.pct ? '\n' + share(x) + ' %' : '') };
+          const cfg = { type: kind === 'donut' ? 'doughnut' : kind === 'pie' ? 'pie' : 'polarArea', data: { labels: d.labels, datasets: [{ label: d.series[0].name, data: v, backgroundColor: perLabel, borderColor: '#fff', borderWidth: 3 }] },
+            options: { maintainAspectRatio: false, layout: { padding: kind === 'donut' ? { top: 60, bottom: 60, left: 120, right: 120 } : { top: 20, bottom: 20 } },
+              plugins: { legend: { display: kind !== 'donut', position: 'right', labels: { font: { size: 18, weight: '700' }, padding: 16 } }, tooltip: { callbacks: { label: c => ` ${c.label}: ${fmt(c.raw)}${pc} (${share(c.raw)} %)` } }, datalabels: lab } } };
+          if (kind === 'donut') cfg.options.cutout = '52%';
+          if (kind === 'polar') cfg.options.scales = { r: { ticks: { display: false }, grid: { color: 'rgba(60,50,30,.12)' }, angleLines: { display: false } } };
+          return cfg;
+        }
+        const horiz = kind === 'hbar', stack = kind === 'stack';
+        const ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderColor: one && kind !== 'line' && kind !== 'radar' ? perLabel : C[i % C.length],
+          backgroundColor: one && (kind === 'bar' || kind === 'hbar') ? perLabel : C[i % C.length],
+          datalabels: { display: c => c.dataset.data[c.dataIndex] != null && (stack ? +c.dataset.data[c.dataIndex] > 0 : true), anchor: stack ? 'center' : 'end', align: stack ? 'center' : horiz ? 'right' : 'top', offset: 4, color: stack ? '#fff' : '#1a1917', font: { weight: '800', size: 18 }, formatter: x => fmt(x) + pc } }));
+        if (kind === 'line' || kind === 'radar') ds.forEach((x, i) => { x.borderColor = C[i % C.length]; });
+        const cfg = { type: kind === 'line' ? 'line' : kind === 'radar' ? 'radar' : 'bar', data: { labels: d.labels, datasets: ds },
+          options: { maintainAspectRatio: false, indexAxis: horiz ? 'y' : 'x', layout: { padding: { top: 30, right: horiz ? 70 : 30 } },
+            plugins: { legend: { display: !one || stack, position: 'top', labels: { font: { size: 17, weight: '700' } } } } } };
+        if (kind === 'radar') { cfg.options.scales = { r: { beginAtZero: true, ticks: { display: false }, grid: { color: 'rgba(60,50,30,.14)' }, pointLabels: { font: { size: 18, weight: '700' }, color: '#1a1917' } } }; ds.forEach(x => x.datalabels = { display: false }); }
+        else cfg.options.scales = { x: HC.axis({ stacked: stack, beginAtZero: true, grid: { display: horiz } }), y: HC.axis({ stacked: stack, beginAtZero: true, grid: { display: !horiz } }) };
+        return cfg;
+      };
+    },
     editData(id) {
       const data = HC.getData[id](); let m = document.querySelector('.modal'); if (!m) { m = document.createElement('div'); m.className = 'modal'; document.body.appendChild(m); }
       const cm = HC.colorable[id], dc = HC.defColors[id] || ['#c39531', '#2f6db5', '#1f9d5c', '#d23c3c', '#e6a316', '#6b46c1', '#8d8a83']; const col = i => (data.colors && data.colors[i]) || dc[i % dc.length];
