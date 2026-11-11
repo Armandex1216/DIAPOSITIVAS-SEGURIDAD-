@@ -55,10 +55,12 @@
       if (imgs[k] === v) imgs[k] = 'dbimg:' + iid;
     }
   }
-  D.uploadVideo = async (file, slot) => { const ext = (file.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const path = `${id}/${slot}-${Date.now().toString(36)}.${ext}`;
-    const { error } = await sb.storage.from('diapo-videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false, cacheControl: '31536000' });
-    if (error) throw error; return sb.storage.from('diapo-videos').getPublicUrl(path).data.publicUrl; };
+  // videos de hasta 500 MB: se suben en partes de 45 MB (el plan gratuito acepta hasta 50 MB por archivo)
+  D.uploadVideo = async (file, slot, onProg) => { const PART = 45 * 1048576, n = Math.max(1, Math.ceil(file.size / PART)), base = `${id}/${slot}-${Date.now().toString(36)}`, parts = [];
+    for (let i = 0; i < n; i++) { const path = `${base}/parte-${String(i + 1).padStart(2, '0')}.bin`, blob = file.slice(i * PART, Math.min(file.size, (i + 1) * PART), 'application/octet-stream');
+      let err; for (let t = 0; t < 3; t++) { const r = await sb.storage.from('diapo-videos').upload(path, blob, { contentType: 'application/octet-stream', upsert: false, cacheControl: '31536000' }); err = r.error; if (!err) break; await new Promise(z => setTimeout(z, 2000)); }
+      if (err) throw err; parts.push(sb.storage.from('diapo-videos').getPublicUrl(path).data.publicUrl); onProg && onProg(Math.round((i + 1) / n * 100)); }
+    return { parts, size: file.size, type: file.type || 'video/mp4', name: file.name || 'video' }; };
   const cache = new Map();
   D.resolveImg = ref => { if (!cache.has(ref)) cache.set(ref, sb.from('diapo_imagenes').select('data').eq('id', ref.slice(6)).maybeSingle().then(r => r.data ? r.data.data : null, () => null)); return cache.get(ref); };
   document.querySelectorAll('.slot[data-ref]').forEach(slot => { const ref = slot.dataset.ref, im = slot.querySelector('img'); D.resolveImg(ref).then(u => { if (u && slot.dataset.ref === ref) im.src = u; }); });

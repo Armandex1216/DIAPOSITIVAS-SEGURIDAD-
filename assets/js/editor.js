@@ -100,7 +100,7 @@
   /* ================= tablas: filas, columnas y color de celda ================= */
   const tblKey = t => { if (t.closest('.free')) return null; const sl = t.closest('.slide'); return sl.id + ':' + $$('[data-tbl]', sl).filter(x => !x.closest('.free')).indexOf(t); };
   function saveTable(t) {
-    const fr = t.closest('.free'); const html = t.innerHTML.replace(/ contenteditable="(true|false)"/g, '');
+    const fr = t.closest('.free'); const html = D.cleanHTML(t.innerHTML.replace(/ contenteditable="(true|false)"/g, ''));
     if (fr) { store.free[fr.dataset.fid].html = html; } else { store.tables[tblKey(t)] = html; }
     paintTable(t); saveSoon();
   }
