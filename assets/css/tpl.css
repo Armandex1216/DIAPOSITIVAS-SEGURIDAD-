@@ -200,12 +200,18 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 #d-momento .dm-next p{margin:0;font-size:27px;line-height:1.4}#d-momento .dm-next b{color:var(--gold-l)}
 #d-momento .dm-ic2{display:inline-grid;place-items:center;width:70px;height:70px;border-radius:18px;border:3px solid var(--gold);font-size:36px}
 /* Aprendamos juntos: minero + globo */
-#d-aprendamos .bubble-dl{position:absolute;left:640px;top:150px;width:1180px;height:860px;background:#fff;border:5px solid var(--gold);border-radius:46px;padding:40px 54px 40px;box-shadow:0 40px 70px -40px rgba(80,55,10,.55);display:flex;flex-direction:column}
-#d-aprendamos .bubble-dl::before,#d-aprendamos .bubble-dl::after{content:"";position:absolute;left:-74px;top:330px;width:0;height:0;border-style:solid;border-width:34px 78px 34px 0;border-color:transparent var(--gold) transparent transparent}
-#d-aprendamos .bubble-dl::after{left:-63px;top:337px;border-width:27px 66px 27px 0;border-color:transparent #fff transparent transparent}
-#d-aprendamos .bd-t{margin:0;font-size:40px;font-weight:900;line-height:1.1;color:#1a1917}
-#d-aprendamos .bd-s{margin:8px 0 18px;font-size:22px;font-weight:700;color:var(--gold-d)}
-#d-aprendamos .bd-img{flex:1;border-radius:20px}
+@font-face{font-family:Oswald;font-weight:600;font-display:swap;src:url(../fonts/oswald-latin-600-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-600-normal.woff2) format('woff2')}
+@font-face{font-family:Oswald;font-weight:700;font-display:swap;src:url(../fonts/oswald-latin-700-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-700-normal.woff2) format('woff2')}
+#d-aprendamos .bubble-dl{position:absolute;left:700px;top:150px;width:1140px;height:870px;padding:46px 60px 40px;display:flex;flex-direction:column;border-radius:56px;
+  background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#e8c97f,#c39531 45%,#9a7422) border-box;border:6px solid transparent;
+  box-shadow:0 50px 90px -46px rgba(80,55,10,.55),0 0 0 14px rgba(195,149,49,.08)}
+#d-aprendamos .bd-tail{position:absolute;left:-118px;top:80px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
+#d-aprendamos .bd-q{position:absolute;right:46px;top:-10px;font:900 200px/1 Georgia,serif;color:rgba(195,149,49,.16);pointer-events:none}
+#d-aprendamos .bd-head{background:linear-gradient(180deg,#efefef,#e6e6e6);border-radius:22px;padding:22px 30px 18px;border-left:10px solid #c39531}
+#d-aprendamos .bd-t{margin:0;font:700 64px/1.02 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
+#d-aprendamos .bd-s{margin:10px 0 0;font:600 24px/1.25 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#8e8e8e;letter-spacing:.02em}
+#d-aprendamos .bd-img{flex:1;margin-top:26px;border-radius:18px}
+#d-aprendamos .bd-img.has{border:0}
 #d-aprendamos .miner{z-index:1}
 /* Acto y condición subestándar */
 #d-hallazgos .dh-tbl{position:absolute;left:90px;right:90px;top:170px}

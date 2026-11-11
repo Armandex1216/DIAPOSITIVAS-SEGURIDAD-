@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 4a39da3b99 */
-const VERSION = '4a39da3b99';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: b849aab3ac */
+const VERSION = 'b849aab3ac';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -21,6 +21,10 @@ const FILES = [
 "assets/fonts/montserrat-latin-800-normal.woff2",
 "assets/fonts/montserrat-latin-900-normal.woff2",
 "assets/fonts/montserrat-latin-ext-400-normal.woff2",
+"assets/fonts/oswald-latin-600-normal.woff2",
+"assets/fonts/oswald-latin-700-normal.woff2",
+"assets/fonts/oswald-latin-ext-600-normal.woff2",
+"assets/fonts/oswald-latin-ext-700-normal.woff2",
 "assets/img/ev-atp01-antes.jpg",
 "assets/img/ev-atp01-durante.jpg",
 "assets/img/ev-inc09-durante.jpg",
@@ -35,6 +39,7 @@ const FILES = [
 "assets/img/diario/fondo-momento.jpg",
 "assets/img/diario/minero-ref.png",
 "assets/img/diario/portada-diario.jpg",
+"assets/img/diario/2026-11-12/decreto-articulo.jpg",
 "assets/img/diario/2026-11-12/decreto.jpg",
 "assets/img/diario/2026-11-12/evento-antes.jpg",
 "assets/img/diario/2026-11-12/evento-despues.jpg",
