@@ -409,3 +409,7 @@ body.editing .vs-x{display:block}
 
 /* PDF: conservar fondos y colores aunque no se marque «Gráficos de fondo» */
 @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+.vs-x.vs-l2{right:auto;left:14px;background:#c39531;color:#1a1917}
+body.editing [data-opc].box-off{display:block;opacity:.4;outline:3px dashed #c39531}
+[data-opc].box-off{display:none}
+@media print{[data-opc].box-off{display:none!important}}

@@ -1,11 +1,12 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 57351eb1ec */
-const VERSION = '57351eb1ec';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 7911461cca */
+const VERSION = '7911461cca';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
 "blanco.html",
 "csst-noviembre-2026.html",
+"diario.html",
 "gum-octubre-2026.html",
 "gum.html",
 "index.html",
@@ -31,6 +32,19 @@ const FILES = [
 "assets/img/logo-mark.png",
 "assets/img/mascota.png",
 "assets/img/portada.jpg",
+"assets/img/diario/fondo-momento.jpg",
+"assets/img/diario/portada-diario.jpg",
+"assets/img/diario/2026-11-12/decreto.jpg",
+"assets/img/diario/2026-11-12/evento-antes.jpg",
+"assets/img/diario/2026-11-12/evento-despues.jpg",
+"assets/img/diario/2026-11-12/evento-durante.jpg",
+"assets/img/diario/2026-11-12/hallazgo-1.jpg",
+"assets/img/diario/2026-11-12/hallazgo-2.jpg",
+"assets/img/diario/2026-11-12/hallazgo-3.jpg",
+"assets/img/diario/2026-11-12/hallazgo-4.jpg",
+"assets/img/diario/2026-11-12/hallazgo-5.jpg",
+"assets/img/diario/2026-11-12/momento-1.jpg",
+"assets/img/diario/2026-11-12/momento-2.jpg",
 "assets/js/charts.js",
 "assets/js/cloud.js",
 "assets/js/csst-build.js",

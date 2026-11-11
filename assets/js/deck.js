@@ -268,14 +268,21 @@
 
   /* ---------- casillas de imagen (pegar / soltar / elegir) ---------- */
   function compress(file, cb) {
-    const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const max = 1700, sc = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', .85)); }; img.src = r.result; }; r.readAsDataURL(file);
+    const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const max = 1600, sc = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', .8)); }; img.src = r.result; }; r.readAsDataURL(file);
   }
   function setSlot(slot, src) { const im = $('img', slot); delete slot.dataset.ref;
     if (src && src.startsWith('dbimg:')) { slot.dataset.ref = src; slot.classList.add('has'); if (D.resolveImg) D.resolveImg(src).then(u => { if (u && slot.dataset.ref === src) im.src = u; }); return; } // imagen guardada en la nube
     if (src) { im.src = src; slot.classList.add('has'); } else { im.removeAttribute('src'); slot.classList.remove('has'); } }
   function initSlots() {
     $$('.slot').forEach(initSlot);
-    document.addEventListener('paste', e => { if (!D.editing() || e.target.isContentEditable) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; const sl = slides[D.i]; const slot = $('.slot:not(.has)', sl) || $('.slot', sl); if (slot) { e.preventDefault(); slot._put(it.getAsFile()); } });
+    // Ctrl+V con una imagen copiada: va a la casilla bajo el mouse, si no a una casilla vacía; si no hay, queda como imagen libre que se puede mover
+    let overSlot = null; document.addEventListener('pointerover', e => { overSlot = e.target.closest && e.target.closest('.slot'); });
+    document.addEventListener('paste', e => { if (!D.editing() || e.target.isContentEditable) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; e.preventDefault(); const sl = slides[D.i], f = it.getAsFile();
+      const slot = (overSlot && sl.contains(overSlot) && overSlot._put) ? overSlot : $$('.slot:not(.has)', sl).find(x => x._put && !x.closest('.free'));
+      if (slot) slot._put(f); else if (D.addImage) D.addImage(f); });
+    // soltar una imagen fuera de las casillas: imagen libre
+    document.addEventListener('dragover', e => { if (D.editing() && [...(e.dataTransfer || {}).types || []].includes('Files')) e.preventDefault(); });
+    document.addEventListener('drop', e => { if (!D.editing() || e.defaultPrevented) return; const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); D.addImage && D.addImage(f, e); });
   }
   function initSlot(slot) {
     if (slot._put) return; {
@@ -301,10 +308,10 @@
   const vGet = async k => { const db = await VDB(); return new Promise(ok => { const q = db.transaction('v').objectStore('v').get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); };
   const vPut = async (k, v) => { const db = await VDB(); return new Promise(ok => { const t = db.transaction('v', 'readwrite'); v == null ? t.objectStore('v').delete(k) : t.objectStore('v').put(v, k); t.oncomplete = () => ok(); t.onerror = () => ok(); }); };
   const embed = u => { const y = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/); if (y) return { t: 'if', src: `https://www.youtube.com/embed/${y[1]}?rel=0` };
-    const g = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/); if (g) return { t: 'if', src: `https://drive.google.com/file/d/${g[1]}/preview` }; return { t: 'vid', src: u }; };
+    const g = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/); if (g) return { t: 'if', src: `https://drive.google.com/file/d/${g[1]}/preview` }; if (/1drv\.ms|onedrive\.live\.com|sharepoint\.com/.test(u)) return { t: 'if', src: u.replace('/redir?', '/embed?') }; return { t: 'vid', src: u }; };
   function initVSlot(box) {
     const k = box.dataset.vslot, key = (document.body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k;
-    const ui = `<div class="vs-ui" data-noedit contenteditable="false"><b>🎬 Video</b><span>Elija un video de su equipo o pegue un enlace de YouTube o Google Drive</span><div><button data-v="file">📁 Video del equipo</button><button data-v="link">🔗 Pegar enlace</button></div></div>`;
+    const ui = `<div class="vs-ui" data-noedit contenteditable="false"><b>🎬 Video</b><span>Video del equipo (se guarda solo en esta PC, funciona sin internet) o enlace de YouTube / Google Drive / OneDrive (se ve en todas las PC)</span><div><button data-v="file">📁 Video del equipo</button><button data-v="link">🔗 Pegar enlace</button></div></div>`;
     const MAXMB = 500, setMeta = v => { const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); if (v == null) delete m[k]; else m[k] = v; persist(); };
     const msg = t => { let el = box.querySelector('.vs-msg'); if (!t) { el && el.remove(); return; } if (!el) { el = document.createElement('div'); el.className = 'vs-msg'; el.setAttribute('data-noedit', ''); box.appendChild(el); } el.textContent = t; };
     let busyV = false;
@@ -315,18 +322,15 @@
           bl.push(new Blob(ch)); }
         const blob = new Blob(bl, { type: info.type || 'video/mp4' }); await vPut(key, blob); msg(''); draw(); }
       catch (e) { console.warn(e); msg('No se pudo descargar el video (revise la conexión)'); } finally { busyV = false; } };
-    const draw = async () => { box.querySelectorAll('video,iframe,.vs-ui,.vs-x').forEach(x => x.remove()); box.classList.remove('has'); let url = null;
+    const draw = async () => { box.querySelectorAll('video,iframe,.vs-ui,.vs-x,.vs-msg').forEach(x => x.remove()); box.classList.remove('has'); let url = null;
       const link = (store.meta.videos || {})[k], local = await vGet(key).catch(() => null);
       if (local) { url = URL.createObjectURL(local); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has');
-        // si el video está solo en este equipo, se sube a la nube para que todos lo vean
-        if (!link && D.uploadVideo && !busyV && local.size <= MAXMB * 1048576) upload(local, local.name || 'video.mp4'); }
+        /* los videos NO se suben a la nube (cuidamos el plan gratis): queda en este equipo; para otras PC se pega un enlace */ }
       else if (link && typeof link === 'object' && link.parts) { box.classList.add('has'); fetchParts(link); }
       else if (link) { const e = embed(link); if (e.t === 'vid' && /supabase\.co\/storage/.test(link)) fetch(link).then(r => r.ok ? r.blob() : null).then(b => b && vPut(key, b)).catch(() => { }); /* copia para presentar sin internet */ const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
+      if (local && !link) { const l2 = document.createElement('button'); l2.className = 'vs-x vs-l2'; l2.setAttribute('data-noedit', ''); l2.dataset.v = 'link2'; l2.textContent = '🔗 Agregar enlace para otras PC'; l2.title = 'Este video está solo en esta PC. Súbalo a YouTube (oculto), Google Drive u OneDrive y pegue el enlace para que se vea en las demás PC'; box.appendChild(l2); }
       if (box.classList.contains('has')) { const x = document.createElement('button'); x.className = 'vs-x'; x.setAttribute('data-noedit', ''); x.textContent = '✕ Quitar video'; x.onclick = async ev => { ev.stopPropagation(); if (!confirm('¿Quitar el video?')) return; setMeta(null); await vPut(key, null); msg(''); draw(); }; box.appendChild(x); }
       else box.insertAdjacentHTML('beforeend', ui); };
-    const upload = async (f, name) => { busyV = true; const mb = (f.size / 1048576).toFixed(0);
-      try { const info = await D.uploadVideo(f, k, p => msg(`☁ Subiendo video a la nube… ${p} % de ${mb} MB (no cierre la página)`)); setMeta(info); msg(''); toast('✓ Video en la nube: ya se ve desde cualquier equipo', 4000); }
-      catch (e) { console.warn(e); msg(''); toast('No se pudo subir el video a la nube; queda en este equipo y se reintentará al abrir la presentación', 6000); } finally { busyV = false; } };
     const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*'; inp.hidden = true; document.body.appendChild(inp);
     // el video se guarda en este equipo (para presentar sin internet) y se sube a la nube (para verlo desde cualquier equipo)
     const putFile = async f => { if (f.size > MAXMB * 1048576) { toast(`El video pesa ${(f.size / 1048576).toFixed(0)} MB; el máximo es ${MAXMB} MB`, 6000); return; }
@@ -334,6 +338,7 @@
     inp.onchange = async () => { const f = inp.files[0]; inp.value = ''; if (f) putFile(f); };
     box.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; e.stopPropagation();
       if (b.dataset.v === 'file') inp.click();
+      else if (b.dataset.v === 'link2') { const u = prompt('Pegue el enlace del video (YouTube, Google Drive u OneDrive). El video de este equipo se sigue usando aquí; las demás PC verán el enlace:'); if (!u || !/^https?:\/\//.test(u.trim())) return; setMeta(u.trim()); msg(''); draw(); }
       else { const u = prompt('Pegue el enlace del video (YouTube, Google Drive o un .mp4):'); if (!u || !/^https?:\/\//.test(u.trim())) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); m[k] = u.trim(); persist(); draw(); } });
     box.addEventListener('dragover', e => { if (D.editing()) e.preventDefault(); });
     box.addEventListener('drop', e => { const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('video/')); if (!f) return; e.preventDefault(); putFile(f); });
@@ -382,6 +387,14 @@
       b.className = 'box-tg'; b.setAttribute('contenteditable', 'false'); b.setAttribute('data-noedit', '');
       const paint = () => { const off = !!store.hidden[k]; bx.classList.toggle('box-off', off); b.textContent = off ? '👁 Mostrar comentario' : '🚫 Ocultar comentario'; };
       b.onclick = e => { e.stopPropagation(); e.preventDefault(); store.hidden[k] = !store.hidden[k]; persist(); paint(); toast(store.hidden[k] ? 'Comentario oculto (no sale al presentar)' : 'Comentario visible'); };
+      bx.appendChild(b); paint();
+    }));
+    // cuadros opcionales de la plantilla (data-opc): se pueden quitar y volver a poner
+    slides.forEach(sl => $$('[data-opc]', sl).forEach(bx => {
+      const k = 'opc:' + sl.id + ':' + bx.dataset.opc, b = document.createElement('button');
+      b.className = 'box-tg'; b.setAttribute('contenteditable', 'false'); b.setAttribute('data-noedit', '');
+      const paint = () => { const off = !!store.hidden[k]; bx.classList.toggle('box-off', off); b.textContent = off ? '↺ Mostrar cuadro' : '✕ Quitar cuadro'; };
+      b.onclick = e => { e.stopPropagation(); e.preventDefault(); store.hidden[k] = !store.hidden[k]; persist(); paint(); toast(store.hidden[k] ? 'Cuadro quitado (no sale al presentar)' : 'Cuadro visible'); };
       bx.appendChild(b); paint();
     }));
   }
