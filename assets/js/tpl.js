@@ -62,6 +62,20 @@
   // portada: efecto Ken Burns sobre la foto (como en la presentación del comité)
   document.querySelectorAll('.g-kb').forEach(kbEl => { if (!window.gsap) return; { let kb; const go = () => { kb && kb.kill(); gsap.set(kbEl, { scale: 1.12, x: 30 }); kb = gsap.to(kbEl, { scale: 1, x: -20, duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1 }); };
     const sl = kbEl.closest('.slide'); D.on(sl.id, 'enter', go); if (sl.classList.contains('active')) go(); } });
+  /* tarjetas por unidad: los anillos, barras y porcentajes se calculan de las cifras escritas (editables) y se animan al entrar */
+  const num = el => { if (!el) return 0; const v = el.textContent.replace(/[^\d.,:-]/g, ''); if (v.includes(':')) { const [h, m] = v.split(':'); return (+h || 0) + (+m || 0) / 60; } return parseFloat(v.replace(/,/g, '')) || 0; };
+  const fmtN = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('es-PE', { minimumFractionDigits: d, maximumFractionDigits: d });
+  function paintCards(sl, anim) { $$('.ucard', sl).forEach((c, i) => { const g = k => $(`[data-k="${k}"]`, c), arc = $('.uring .arc', c), pctEl = $('.uc-pct', c), fill = $('.uc-bar .fill', c);
+      let p = 0, bar = 0;
+      if (c.dataset.u === 'fat') { const ap = num(g('ap')), na = num(g('na')); p = ap + na ? ap / (ap + na) * 100 : 0; bar = Math.min(100, num(g('sl')) / 9 * 100); const mn = $('.uc-bar .min', c); if (mn) mn.style.left = (5.75 / 9 * 100) + '%'; c.classList.toggle('warn', p < 95); const sb = g('sl') && g('sl').closest('b'); if (sb) sb.classList.toggle('low', num(g('sl')) < 7); }
+      else { const pr = num(g('pr')), ej = num(g('ej')); p = pr ? Math.min(100, ej / pr * 100) : 0; bar = Math.min(100, num(g('oto'))); const pe = $('.uc-pend', c); if (pe) pe.textContent = fmtN(Math.max(0, pr - ej)); c.classList.toggle('warn', p < 50); }
+      const dec = c.dataset.u === 'fat' ? 1 : 0, d = anim ? .6 + i * .2 : 0;
+      if (window.gsap && anim) { const o = { v: 0 }; gsap.fromTo(arc, { attr: { 'stroke-dasharray': '0 100' } }, { attr: { 'stroke-dasharray': `${p} ${100 - p}` }, duration: 1.8, delay: d, ease: 'power3.out' });
+        gsap.to(o, { v: p, duration: 1.8, delay: d, ease: 'power3.out', onUpdate: () => { pctEl.textContent = fmtN(o.v, o.v >= 99.95 ? 0 : dec) + ' %'; } });
+        gsap.fromTo(fill, { width: '0%' }, { width: bar + '%', duration: 1.4, delay: d + .5, ease: 'power2.out' });
+        $$('.uc-n,.uc-foot b', c).forEach(n => gsap.fromTo(n, { scale: .4, opacity: 0 }, { scale: 1, opacity: 1, duration: .6, delay: d + .3, ease: 'back.out(2)' })); }
+      else { arc.setAttribute('stroke-dasharray', `${p} ${100 - p}`); pctEl.textContent = fmtN(p, p >= 99.95 ? 0 : dec) + ' %'; fill.style.width = bar + '%'; } }); }
+  $$('.slide').filter(sl => $('.ucard', sl)).forEach(sl => { D.on(sl.id, 'enter', () => paintCards(sl, !D.editing())); D.on(sl.id, 'edit', () => paintCards(sl, false)); paintCards(sl, false); sl.addEventListener('input', () => paintCards(sl, false)); });
   // fecha de la reunión: texto con data-fecha (al crear la presentación se completa desde ?fecha=)
   const qs = new URLSearchParams(location.search);
   if (qs.get('fecha') && !D.store.meta.fechaPuesta) {
