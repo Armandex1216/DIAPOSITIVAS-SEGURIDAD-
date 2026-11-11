@@ -303,18 +303,26 @@
     const k = box.dataset.vslot, key = (document.body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k;
     const ui = `<div class="vs-ui" data-noedit contenteditable="false"><b>🎬 Video</b><span>Elija un video de su equipo o pegue un enlace de YouTube o Google Drive</span><div><button data-v="file">📁 Video del equipo</button><button data-v="link">🔗 Pegar enlace</button></div></div>`;
     const draw = async () => { box.querySelectorAll('video,iframe,.vs-ui,.vs-x').forEach(x => x.remove()); box.classList.remove('has'); let url = null;
-      const link = (store.meta.videos || {})[k];
-      if (link) { const e = embed(link); const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
-      else { const blob = await vGet(key).catch(() => null); if (blob) { url = URL.createObjectURL(blob); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has'); } }
+      const link = (store.meta.videos || {})[k], local = await vGet(key).catch(() => null);
+      if (local) { url = URL.createObjectURL(local); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has'); } // copia en este equipo: funciona sin internet
+      else if (link) { const e = embed(link); if (e.t === 'vid' && /supabase\.co\/storage/.test(link)) fetch(link).then(r => r.ok ? r.blob() : null).then(b => b && vPut(key, b)).catch(() => { }); /* se baja una copia para presentar sin internet */ const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
+
       if (box.classList.contains('has')) { const x = document.createElement('button'); x.className = 'vs-x'; x.setAttribute('data-noedit', ''); x.textContent = '✕ Quitar video'; x.onclick = async ev => { ev.stopPropagation(); if (!confirm('¿Quitar el video?')) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); delete m[k]; await vPut(key, null); persist(); draw(); }; box.appendChild(x); }
       else box.insertAdjacentHTML('beforeend', ui); };
     const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*'; inp.hidden = true; document.body.appendChild(inp);
-    inp.onchange = async () => { const f = inp.files[0]; inp.value = ''; if (!f) return; await vPut(key, f); const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); delete m[k]; persist(); toast(`Video «${f.name}» guardado en este equipo (funciona sin internet)`, 3500); draw(); };
+    // el video se guarda en este equipo (para presentar sin internet) y se sube a la nube (para verlo desde cualquier equipo)
+    const putFile = async f => { await vPut(key, f); draw();
+      if (!D.uploadVideo) { toast(`Video «${f.name}» guardado en este equipo`, 3500); return; }
+      if (f.size > 50 * 1024 * 1024) { toast(`El video pesa ${(f.size / 1048576).toFixed(0)} MB: la nube acepta hasta 50 MB. Queda guardado solo en este equipo`, 6000); return; }
+      toast(`Subiendo «${f.name}» a la nube (${(f.size / 1048576).toFixed(1)} MB)…`, 60000);
+      try { const u = await D.uploadVideo(f, k); const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); m[k] = u; persist(); toast('✓ Video guardado en la nube: se verá desde cualquier equipo', 3500); }
+      catch (e) { console.warn(e); toast('No se pudo subir el video a la nube; queda guardado en este equipo', 5000); } };
+    inp.onchange = async () => { const f = inp.files[0]; inp.value = ''; if (f) putFile(f); };
     box.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; e.stopPropagation();
       if (b.dataset.v === 'file') inp.click();
       else { const u = prompt('Pegue el enlace del video (YouTube, Google Drive o un .mp4):'); if (!u || !/^https?:\/\//.test(u.trim())) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); m[k] = u.trim(); persist(); draw(); } });
     box.addEventListener('dragover', e => { if (D.editing()) e.preventDefault(); });
-    box.addEventListener('drop', async e => { const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('video/')); if (!f) return; e.preventDefault(); await vPut(key, f); persist(); draw(); });
+    box.addEventListener('drop', e => { const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('video/')); if (!f) return; e.preventDefault(); putFile(f); });
     draw();
   }
   $$('.vslot').forEach(initVSlot);
