@@ -143,3 +143,26 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .uc-foot{margin-top:22px;font-size:22px;font-weight:700;color:#4c4a46}.uc-foot b{font-size:34px;color:#c39531;margin-right:6px}
 .ucard.warn .uc-c b{color:#b91c1c}.uc-sl-h b.low{color:#b91c1c}
 @media print{.uring .arc{transition:none!important}}
+
+/* OPT del mes (formato acta) */
+.od-rc{top:118px}
+.optd.od2{top:175px}
+.od-head th{background:linear-gradient(90deg,#c39531,#d9ad4f);color:#1a1917;font-size:26px;letter-spacing:.02em}
+.od-head td{text-align:center;font-size:21px;padding:10px 14px}
+.od-cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
+.od-box{border-radius:22px;padding:18px 26px 14px;font-size:21px!important;line-height:1.38!important;margin:0!important;box-shadow:0 18px 36px -26px rgba(0,0,0,.45)}
+.od-box h5{margin:0 0 8px!important;font-size:22px!important;letter-spacing:.04em}
+.od-box ul{padding-left:26px!important}.od-box li{margin-bottom:4px}
+.od-box.ok{background:#eef7f0;border:2px solid #b9e0c4}.od-box.ok h5{color:#15803d}
+.od-box.mej{background:#fdf3e7;border:2px solid #f2cf9d}.od-box.mej h5{color:#b45309}
+.od-sub{margin:22px 0 10px;font-size:24px;font-weight:800;color:#1a1917}
+.od-disp th{background:#c39531;color:#1a1917;font-size:17px;padding:9px 8px}
+.od-disp td{text-align:center;font-size:19px;padding:10px}.od-disp td:first-child{text-align:left;width:38%}
+.od-disp td.x{font-size:30px;font-weight:900;color:#b91c1c}
+/* tarjetas OPT sin barra OTO: centradas en la lámina */
+#c-optind .ucards{top:50%;transform:translateY(-44%)}
+.optd.od2 .tt th{background:linear-gradient(90deg,#c39531,#d9ad4f)!important;color:#1a1917!important}
+.optd.od2 .od-head th{font-size:28px;padding:14px}.optd.od2 .od-head td{font-size:23px;padding:13px 14px}
+.optd.od2 .od-box{font-size:23px!important;padding:22px 30px 18px;min-height:300px}.optd.od2 .od-box h5{font-size:24px!important}
+.optd.od2 .od-disp th{font-size:19px;padding:12px 8px}.optd.od2 .od-disp td{font-size:21px;padding:14px 12px}
+.optd.od2 .od-sub{margin-top:30px;font-size:26px}
