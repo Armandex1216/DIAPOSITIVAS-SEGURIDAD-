@@ -406,3 +406,6 @@ body.editing .vs-x{display:block}
   .ui-tab,.tbl-tool,.kind-pop,.msw-pop,.vs-x{display:none!important}
   .slide *{animation:none!important}
 }
+
+/* PDF: conservar fondos y colores aunque no se marque «Gráficos de fondo» */
+@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
