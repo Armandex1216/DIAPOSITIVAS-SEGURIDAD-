@@ -179,3 +179,4 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .optd.od2 .od-head th{font-size:30px}.optd.od2 .od-head td{font-size:25px}
 :is(#g-portada,#c-portada) .g-ttl .kick{letter-spacing:.3em}
 .od-box ul + h5{margin-top:20px!important}
+@media print{#c-optind .ucards{transform:none!important;top:235px!important}.optd.od2{transform:none!important;top:190px!important}.ucard,.od-box,.uc-two>div{box-shadow:none!important}.ucard{border:2px solid #eadfc6}}

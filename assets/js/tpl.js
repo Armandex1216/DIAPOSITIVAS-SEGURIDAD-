@@ -75,7 +75,7 @@
         if (fill) gsap.fromTo(fill, { width: '0%' }, { width: bar + '%', duration: 1.4, delay: d + .5, ease: 'power2.out' });
         $$('.uc-n,.uc-foot b', c).forEach(n => gsap.fromTo(n, { scale: .4, opacity: 0 }, { scale: 1, opacity: 1, duration: .6, delay: d + .3, ease: 'back.out(2)' })); }
       else { arc.setAttribute('stroke-dasharray', `${p} ${100 - p}`); pctEl.textContent = fmtN(p, p >= 99.95 ? 0 : dec) + ' %'; if (fill) fill.style.width = bar + '%'; } }); }
-  $$('.slide').filter(sl => $('.ucard', sl)).forEach(sl => { D.on(sl.id, 'enter', () => paintCards(sl, !D.editing())); D.on(sl.id, 'edit', () => paintCards(sl, false)); paintCards(sl, false); sl.addEventListener('input', () => paintCards(sl, false)); });
+  $$('.slide').filter(sl => $('.ucard', sl)).forEach(sl => { D.on(sl.id, 'enter', () => paintCards(sl, !D.editing())); D.on(sl.id, 'edit', () => paintCards(sl, false)); D.on(sl.id, 'print', () => paintCards(sl, false)); paintCards(sl, false); sl.addEventListener('input', () => paintCards(sl, false)); });
   // fecha de la reunión: texto con data-fecha (al crear la presentación se completa desde ?fecha=)
   const qs = new URLSearchParams(location.search);
   if (qs.get('fecha') && !D.store.meta.fechaPuesta) {

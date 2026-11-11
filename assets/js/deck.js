@@ -360,6 +360,14 @@
     slides.forEach(s => showAll(s));
     setTimeout(() => {
       slides.forEach(s => D.fire(s, 'print'));
+      // videos: en el PDF va una imagen del video con un enlace para verlo (un PDF no reproduce videos)
+      $$('.vslot').forEach(box => { box.querySelectorAll('.vs-print').forEach(x => x.remove()); const v = $('video', box), f = $('iframe', box), link = (store.meta.videos || {})[box.dataset.vslot];
+        const href = typeof link === 'string' ? link : location.href, pr = document.createElement('a'); pr.className = 'vs-print'; pr.href = href; pr.target = '_blank';
+        let img = '';
+        if (v && v.videoWidth) { try { const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); img = c.toDataURL('image/jpeg', .85); } catch (e) { } }
+        const y = typeof link === 'string' && link.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/); if (!img && y) img = `https://i.ytimg.com/vi/${y[1]}/hqdefault.jpg`;
+        pr.innerHTML = `${img ? `<img src="${img}" alt="">` : ''}<span class="vs-play">▶</span><span class="vs-cap">${v || f || link ? 'Video · clic aquí para verlo' : 'Espacio para video'}</span>`;
+        box.appendChild(pr); });
       $$('.miner').forEach(m => { if (m._miner && m._miner.snap) { const fb = $('.fallback', m); try { fb.style.backgroundImage = `url(${m._miner.snap()})`; fb.style.backgroundSize = '100% 100%'; } catch (e) { } } });
       setTimeout(() => { if (noReload === true) return; window.print(); setTimeout(() => location.reload(), 400); }, 600);
     }, 250);
