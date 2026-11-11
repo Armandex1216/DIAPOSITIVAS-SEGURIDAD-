@@ -57,6 +57,9 @@
 
   /* ---------- escala ---------- */
   // al editar, la lámina se achica para no quedar tapada por la barra de formato (arriba) ni por los controles (a la derecha)
+  // al guardar, se quitan los restos de las animaciones (translate/rotate/scale/transform/opacity en línea) y marcas del editor
+  D.cleanHTML = h => String(h).replace(/\s*style="([^"]*)"/g, (m, st) => { const keep = st.split(';').map(x => x.trim()).filter(x => x && !/^(translate|rotate|scale|transform|opacity|visibility|will-change|filter)\s*:/i.test(x)); return keep.length ? ` style="${keep.join('; ')};"` : ''; })
+    .replace(/\s*class="([^"]*)"/g, (m, c) => { const k = c.split(/\s+/).filter(x => x && !/^(tt-row|is-sel|sel-on)$/.test(x)); return k.length ? ` class="${k.join(' ')}"` : ''; });
   function fit() { const ed = body.classList.contains('editing') || body.classList.contains('moving'), R = ed ? 128 : 0, T = ed ? 124 : 0, Bm = ed ? 14 : 0, Lm = ed ? 14 : 0;
     const s = Math.min((innerWidth - R - Lm) / W, (innerHeight - T - Bm) / H), dx = (Lm - R) / 2, dy = (T - Bm) / 2;
     stage.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${s})`; D.scale = s; if (D.drawSel) D.drawSel(); }
@@ -248,7 +251,7 @@
   }
   function commitEdits(scope) {
     const sls = scope ? [scope] : slides;
-    sls.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { if (el.dataset.orig == null) return; if (el.hasAttribute('data-count')) syncCount(el); if (el.classList.contains('rich')) $$('[data-count]', el).forEach(syncCount); const k = keyOf(sl, el, list); if (el.innerHTML !== el.dataset.orig) store.text[k] = el.innerHTML; el.dataset.orig = el.innerHTML; }); });
+    sls.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { if (el.dataset.orig == null) return; if (el.hasAttribute('data-count')) syncCount(el); if (el.classList.contains('rich')) $$('[data-count]', el).forEach(syncCount); const k = keyOf(sl, el, list); if (el.innerHTML !== el.dataset.orig) store.text[k] = D.cleanHTML(el.innerHTML); el.dataset.orig = el.innerHTML; }); });
     persist();
   }
   function toggleEdit() {
@@ -302,21 +305,32 @@
   function initVSlot(box) {
     const k = box.dataset.vslot, key = (document.body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k;
     const ui = `<div class="vs-ui" data-noedit contenteditable="false"><b>🎬 Video</b><span>Elija un video de su equipo o pegue un enlace de YouTube o Google Drive</span><div><button data-v="file">📁 Video del equipo</button><button data-v="link">🔗 Pegar enlace</button></div></div>`;
+    const MAXMB = 500, setMeta = v => { const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); if (v == null) delete m[k]; else m[k] = v; persist(); };
+    const msg = t => { let el = box.querySelector('.vs-msg'); if (!t) { el && el.remove(); return; } if (!el) { el = document.createElement('div'); el.className = 'vs-msg'; el.setAttribute('data-noedit', ''); box.appendChild(el); } el.textContent = t; };
+    let busyV = false;
+    // video subido en partes (la nube gratuita acepta hasta 50 MB por archivo): se baja una vez, se arma y queda guardado en el equipo
+    const fetchParts = async info => { if (busyV) return; busyV = true; try { const bl = []; let got = 0;
+        for (let i = 0; i < info.parts.length; i++) { const r = await fetch(info.parts[i]); if (!r.ok) throw new Error('parte ' + i); const reader = r.body.getReader(), ch = [];
+          for (;;) { const { done, value } = await reader.read(); if (done) break; ch.push(value); got += value.length; msg(`⏬ Descargando video… ${Math.min(99, Math.round(got / info.size * 100))} %`); }
+          bl.push(new Blob(ch)); }
+        const blob = new Blob(bl, { type: info.type || 'video/mp4' }); await vPut(key, blob); msg(''); draw(); }
+      catch (e) { console.warn(e); msg('No se pudo descargar el video (revise la conexión)'); } finally { busyV = false; } };
     const draw = async () => { box.querySelectorAll('video,iframe,.vs-ui,.vs-x').forEach(x => x.remove()); box.classList.remove('has'); let url = null;
       const link = (store.meta.videos || {})[k], local = await vGet(key).catch(() => null);
-      if (local) { url = URL.createObjectURL(local); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has'); } // copia en este equipo: funciona sin internet
-      else if (link) { const e = embed(link); if (e.t === 'vid' && /supabase\.co\/storage/.test(link)) fetch(link).then(r => r.ok ? r.blob() : null).then(b => b && vPut(key, b)).catch(() => { }); /* se baja una copia para presentar sin internet */ const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
-
-      if (box.classList.contains('has')) { const x = document.createElement('button'); x.className = 'vs-x'; x.setAttribute('data-noedit', ''); x.textContent = '✕ Quitar video'; x.onclick = async ev => { ev.stopPropagation(); if (!confirm('¿Quitar el video?')) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); delete m[k]; await vPut(key, null); persist(); draw(); }; box.appendChild(x); }
+      if (local) { url = URL.createObjectURL(local); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has');
+        // si el video está solo en este equipo, se sube a la nube para que todos lo vean
+        if (!link && D.uploadVideo && !busyV && local.size <= MAXMB * 1048576) upload(local, local.name || 'video.mp4'); }
+      else if (link && typeof link === 'object' && link.parts) { box.classList.add('has'); fetchParts(link); }
+      else if (link) { const e = embed(link); if (e.t === 'vid' && /supabase\.co\/storage/.test(link)) fetch(link).then(r => r.ok ? r.blob() : null).then(b => b && vPut(key, b)).catch(() => { }); /* copia para presentar sin internet */ const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
+      if (box.classList.contains('has')) { const x = document.createElement('button'); x.className = 'vs-x'; x.setAttribute('data-noedit', ''); x.textContent = '✕ Quitar video'; x.onclick = async ev => { ev.stopPropagation(); if (!confirm('¿Quitar el video?')) return; setMeta(null); await vPut(key, null); msg(''); draw(); }; box.appendChild(x); }
       else box.insertAdjacentHTML('beforeend', ui); };
+    const upload = async (f, name) => { busyV = true; const mb = (f.size / 1048576).toFixed(0);
+      try { const info = await D.uploadVideo(f, k, p => msg(`☁ Subiendo video a la nube… ${p} % de ${mb} MB (no cierre la página)`)); setMeta(info); msg(''); toast('✓ Video en la nube: ya se ve desde cualquier equipo', 4000); }
+      catch (e) { console.warn(e); msg(''); toast('No se pudo subir el video a la nube; queda en este equipo y se reintentará al abrir la presentación', 6000); } finally { busyV = false; } };
     const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*'; inp.hidden = true; document.body.appendChild(inp);
     // el video se guarda en este equipo (para presentar sin internet) y se sube a la nube (para verlo desde cualquier equipo)
-    const putFile = async f => { await vPut(key, f); draw();
-      if (!D.uploadVideo) { toast(`Video «${f.name}» guardado en este equipo`, 3500); return; }
-      if (f.size > 50 * 1024 * 1024) { toast(`El video pesa ${(f.size / 1048576).toFixed(0)} MB: la nube acepta hasta 50 MB. Queda guardado solo en este equipo`, 6000); return; }
-      toast(`Subiendo «${f.name}» a la nube (${(f.size / 1048576).toFixed(1)} MB)…`, 60000);
-      try { const u = await D.uploadVideo(f, k); const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); m[k] = u; persist(); toast('✓ Video guardado en la nube: se verá desde cualquier equipo', 3500); }
-      catch (e) { console.warn(e); toast('No se pudo subir el video a la nube; queda guardado en este equipo', 5000); } };
+    const putFile = async f => { if (f.size > MAXMB * 1048576) { toast(`El video pesa ${(f.size / 1048576).toFixed(0)} MB; el máximo es ${MAXMB} MB`, 6000); return; }
+      setMeta(null); await vPut(key, f); draw(); };
     inp.onchange = async () => { const f = inp.files[0]; inp.value = ''; if (f) putFile(f); };
     box.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; e.stopPropagation();
       if (b.dataset.v === 'file') inp.click();

@@ -166,3 +166,15 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .optd.od2 .od-box{font-size:23px!important;padding:22px 30px 18px;min-height:300px}.optd.od2 .od-box h5{font-size:24px!important}
 .optd.od2 .od-disp th{font-size:19px;padding:12px 8px}.optd.od2 .od-disp td{font-size:21px;padding:14px 12px}
 .optd.od2 .od-sub{margin-top:30px;font-size:26px}
+
+/* OPT del mes sin disparadores: todo centrado y con letra más grande */
+.optd.od2{top:50%;transform:translateY(-41%)}
+.optd.od2 .od-cols{gap:34px;margin-top:30px}
+.optd.od2 .od-box{font-size:28px!important;line-height:1.42!important;padding:30px 38px 26px;min-height:380px;border-radius:28px}
+.optd.od2 .od-box h5{font-size:30px!important;margin-bottom:14px!important}
+.optd.od2 .od-box li{margin-bottom:10px}
+.optd.od2 .od-box li::marker{color:currentColor}
+.od-box.ok li::marker{color:#15803d}.od-box.mej li::marker{color:#c2410c}
+.od-box.ok{background:linear-gradient(160deg,#f1faf3,#e2f3e7)}.od-box.mej{background:linear-gradient(160deg,#fff7ec,#fdebd3)}
+.optd.od2 .od-head th{font-size:30px}.optd.od2 .od-head td{font-size:25px}
+:is(#g-portada,#c-portada) .g-ttl .kick{letter-spacing:.3em}
