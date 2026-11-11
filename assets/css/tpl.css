@@ -178,3 +178,4 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .od-box.ok{background:linear-gradient(160deg,#f1faf3,#e2f3e7)}.od-box.mej{background:linear-gradient(160deg,#fff7ec,#fdebd3)}
 .optd.od2 .od-head th{font-size:30px}.optd.od2 .od-head td{font-size:25px}
 :is(#g-portada,#c-portada) .g-ttl .kick{letter-spacing:.3em}
+.od-box ul + h5{margin-top:20px!important}
