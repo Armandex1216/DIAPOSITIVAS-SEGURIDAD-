@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diapositivas de Seguridad · U.M. Pallancata – Selene</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261111i">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261111j">
 <style>
 html,body{overflow:auto;height:auto;background:#f7f2e8;color:#1a1917}
 .top{position:sticky;top:0;z-index:5;background:rgba(247,242,232,.9);backdrop-filter:blur(10px);border-bottom:1px solid #ebe1cc}
@@ -88,13 +88,25 @@ h1 span{color:#c39531}
   const fdate = d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return `${dd}/${m}/${y}`; };
   const dayName = d => d ? ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][new Date(d + 'T12:00:00').getDay()] : '';
   const itemsOf = f => [...DECKS.filter(d => d.carpeta === f.id).map(d => ({ titulo: d.titulo, fecha: d.fecha ? dayName(d.fecha)[0].toUpperCase() + dayName(d.fecha).slice(1) + ' ' + fdate(d.fecha) : '', archivo: (P[d.plantilla] || P.blanco).archivo + '?d=' + encodeURIComponent(d.id), deck: d.id, cloud: d, laminas: (P[d.plantilla] || {}).laminas, portada: f.portada || 'assets/img/portada.jpg' })), ...f.items];
+  const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const n = f => { const k = itemsOf(f).length; return k === 1 ? '1 elemento' : k + ' elementos'; };
   const folder = f => { const has = itemsOf(f).length; return `<a class="fd ${has ? '' : 'empty'}" href="#${f.id}"><div class="ico"><div class="back"></div><div class="ph ${f.portada && has ? '' : 'doc'}" style="${f.portada && has ? `background-image:url(${f.portada})` : ''}"></div><div class="front"></div></div><div><h3>${esc(f.nombre)}</h3><p>${n(f)}</p></div></a>`; };
   const deck = d => `<div class="dkw"><a class="dk" href="${d.archivo}"><div class="th" style="background-image:url(${d.portada || 'assets/img/portada.jpg'})"><b><span>${esc(d.fecha)}</span>${esc(d.titulo)}</b></div><div class="in"><div><h3>${esc(d.titulo)}</h3><p>${esc(d.fecha)}${d.laminas ? ' · ' + d.laminas + ' láminas' : ''}</p></div><span class="go">Abrir ▶</span></div></a>${d.cloud ? `<button class="dk-menu" data-menu="${esc(d.deck)}" title="Opciones">⋯</button>` : ''}</div>`;
   const newCard = f => `<button class="dk dk-new" data-new="${f.id}"><div class="plus">＋</div><h3>Nueva presentación</h3><p>Plantilla: ${esc((P[f.plantilla] || P.blanco).nombre)}</p></button>`;
   function render() {
-    const id = decodeURIComponent(location.hash.slice(1)).split('&')[0], f = C.find(x => x.id === id), q = $('#q').value.trim().toLowerCase();
-    if (f) {
+    const path = decodeURIComponent(location.hash.slice(1)).split('&')[0].split('/'), id = path[0], f = C.find(x => x.id === id), q = $('#q').value.trim().toLowerCase();
+    if (f && f.anual) { // carpeta por año › mes › presentaciones (reporte diario)
+      const all = itemsOf(f), raw = d => (d.cloud && d.cloud.fecha) || '', now = new Date(), Y = String(now.getFullYear()), M = String(now.getMonth() + 1).padStart(2, '0');
+      const [, y, mo] = path; let crumb = `<a href="#">Inicio</a><span>›</span>` + (y ? `<a href="#${f.id}">${esc(f.nombre)}</a>` : `<span>${esc(f.nombre)}</span>`);
+      const sub = (href, name, k) => `<a class="fd ${k ? '' : 'empty'}" href="#${href}"><div class="ico"><div class="back"></div><div class="ph ${f.portada && k ? '' : 'doc'}" style="${f.portada && k ? `background-image:url(${f.portada})` : ''}"></div><div class="front"></div></div><div><h3>${esc(name)}</h3><p>${k === 1 ? '1 elemento' : k + ' elementos'}</p></div></a>`;
+      if (!y) { const ys = [...new Set([Y, ...all.map(d => raw(d).slice(0, 4)).filter(Boolean)])].sort().reverse();
+        $('#ttl').innerHTML = esc(f.nombre); $('#view').innerHTML = `<div class="grid">${ys.map(v => sub(`${f.id}/${v}`, v, all.filter(d => raw(d).startsWith(v)).length)).join('')}</div>`; }
+      else if (!mo) { crumb += `<span>›</span><span>${esc(y)}</span>`; const ms = [...new Set([...(y === Y ? [M] : []), ...all.filter(d => raw(d).startsWith(y)).map(d => raw(d).slice(5, 7))])].sort().reverse();
+        $('#ttl').innerHTML = `${esc(f.nombre)} <span>${esc(y)}</span>`; $('#view').innerHTML = `<div class="grid">${ms.map(v => sub(`${f.id}/${y}/${v}`, MESES[+v - 1].toUpperCase(), all.filter(d => raw(d).startsWith(y + '-' + v)).length)).join('')}</div>`; }
+      else { crumb += `<span>›</span><a href="#${f.id}/${y}">${esc(y)}</a><span>›</span><span>${MESES[+mo - 1]}</span>`; $('#ttl').innerHTML = `${esc(f.nombre)} <span>${MESES[+mo - 1]} ${esc(y)}</span>`;
+        $('#view').innerHTML = `<div class="decks">${newCard(f)}${all.filter(d => raw(d).startsWith(y + '-' + mo)).sort((a, b) => raw(b).localeCompare(raw(a))).map(deck).join('')}</div>`; }
+      $('#crumb').innerHTML = crumb;
+    } else if (f) {
       $('#crumb').innerHTML = `<a href="#">Inicio</a><span>›</span><span>${esc(f.nombre)}</span>`; $('#ttl').innerHTML = esc(f.nombre);
       $('#view').innerHTML = `<div class="decks">${newCard(f)}${itemsOf(f).map(deck).join('')}</div>`;
     } else if (q) {
@@ -111,7 +123,7 @@ h1 span{color:#c39531}
     try { DECKS = await api('diapo_decks?borrado=eq.false&select=*&order=fecha.desc.nullslast,creado.desc') || []; localStorage.setItem('decks-cache', JSON.stringify(DECKS)); render(); } catch (e) { console.warn('Sin conexión: se muestran las presentaciones guardadas en este equipo', e); }
   }
   /* ---------- crear presentación ---------- */
-  const nextDay = dow => { const d = new Date(); d.setHours(12); if (dow == null) return d.toISOString().slice(0, 10); const add = (dow - d.getDay() + 7) % 7; d.setDate(d.getDate() + add); return d.toISOString().slice(0, 10); };
+  const nextDay = dow => { const d = new Date(); d.setHours(12); if (dow == null) return d.toISOString().slice(0, 10); if (dow === 'm') { d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); } const add = (dow - d.getDay() + 7) % 7; d.setDate(d.getDate() + add); return d.toISOString().slice(0, 10); };
   const GUM_OCULTAS = ['g-estad', 'g-acuerdos', 'g-hall', 'g-abiertos', 'g-s-retraso', 'g-resumen', 'g-oto', 'g-insp'];
   function openNew(folderId, importId) {
     const f = C.find(x => x.id === folderId) || C[0]; const m = $('#nmodal');
@@ -123,8 +135,8 @@ h1 span{color:#c39531}
       <p class="nerr"></p><div class="nacts"><button type="button" data-x>Cancelar</button><button class="ok">Crear y abrir</button></div></form>`;
     const fm = $('form', m), sync = () => { const pl = P[fm.p.value] || P.blanco; fm.fecha.value = fm.fecha.value || nextDay(pl.dia); fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; };
     fm.p.onchange = () => { fm.fecha.value = ''; sync(); }; fm.fecha.onchange = () => { const pl = P[fm.p.value] || P.blanco; fm.t.value = `${pl.titulo} · ${fdate(fm.fecha.value)}`; }; sync();
-    const prev = itemsOf(f)[0]; if (!prev) { fm.copy.checked = false; fm.copy.closest('label').style.display = 'none'; }
-    const copyTxt = () => { const lab = fm.copy.closest('label'); lab.lastChild.textContent = fm.p.value === 'gum' ? ' Copiar los acuerdos y pedidos del CSST (y textos) de la última GUM para solo actualizarlos. La GUM empieza con portada, momento ambiental, índices por unidad, pedidos del CSST del mes, campaña del mes y cierre; los gráficos de Safety HOC se agregan después.' : ' Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla'; };
+    const prev = itemsOf(f).sort((a, b) => ((b.cloud || {}).fecha || '').localeCompare((a.cloud || {}).fecha || ''))[0]; if (prev && f.plantilla === 'diario') fm.copy.checked = false; if (!prev) { fm.copy.checked = false; fm.copy.closest('label').style.display = 'none'; }
+    const copyTxt = () => { const lab = fm.copy.closest('label'); lab.lastChild.textContent = fm.p.value === 'diario' ? ' Copiar los textos del último reporte diario (responsables, tabla de hallazgos, etc.). Las fotos no se copian: cada día se ponen las nuevas.' : fm.p.value === 'gum' ? ' Copiar los acuerdos y pedidos del CSST (y textos) de la última GUM para solo actualizarlos. La GUM empieza con portada, momento ambiental, índices por unidad, pedidos del CSST del mes, campaña del mes y cierre; los gráficos de Safety HOC se agregan después.' : ' Copiar el contenido de la última presentación de esta carpeta (tablas, textos e imágenes) para solo actualizarla'; };
     fm.p.addEventListener('change', copyTxt); copyTxt();
     m.classList.add('on'); $('[data-x]', m).onclick = () => m.classList.remove('on');
     fm.onsubmit = async e => { e.preventDefault(); const err = $('.nerr', m); if (!cloud) { err.textContent = 'La nube no está configurada.'; return; }
@@ -146,6 +158,7 @@ h1 span{color:#c39531}
           data.hidden = Object.fromEntries(GUM_OCULTAS.map(k => [k, true]));
           ['g-idx-pal', 'g-idx-sel', 'g-pedidos', 'g-campana'].forEach(k => data.hidden[k] = false); // índices por unidad, acta y campaña del mes
         }
+        if (pl === 'diario' && data) { data.images = {}; data.free = Object.fromEntries(Object.entries(data.free || {}).filter(([, v]) => v.t !== 'img')); data.meta = {}; } // el diario nuevo no arrastra las fotos del anterior
         if (data) await api('diapo_cambios', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ deck_id: id, data, updated_at: new Date().toISOString(), updated_by: src ? 'copia' : 'nueva' }) });
         location.href = `${(P[pl] || P.blanco).archivo}?d=${encodeURIComponent(id)}&fecha=${fecha}${importId ? '&importar=' + encodeURIComponent(importId) : ''}`;
       } catch (ex) { console.error(ex); err.textContent = 'No se pudo crear: ' + ex.message.slice(0, 160); }

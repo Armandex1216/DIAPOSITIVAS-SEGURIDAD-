@@ -318,6 +318,12 @@
     const a = sl.getBoundingClientRect(), k = D.scale || 1, x = Math.round((e.clientX - a.left) / k), y = Math.round((e.clientY - a.top) / k);
     addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: Math.max(0, x - 20), y: Math.max(0, y - 24), w: 600 };
     const el = $(`.free[data-fid="${fid}"]`); if (el) D.applyLayout(el, store.layout['free:' + fid]); D.persist(); });
+  // imagen libre (pegada, soltada o elegida): se coloca en la lámina actual y se puede mover y cambiar de tamaño
+  D.addImage = (file, ev) => { if (!file) return; const sl = cur(); let x = 1100, y = 260;
+    if (ev && ev.clientX != null) { const r = sl.getBoundingClientRect(), sc = r.width / 1920; x = Math.max(0, Math.min(1920 - 640, Math.round((ev.clientX - r.left) / sc - 320))); y = Math.max(0, Math.min(1080 - 420, Math.round((ev.clientY - r.top) / sc - 210))); }
+    else { const n = Object.values(store.free).filter(f => f.s === sl.id && f.t === 'img').length; x = 1100 - n * 60; y = 260 + n * 50; }
+    addFree('img'); const fid = Object.keys(store.free).pop(); const L = store.layout['free:' + fid]; if (L) { L.x = x; L.y = y; }
+    const el = document.querySelector(`.free[data-fid="${fid}"]`); if (el) { D.applyLayout(el, L); const sk = el.querySelector('.slot'); sk && sk._put && sk._put(file); } D.persist(); };
   D.addText = () => { addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); };
 
   /* ================= láminas ================= */
@@ -354,6 +360,11 @@
   const tbtn = document.createElement('button'); tbtn.dataset.k = 'txt'; tbtn.textContent = 'T Texto'; tbtn.title = 'Agregar un cuadro de texto (también: doble clic en un espacio vacío en modo edición)';
   tbtn.onclick = e => { e.stopPropagation(); if (!D.editing()) document.querySelector('.ui [data-k=edit]').click(); setTimeout(() => D.addText(), 80); };
   ui && ui.insertBefore(tbtn, ins.nextSibling);
+  const ibtn = document.createElement('button'); ibtn.dataset.k = 'img'; ibtn.textContent = '🖼 Imagen'; ibtn.title = 'Agregar una imagen de su PC (también puede pegarla con Ctrl+V o arrastrarla a la lámina)';
+  const iinp = document.createElement('input'); iinp.type = 'file'; iinp.accept = 'image/*'; iinp.multiple = true; iinp.hidden = true; document.body.appendChild(iinp);
+  iinp.onchange = () => { [...iinp.files].forEach((f, i) => setTimeout(() => D.addImage(f), i * 120)); iinp.value = ''; };
+  ibtn.onclick = e => { e.stopPropagation(); if (!D.editing()) document.querySelector('.ui [data-k=edit]').click(); iinp.click(); };
+  ui && ui.insertBefore(ibtn, tbtn.nextSibling);
   const menu = document.createElement('div'); menu.className = 'ins-menu'; menu.setAttribute('data-noedit', '');
   menu.innerHTML = `<h5>Textos</h5>
     <div class="sub-ins"><button data-i="text" data-pre="title" class="pre-t">Título</button><button data-i="text" data-pre="sub" class="pre-s">Subtítulo</button><button data-i="text" data-pre="body">Texto normal</button><button data-i="box">▭ Recuadro oscuro</button></div>
