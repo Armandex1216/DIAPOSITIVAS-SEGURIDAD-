@@ -169,6 +169,7 @@
   };
   function go(n, dir) {
     if (n < 0 || n >= slides.length || n === D.i || D.busy) return;
+    $$('video', slides[D.i] || document).forEach(v => { try { v.pause(); } catch (e) { } }); // el video se pausa al cambiar de lámina
     dir = dir || (n > D.i ? 1 : -1);
     const a = slides[D.i], b = slides[n];
     const ed = D.editing();
@@ -290,6 +291,33 @@
     }
   }
   D.initSlot = initSlot;
+
+  /* ---------- espacio para video (.vslot): archivo del equipo (queda guardado en este equipo, funciona sin internet)
+     o enlace de YouTube / Google Drive / mp4 (se guarda con la presentación y se ve en cualquier equipo) ---------- */
+  const VDB = () => new Promise((ok, ko) => { const r = indexedDB.open('diapo-videos', 1); r.onupgradeneeded = () => r.result.createObjectStore('v'); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
+  const vGet = async k => { const db = await VDB(); return new Promise(ok => { const q = db.transaction('v').objectStore('v').get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); };
+  const vPut = async (k, v) => { const db = await VDB(); return new Promise(ok => { const t = db.transaction('v', 'readwrite'); v == null ? t.objectStore('v').delete(k) : t.objectStore('v').put(v, k); t.oncomplete = () => ok(); t.onerror = () => ok(); }); };
+  const embed = u => { const y = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/); if (y) return { t: 'if', src: `https://www.youtube.com/embed/${y[1]}?rel=0` };
+    const g = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/); if (g) return { t: 'if', src: `https://drive.google.com/file/d/${g[1]}/preview` }; return { t: 'vid', src: u }; };
+  function initVSlot(box) {
+    const k = box.dataset.vslot, key = (document.body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k;
+    const ui = `<div class="vs-ui" data-noedit contenteditable="false"><b>🎬 Video</b><span>Elija un video de su equipo o pegue un enlace de YouTube o Google Drive</span><div><button data-v="file">📁 Video del equipo</button><button data-v="link">🔗 Pegar enlace</button></div></div>`;
+    const draw = async () => { box.querySelectorAll('video,iframe,.vs-ui,.vs-x').forEach(x => x.remove()); box.classList.remove('has'); let url = null;
+      const link = (store.meta.videos || {})[k];
+      if (link) { const e = embed(link); const el = document.createElement(e.t === 'if' ? 'iframe' : 'video'); el.src = e.src; if (e.t === 'if') { el.allow = 'autoplay; fullscreen; encrypted-media'; el.allowFullscreen = true; } else { el.controls = true; el.preload = 'metadata'; } box.appendChild(el); box.classList.add('has'); }
+      else { const blob = await vGet(key).catch(() => null); if (blob) { url = URL.createObjectURL(blob); const v = document.createElement('video'); v.src = url; v.controls = true; v.preload = 'auto'; box.appendChild(v); box.classList.add('has'); } }
+      if (box.classList.contains('has')) { const x = document.createElement('button'); x.className = 'vs-x'; x.setAttribute('data-noedit', ''); x.textContent = '✕ Quitar video'; x.onclick = async ev => { ev.stopPropagation(); if (!confirm('¿Quitar el video?')) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); delete m[k]; await vPut(key, null); persist(); draw(); }; box.appendChild(x); }
+      else box.insertAdjacentHTML('beforeend', ui); };
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'video/*'; inp.hidden = true; document.body.appendChild(inp);
+    inp.onchange = async () => { const f = inp.files[0]; inp.value = ''; if (!f) return; await vPut(key, f); const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); delete m[k]; persist(); toast(`Video «${f.name}» guardado en este equipo (funciona sin internet)`, 3500); draw(); };
+    box.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; e.stopPropagation();
+      if (b.dataset.v === 'file') inp.click();
+      else { const u = prompt('Pegue el enlace del video (YouTube, Google Drive o un .mp4):'); if (!u || !/^https?:\/\//.test(u.trim())) return; const m = store.meta.videos = Object.assign({}, store.meta.videos || {}); m[k] = u.trim(); persist(); draw(); } });
+    box.addEventListener('dragover', e => { if (D.editing()) e.preventDefault(); });
+    box.addEventListener('drop', async e => { const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('video/')); if (!f) return; e.preventDefault(); await vPut(key, f); persist(); draw(); });
+    draw();
+  }
+  $$('.vslot').forEach(initVSlot);
 
   /* ---------- exportar / importar cambios ---------- */
   function exportEdits() {

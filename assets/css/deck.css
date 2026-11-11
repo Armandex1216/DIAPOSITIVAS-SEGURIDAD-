@@ -380,3 +380,14 @@ body.ui-hidden .ui-tab{display:block}.ui-tab:hover{opacity:1;width:38px;box-shad
 
 /* sin la barra de Vercel encima de la presentación */
 vercel-live-feedback,#vercel-live-feedback,[data-vercel-toolbar]{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
+/* espacio para video */
+.vslot{position:absolute;border-radius:26px;overflow:hidden;background:repeating-linear-gradient(135deg,#f6efe0 0 18px,#fbf6ea 18px 36px);border:3px dashed #d9c79d;display:flex;align-items:center;justify-content:center}
+.vslot.has{border:0;background:#000;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.vslot video,.vslot iframe{width:100%;height:100%;border:0;display:block;background:#000;object-fit:contain}
+.vs-ui{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;color:#6b5a32;font:600 22px Montserrat,sans-serif;padding:30px}
+.vs-ui b{font-size:40px;color:#1a1917}.vs-ui div{display:flex;gap:14px}
+.vs-ui button{background:#1a1917;color:#e8c97f;border:0;border-radius:14px;padding:14px 22px;font:700 20px Montserrat,sans-serif;cursor:pointer}.vs-ui button:hover{background:#c39531;color:#1a1917}
+.vs-x{position:absolute;top:14px;right:14px;z-index:3;background:rgba(26,25,23,.8);color:#fff;border:0;border-radius:10px;padding:8px 14px;font:700 16px Montserrat,sans-serif;cursor:pointer;display:none}
+body.editing .vs-x{display:block}
+@media print{.vs-ui button,.vs-x{display:none!important}}
