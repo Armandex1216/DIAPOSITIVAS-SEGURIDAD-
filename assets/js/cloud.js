@@ -55,6 +55,10 @@
       if (imgs[k] === v) imgs[k] = 'dbimg:' + iid;
     }
   }
+  D.uploadVideo = async (file, slot) => { const ext = (file.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = `${id}/${slot}-${Date.now().toString(36)}.${ext}`;
+    const { error } = await sb.storage.from('diapo-videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false, cacheControl: '31536000' });
+    if (error) throw error; return sb.storage.from('diapo-videos').getPublicUrl(path).data.publicUrl; };
   const cache = new Map();
   D.resolveImg = ref => { if (!cache.has(ref)) cache.set(ref, sb.from('diapo_imagenes').select('data').eq('id', ref.slice(6)).maybeSingle().then(r => r.data ? r.data.data : null, () => null)); return cache.get(ref); };
   document.querySelectorAll('.slot[data-ref]').forEach(slot => { const ref = slot.dataset.ref, im = slot.querySelector('img'); D.resolveImg(ref).then(u => { if (u && slot.dataset.ref === ref) im.src = u; }); });
