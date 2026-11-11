@@ -62,7 +62,11 @@
       if (err) throw err; parts.push(sb.storage.from('diapo-videos').getPublicUrl(path).data.publicUrl); onProg && onProg(Math.round((i + 1) / n * 100)); }
     return { parts, size: file.size, type: file.type || 'video/mp4', name: file.name || 'video' }; };
   const cache = new Map();
-  D.resolveImg = ref => { if (!cache.has(ref)) cache.set(ref, sb.from('diapo_imagenes').select('data').eq('id', ref.slice(6)).maybeSingle().then(r => r.data ? r.data.data : null, () => null)); return cache.get(ref); };
+  // las imágenes de la nube se guardan en el equipo (IndexedDB): se descargan una sola vez (menos consumo del plan gratis y funciona sin internet)
+  const IDB = () => new Promise((ok, ko) => { const r = indexedDB.open('diapo-imgs', 1); r.onupgradeneeded = () => r.result.createObjectStore('i'); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
+  const iGet = k => IDB().then(db => new Promise(ok => { const q = db.transaction('i').objectStore('i').get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); })).catch(() => null);
+  const iPut = (k, v) => IDB().then(db => { db.transaction('i', 'readwrite').objectStore('i').put(v, k); }).catch(() => { });
+  D.resolveImg = ref => { if (!cache.has(ref)) cache.set(ref, iGet(ref).then(loc => loc || sb.from('diapo_imagenes').select('data').eq('id', ref.slice(6)).maybeSingle().then(r => { const u = r.data ? r.data.data : null; if (u) iPut(ref, u); return u; }, () => null))); return cache.get(ref); };
   document.querySelectorAll('.slot[data-ref]').forEach(slot => { const ref = slot.dataset.ref, im = slot.querySelector('img'); D.resolveImg(ref).then(u => { if (u && slot.dataset.ref === ref) im.src = u; }); });
 
   const clone = o => JSON.parse(JSON.stringify(o || {}));
