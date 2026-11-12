@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2be6a"/><stop offset=".55" stop-color="#c39531"/><stop offset="1" stop-color="#8f6a1c"/></linearGradient></defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#1a1917"/>
+  <!-- pantalla de presentación -->
+  <rect x="9" y="11" width="46" height="31" rx="4" fill="#fff"/>
+  <rect x="9" y="11" width="46" height="5" rx="2" fill="url(#g)"/>
+  <path d="M32 42v8M24 55l8-5 8 5" stroke="#e2be6a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- escudo de seguridad con check -->
+  <path d="M32 18.5l9 3.2v6.6c0 5.6-3.8 9.6-9 11.4-5.2-1.8-9-5.8-9-11.4v-6.6z" fill="url(#g)"/>
+  <path d="M27.4 28.6l3.3 3.3 6-6.2" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
