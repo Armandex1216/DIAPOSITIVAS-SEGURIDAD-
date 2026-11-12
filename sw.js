@@ -1,12 +1,13 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: b849aab3ac */
-const VERSION = 'b849aab3ac';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: f5283e1dc0 */
+const VERSION = 'f5283e1dc0';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
 "blanco.html",
 "csst-noviembre-2026.html",
 "diario.html",
+"favicon.ico",
 "gum-octubre-2026.html",
 "gum.html",
 "index.html",
@@ -25,6 +26,11 @@ const FILES = [
 "assets/fonts/oswald-latin-700-normal.woff2",
 "assets/fonts/oswald-latin-ext-600-normal.woff2",
 "assets/fonts/oswald-latin-ext-700-normal.woff2",
+"assets/icons/favicon.svg",
+"assets/icons/icon-180.png",
+"assets/icons/icon-192.png",
+"assets/icons/icon-32.png",
+"assets/icons/icon-512.png",
 "assets/img/ev-atp01-antes.jpg",
 "assets/img/ev-atp01-durante.jpg",
 "assets/img/ev-inc09-durante.jpg",
