@@ -202,10 +202,10 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 /* Aprendamos juntos: minero + globo */
 @font-face{font-family:Oswald;font-weight:600;font-display:swap;src:url(../fonts/oswald-latin-600-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-600-normal.woff2) format('woff2')}
 @font-face{font-family:Oswald;font-weight:700;font-display:swap;src:url(../fonts/oswald-latin-700-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-700-normal.woff2) format('woff2')}
-#d-aprendamos .bubble-dl{position:absolute;left:700px;top:150px;width:1140px;height:870px;padding:46px 60px 40px;display:flex;flex-direction:column;border-radius:56px;
+#d-aprendamos .bubble-dl{position:absolute;left:700px;top:240px;width:1140px;height:800px;padding:46px 60px 40px;display:flex;flex-direction:column;border-radius:56px;
   background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#e8c97f,#c39531 45%,#9a7422) border-box;border:6px solid transparent;
   box-shadow:0 50px 90px -46px rgba(80,55,10,.55),0 0 0 14px rgba(195,149,49,.08)}
-#d-aprendamos .bd-tail{position:absolute;left:-118px;top:80px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
+#d-aprendamos .bd-tail{position:absolute;left:-118px;top:40px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
 #d-aprendamos .bd-q{position:absolute;right:46px;top:-10px;font:900 200px/1 Georgia,serif;color:rgba(195,149,49,.16);pointer-events:none}
 #d-aprendamos .bd-head{background:linear-gradient(180deg,#efefef,#e6e6e6);border-radius:22px;padding:22px 30px 18px;border-left:10px solid #c39531}
 #d-aprendamos .bd-t{margin:0;font:700 64px/1.02 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
@@ -233,3 +233,16 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 #d-eventos figure:nth-child(2) figcaption{background:#b7791f}#d-eventos figure:nth-child(3) figcaption{background:#c0262d}
 #d-eventos .de-txt{position:absolute;left:90px;right:90px;top:680px;font-size:27px;line-height:1.4;color:#1a1917}
 #d-eventos .de-txt p{margin:0 0 12px}#d-eventos .de-txt b{color:#9e1f1f}
+/* Lucho: frases y nombre */
+.miner .mn-say{position:absolute;left:24px;top:-34px;max-width:1760px;min-height:78px;display:flex;align-items:center;padding:16px 34px 16px 30px;background:#fff;border:4px solid #c39531;border-radius:42px;
+  box-shadow:0 24px 40px -26px rgba(80,55,10,.6);font:800 29px/1.2 Montserrat,sans-serif;color:#1a1917;white-space:nowrap;opacity:0;transform:translateY(14px) scale(.85);transform-origin:300px 100%;transition:opacity .25s,transform .45s cubic-bezier(.3,1.6,.5,1);pointer-events:none;z-index:3}
+.miner .mn-say.on{opacity:1;transform:none}
+.miner .mn-say::before{content:"";position:absolute;left:300px;bottom:-30px;border:15px solid transparent;border-top:18px solid #c39531;border-left:6px solid transparent}
+.miner .mn-say::after{content:"";position:absolute;left:305px;bottom:-21px;border:11px solid transparent;border-top:14px solid #fff;border-left:4px solid transparent}
+.miner .mn-say span::after{content:"";display:inline-block;width:3px;height:1em;margin-left:3px;vertical-align:-3px;background:#c39531;animation:mnCaret .8s steps(1) infinite}
+@keyframes mnCaret{50%{opacity:0}}
+.miner .mn-name{position:absolute;left:392px;bottom:60px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;padding:7px 18px 6px;border-radius:14px;background:linear-gradient(135deg,#1f1d1a,#33302a);border:3px solid #c39531;box-shadow:0 14px 24px -16px rgba(0,0,0,.6);pointer-events:none;z-index:2}
+.miner .mn-name b{font:900 26px/1 Montserrat,sans-serif;letter-spacing:.22em;color:#f1d48a;padding-left:.22em}
+.miner .mn-name small{font:700 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;color:#d9d4c7;text-transform:uppercase}
+body.printing .miner .mn-say{display:none}
+@media print{.miner .mn-say{display:none!important}}

@@ -26,7 +26,7 @@
     lip: toon(0xc77a5a), hair: toon(0x6a3b1c), brow: toon(0x4a2a14), helmet: toon(0xf7b500), white: toon(0xffffff), iris: toon(0x3b2a20),
     radio: toon(0x34373b), screen: new T.MeshBasicMaterial({ color: 0xa6dca8 }), lamp: new T.MeshBasicMaterial({ color: 0xffffff }),
     lens: new T.MeshBasicMaterial({ color: 0xcfe9f2, transparent: true, opacity: .28, depthWrite: false, side: T.DoubleSide }),
-    frame: toon(0xc9d1d4), mouth: toon(0x5a1f18)
+    frame: toon(0xc9d1d4), mouth: toon(0x5a1f18), blush: toon(0xf3a587)
   };
 
   /* ---------- geometría ---------- */
@@ -72,7 +72,7 @@
     const PB = prof([[.0, -3.16], [.25, -3.16], [.28, -3.1], [.272, -2.86], [.25, -2.55], [.255, -2.25], [.272, -2.05], [.25, -1.98], [0, -1.97]]);
     const legs = [];
     [-1, 1].forEach(s => {
-      const leg = new T.Group(); leg.position.set(.3 * s, 3.16, 0); hips.add(leg);
+      const leg = new T.Group(); leg.position.set(.33 * s, 3.16, 0); hips.add(leg);
       leg.add(lathe(PB, K.boot));
       const toe = sph(.24, K.boot); toe.scale.set(1.05, .6, 1.55); toe.position.set(0, -3.0, .17); leg.add(toe);
       const sole = cyl(.27, .27, .07, K.sole, false); sole.scale.z = 1.7; sole.position.set(0, -3.13, .14); leg.add(sole);
@@ -80,6 +80,9 @@
       leg.add(lathe(PL, K.suit));
       leg.add(band(PL, -1.98, -1.86, .012, K.refl)); leg.add(band(PL, -1.76, -1.64, .012, K.refl));
       [-1.2, -.6].forEach(y => leg.add(band(PL, y, y + .03, .006, K.suitD))); // pliegues
+      const pk = sph(.2, K.suitD); pk.scale.set(.18, 1.1, .9); pk.position.set(rAt(PL, -.55) * s - .01 * s, -.55, 0); leg.add(pk);
+      const fl = band(PL, -.36, -.33, .008, K.suitD, s > 0 ? Math.PI * .32 : Math.PI * 1.18, Math.PI * .5, 12); leg.add(fl);
+      leg.rotation.y = .1 * s; leg.userData.s = s;
       legs.push(leg);
     });
     /* tronco */
@@ -99,7 +102,12 @@
     [[.24, .035, 0, .075], [.24, .035, 0, -.075], [.035, .18, -.105, 0], [.035, .18, .105, 0], [.03, .15, 0, 0]].forEach(([w, h, x, y]) => { const b = box(w, h, .03, K.metal); b.position.set(x, y, 0); bk.add(b); });
     // portanombre y radio
     const zf = (x, y) => Math.sqrt(Math.max(0, rAt(PT, y) ** 2 - x * x)) * .68;
-    const tag = box(.3, .075, .02, K.black); tag.position.set(-.32, 1.58, zf(.32, 1.58) + .012); tag.rotation.set(-.08, -.42, .1); torso.add(tag);
+    const tc = document.createElement('canvas'); tc.width = 256; tc.height = 64; const tx = tc.getContext('2d'); tx.fillStyle = '#18191b'; tx.fillRect(0, 0, 256, 64);
+    tx.strokeStyle = '#c39531'; tx.lineWidth = 4; tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; tx.font = '900 40px Montserrat, Arial, sans-serif'; tx.textAlign = 'center'; tx.textBaseline = 'middle'; tx.fillText('LUCHO', 128, 34);
+    const tagTex = new T.CanvasTexture(tc); tagTex.encoding = T.sRGBEncoding; tagTex.anisotropy = 4;
+    const tag = new T.Mesh(new T.BoxGeometry(.34, .085, .02), [K.black, K.black, K.black, K.black, new T.MeshBasicMaterial({ map: tagTex }), K.black]);
+    tag.position.set(-.32, 1.58, zf(.32, 1.58) + .014); tag.rotation.set(-.08, -.42, .1); torso.add(tag);
+    root.userData.redrawTag = () => { tx.fillStyle = '#18191b'; tx.fillRect(0, 0, 256, 64); tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; tx.fillText('LUCHO', 128, 34); tagTex.needsUpdate = true; };
     const rd = new T.Group(); rd.position.set(.33, 1.5, zf(.33, 1.5) + .035); rd.rotation.y = .45; torso.add(rd);
     const rb = box(.15, .22, .06, K.radio); rd.add(rb); const sc = box(.1, .075, .01, K.screen); sc.position.set(0, .04, .032); rd.add(sc);
     const ant = cyl(.012, .012, .1, K.black, false, 8); ant.position.set(-.05, .15, 0); rd.add(ant);
@@ -136,19 +144,23 @@
     const hairF = band(PH, .26, .46, .014, K.hair, -Math.PI * .5, Math.PI, 40); hairF.scale.set(.94, 1, .98); face.add(hairF); // flequillo bajo el casco
     [-1, 1].forEach(s => { const sb = box(.05, .17, .12, K.hair); sb.position.set(.29 * s, .1, .03); face.add(sb); });
     // ojos, cejas, nariz, boca
-    const eyes = [];
+    const eyes = [], brows = [], happy = [];
     [-1, 1].forEach(s => {
       const g = new T.Group(); g.position.set(.115 * s, .06, fz(.115, .06) - .025); face.add(g);
       const w = sph(.058, K.white, false); w.scale.set(1.25, .82, .45); g.add(w);
       const ir = sph(.034, K.iris, false); ir.scale.set(1, 1, .45); ir.position.z = .018; g.add(ir);
       const hl = new T.Mesh(new T.SphereGeometry(.009, 8, 6), K.lamp); hl.position.set(.01, .012, .033); g.add(hl);
       eyes.push(g);
-      face.add(tube([[.045 * s, .155, fz(.045, .155) + .004], [.115 * s, .178, fz(.115, .178) + .004], [.185 * s, .158, fz(.185, .158) + .004]], .017, K.brow));
+      const bw = new T.Group(); face.add(bw); bw.userData.s = s; brows.push(bw);
+      bw.add(tube([[.045 * s, .155, fz(.045, .155) + .004], [.115 * s, .178, fz(.115, .178) + .004], [.185 * s, .158, fz(.185, .158) + .004]], .017, K.brow));
+      const hp = tube([[.07 * s, .05, fz(.07, .05) + .004], [.115 * s, .085, fz(.115, .085) + .006], [.16 * s, .05, fz(.16, .05) + .004]], .012, K.iris); hp.visible = false; face.add(hp); happy.push(hp);
+      const ck = sph(.045, K.blush, false); ck.scale.set(1.3, .6, .3); ck.position.set(.19 * s, -.1, fz(.19, -.1) - .012); face.add(ck);
     });
     const nose = sph(.05, K.skin); nose.scale.set(.85, 1.05, .9); nose.position.set(0, -.05, fz(0, -.05) + .005); face.add(nose);
     const smile = tube([[-.1, -.17, fz(.1, -.17) - .004], [-.04, -.205, fz(.04, -.205) + .003], [.04, -.205, fz(.04, -.205) + .003], [.1, -.17, fz(.1, -.17) - .004]], .012, K.lip);
     face.add(smile);
-    const mouth = sph(.05, K.mouth, false); mouth.scale.set(1.2, .05, .35); mouth.position.set(0, -.21, fz(0, -.21) - .01); face.add(mouth);
+    const mouth = sph(.05, K.mouth, false); mouth.scale.set(1.25, .05, .35); mouth.position.set(0, -.215, fz(0, -.215) - .01); face.add(mouth);
+    const teeth = sph(.044, K.white, false); teeth.scale.set(1.0, .32, .3); teeth.position.set(0, .45, .25); mouth.add(teeth);
     face.add(tube([[-.045, -.3, fz(.045, -.3) + .002], [0, -.315, fz(0, -.315) + .004], [.045, -.3, fz(.045, -.3) + .002]], .006, toon(0xd89464))); // mentón
     // lentes envolventes transparentes
     const gl = new T.Mesh(new T.CylinderGeometry(.335, .325, .14, 40, 1, true, -1.05, 2.1), K.lens); gl.position.y = .07; gl.scale.z = 1.0; face.add(gl);
@@ -170,25 +182,37 @@
     const br = box(.06, .12, .05, K.black); br.position.set(0, .1, -.03); lampG.add(br);
     const beam = new T.Mesh(new T.ConeGeometry(.65, 2.6, 24, 1, true), new T.MeshBasicMaterial({ color: 0xfff1b8, transparent: true, opacity: .08, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide }));
     beam.rotation.x = -Math.PI / 2 - .1; beam.position.set(0, -.05, 1.35); lampG.add(beam);
-    root.userData = { hips, torso, head, face, legs, arms, eyes, mouth, smile, beam };
+    Object.assign(root.userData, { hips, torso, head, face, legs, arms, eyes, mouth, smile, beam, brows, happy });
     return root;
   }
 
   /* ---------- poses y acciones ---------- */
-  const REST = { hipX: 0, hipY: 0, torX: 0, torY: 0, torZ: 0, hdX: 0, hdY: 0, hdZ: 0, mouth: 0,
+  const REST = { hipX: 0, hipY: 0, torX: 0, torY: 0, torZ: 0, hdX: 0, hdY: 0, hdZ: 0, mouth: 0, brow: 0, happy: 0, wink: 0, hop: 0,
     R_shX: .04, R_shY: 0, R_shZ: .09, R_elX: -.18, R_elZ: 0, R_wrX: 0, R_wrY: 0, R_wrZ: 0, R_curl: .35, R_idx: .35, R_th: .4, R_thUp: 0,
     L_shX: .04, L_shY: 0, L_shZ: .09, L_elX: -.18, L_elZ: 0, L_wrX: 0, L_wrY: 0, L_wrZ: 0, L_curl: .35, L_idx: .35, L_th: .4, L_thUp: 0 };
+  const sn = Math.sin, up = x => Math.max(0, x);
   const ACT = {
-    idle: () => ({}),
-    wave: t => ({ R_shZ: 1.05, R_shX: -.28, R_elZ: 1.95 + Math.sin(t * 8.5) * .38, R_elX: -.1, R_wrY: 1.35, R_wrZ: Math.sin(t * 8.5 - .6) * .15, R_curl: 0, R_idx: 0, R_th: 1, hdZ: .07, hdY: -.12, torZ: .03 }),
-    point: t => ({ R_shZ: .62, R_shX: -.42, R_elZ: 2.15 + Math.sin(t * 3.2) * .1, R_elX: -.2, R_wrY: 1.25, R_wrX: -.15, R_curl: 1, R_idx: 0, R_th: .15, hdY: -.12 + Math.sin(t * 1.4) * .06, hdX: -.03, mouth: .5 + .5 * Math.sin(t * 13) * Math.sin(t * 3.1), torY: -.05 }),
-    thumbs: t => ({ R_shX: -.95, R_shZ: .22, R_elX: -1.15 + Math.sin(t * 5) * .05, R_wrY: 0, R_wrZ: 0, R_curl: 1, R_idx: 1, R_th: 1, R_thUp: 1, hdZ: -.06, hdX: .02, torY: -.06 }),
-    look: t => ({ hdY: Math.sin(t * 1.5) * .55, hdX: -.04, torY: Math.sin(t * 1.5) * .1, L_shZ: .14, R_shZ: .14 }),
-    radio: t => ({ L_shX: -.58, L_shZ: -.12, L_elX: -1.95, L_elZ: -.25, L_wrX: .2, L_wrY: -.4, L_curl: .55, L_idx: .55, hdX: .32, hdY: .32, hdZ: .05, mouth: t > 1.2 ? .4 + .4 * Math.sin(t * 12) : 0 }),
-    nod: t => ({ hdX: Math.max(0, Math.sin(t * 6.5)) * .2, torX: .02, mouth: 0 }),
-    helmet: t => ({ R_shZ: 1.35, R_shX: -.55, R_elZ: 2.35, R_elX: -.35, R_wrY: .9, R_wrX: .3, R_curl: .5, R_idx: .5, hdZ: -.08 + Math.sin(t * 3) * .03, hdX: -.05 })
+    idle: t => ({ hdY: sn(t * .9) * .08, brow: .1 }),
+    wave: t => ({ R_shZ: 1.12, R_shX: -.3, R_elZ: 1.95 + sn(t * 9) * .42, R_elX: -.1, R_wrY: 1.35, R_wrZ: sn(t * 9 - .6) * .18, R_curl: 0, R_idx: 0, R_th: 1,
+      L_shZ: .16, hdZ: .1 + sn(t * 4.5) * .03, hdY: -.15, torZ: .05, torY: -.06, hop: up(sn(t * 4.5)) * .05, brow: .6, mouth: t < 1.6 ? .45 + .35 * sn(t * 14) : .25 }),
+    point: t => ({ R_shZ: .62, R_shX: -.42, R_elZ: 2.15 + sn(t * 3.2) * .12, R_elX: -.2, R_wrY: 1.25, R_wrX: -.15 + sn(t * 3.2) * .1, R_curl: 1, R_idx: 0, R_th: .15,
+      L_shZ: .2, L_shX: -.25, L_elX: -.9 + sn(t * 2.4) * .15, L_elZ: -.2, L_wrY: -.6, L_curl: .2, L_idx: .2,
+      hdY: -.12 + sn(t * 1.4) * .08, hdX: -.03 + sn(t * 3.2) * .03, torY: -.06 + sn(t * 1.4) * .03, brow: .35 + up(sn(t * 2.6)) * .5, mouth: .45 + .45 * sn(t * 13) * sn(t * 3.1) }),
+    thumbs: t => ({ R_shX: -.95, R_shZ: .22, R_elX: -1.15 + sn(t * 5) * .05, R_curl: 1, R_idx: 1, R_th: 1, R_thUp: 1, hdZ: -.1, hdX: .02, torY: -.08, wink: t > .5 && t < 1.6 ? 1 : 0, brow: .3, mouth: .15 }),
+    celebrate: t => ({ R_shZ: 2.55, L_shZ: 2.55, R_shX: -.15, L_shX: -.15, R_elZ: .35 + sn(t * 7) * .25, L_elZ: .35 - sn(t * 7) * .25, R_curl: 1, L_curl: 1, R_idx: 1, L_idx: 1, R_th: .2, L_th: .2,
+      hop: up(sn(t * 7)) * .32, happy: 1, mouth: .8, hdX: -.12, brow: .8 }),
+    laugh: t => ({ happy: 1, mouth: .55 + .3 * sn(t * 19), hdX: -.14 + sn(t * 19) * .03, torX: -.05, torZ: sn(t * 17) * .025, hop: up(sn(t * 19)) * .03,
+      L_shX: -.35, L_elX: -1.1, L_elZ: -.5, L_curl: .5, L_idx: .5, R_shZ: .2, brow: .7 }),
+    lookout: t => ({ L_shZ: 2.3, L_shX: -.35, L_elZ: 2.3, L_elX: -.2, L_wrY: 1.4, L_wrZ: -.2, L_curl: 0, L_idx: 0, L_th: .8, hdY: .15 + sn(t * 1.3) * .5, hdX: -.05, torY: sn(t * 1.3) * .12, brow: -.4 }),
+    radio: t => ({ L_shX: -.58, L_shZ: -.12, L_elX: -1.95, L_elZ: -.25, L_wrX: .2, L_wrY: -.4, L_curl: .55, L_idx: .55, hdX: .32, hdY: .32, hdZ: .05, brow: -.2, mouth: t > .9 ? .4 + .4 * sn(t * 12) : 0 }),
+    nod: t => ({ hdX: up(sn(t * 6.5)) * .22, torX: .02, R_shX: -.3, R_elX: -1.4, R_elZ: -.6, L_shX: -.3, L_elX: -1.4, L_elZ: -.6, R_curl: .6, L_curl: .6, R_idx: .6, L_idx: .6, brow: .4, mouth: .1 }),
+    salute: t => ({ R_shZ: 2.35, R_shX: -.3, R_elZ: 2.3, R_elX: -.1, R_wrY: 1.4, R_curl: 0, R_idx: 0, R_th: .9, hdZ: -.06, hdX: -.04, torX: -.02, brow: .5, mouth: .15 })
   };
-  const PLAN = [['wave', 3.2], ['idle', 1.4], ['point', 4.2], ['idle', 1.3], ['thumbs', 2.6], ['idle', 1.2], ['look', 3.4], ['radio', 3.2], ['idle', 1.2], ['nod', 2.2], ['helmet', 2.4], ['idle', 1.8]];
+  // [acción, segundos, frase]
+  const PLAN = [['wave', 3.4, '¡Hola, equipo! Soy Lucho 👋'], ['idle', 1.2], ['point', 4.4, 'Hoy aprendemos juntos: ¡atentos al reglamento! ☝️'], ['idle', 1.1],
+    ['thumbs', 2.8, '¡La seguridad empieza por ti! 👍'], ['idle', 1], ['lookout', 3.4, 'Antes de empezar, identifica los peligros 👀'],
+    ['radio', 3.4, 'Reporta todo acto y condición subestándar 📻'], ['idle', 1], ['celebrate', 2.8, '¡Vamos por cero accidentes! 🎉'], ['idle', 1.1],
+    ['salute', 2.8, 'Casco, lentes y EPP siempre puestos ⛑️'], ['laugh', 2.4, '¡Trabajar seguro es trabajar feliz! 😄'], ['nod', 2.6, 'Cuídate tú y cuida a tu compañero 🤝'], ['idle', 1.6]];
 
   function shadowDisc() {
     const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
@@ -207,6 +231,7 @@
     const scene = new T.Scene(), cam = new T.PerspectiveCamera(24, 1, .1, 100);
     scene.add(new T.AmbientLight(0xffffff, .5));
     const key = new T.DirectionalLight(0xffffff, .64); key.position.set(-6, 5, 4.5); scene.add(key);
+    const rim = new T.DirectionalLight(0xfff1cf, .22); rim.position.set(6, 4, -5); scene.add(rim);
     const miner = buildMiner(); scene.add(miner); scene.add(shadowDisc());
     const U = miner.userData; U.beam.visible = !!el.closest('.dark');
     const face0 = parseFloat(el.dataset.face || 0); miner.rotation.y = face0;
@@ -223,9 +248,13 @@
     const cv = renderer.domElement;
     cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, r: miner.rotation.y, t: performance.now() }; cv.setPointerCapture(e.pointerId); e.stopPropagation(); });
     cv.addEventListener('pointermove', e => { if (drag) miner.rotation.y = drag.r + (e.clientX - drag.x) * .012; });
-    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; } drag = null; e.stopPropagation(); });
+    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; say('¡Hola! Soy Lucho 👋'); } drag = null; e.stopPropagation(); });
     cv.addEventListener('click', e => e.stopPropagation());
     addEventListener('mousemove', e => { const r = el.getBoundingClientRect(); look.x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2))); look.y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height * .25)) / (innerHeight / 2))); });
+    const sayB = document.createElement('div'); sayB.className = 'mn-say'; sayB.innerHTML = '<span></span>'; el.appendChild(sayB); const sayT = sayB.firstChild;
+    const nm = document.createElement('div'); nm.className = 'mn-name'; nm.innerHTML = '<b>LUCHO</b><small>Tu compañero de seguridad</small>'; el.appendChild(nm);
+    const frases = (el.dataset.frases || '').split('|').map(x => x.trim()).filter(Boolean); let fi = 0, typing = null;
+    const say = txt => { if (!txt) { sayB.classList.remove('on'); return; } if (frases.length) txt = frases[fi++ % frases.length]; typing = { s: txt, n: 0 }; sayT.textContent = ''; sayB.classList.remove('on'); void sayB.offsetWidth; sayB.classList.add('on'); };
     const clock = new T.Clock(); let blinkT = 2.4;
     const ap = (a, side) => { const s = a.s, g = k => P[side + '_' + k];
       a.sh.rotation.set(g('shX'), g('shY') * s, g('shZ') * s);
@@ -237,28 +266,31 @@
     function frame() {
       const dt = Math.min(.05, clock.getDelta()), t = clock.elapsedTime; size();
       at += dt; let name = forced || PLAN[step][0]; const dur = forced ? 3 : PLAN[step][1];
-      if (at > dur) { at = 0; if (forced) forced = null; else step = (step + 1) % PLAN.length; name = forced || PLAN[step][0]; }
+      if (at > dur) { at = 0; if (forced) forced = null; else step = (step + 1) % PLAN.length; name = forced || PLAN[step][0]; say(forced ? null : PLAN[step][2]); }
+      if (typing) { typing.n += dt * 34; const n = Math.floor(typing.n); sayT.textContent = typing.s.slice(0, n); if (n >= typing.s.length) typing = null; }
+      const talk = typing ? .35 + .35 * Math.sin(t * 15) : 0;
       const target = Object.assign({}, REST, ACT[name](at));
       const k = 1 - Math.exp(-dt * 5.5); for (const key in target) P[key] += (target[key] - P[key]) * k;
-      const { hips, torso, head, legs, arms, eyes, mouth, smile } = U;
+      const { hips, torso, head, legs, arms, eyes, mouth, smile, brows, happy } = U;
       // respiración y cambio de peso
-      hips.position.y = Math.sin(t * 2.1) * .018; hips.position.x = Math.sin(t * .7) * .025; hips.rotation.z = Math.sin(t * .7) * .012;
+      hips.position.y = Math.sin(t * 2.1) * .018 + P.hop; hips.position.x = Math.sin(t * .7) * .025; hips.rotation.z = Math.sin(t * .7) * .012;
       torso.rotation.set(P.torX + Math.sin(t * 2.1) * .008, P.torY, P.torZ - Math.sin(t * .7) * .015);
       head.rotation.set(P.hdX + look.y * .12, P.hdY + look.x * .3, P.hdZ);
-      legs[0].rotation.z = -Math.sin(t * .7) * .012; legs[1].rotation.z = -Math.sin(t * .7) * .012;
+      legs.forEach(l => l.rotation.z = .035 * l.userData.s - Math.sin(t * .7) * .012);
       ap(arms.R, 'R'); ap(arms.L, 'L');
       if (!drag) miner.rotation.y += (face0 + look.x * .12 - miner.rotation.y) * .02;
-      blinkT -= dt; const bl = blinkT < 0 ? (blinkT < -.13 ? (blinkT = 2.2 + Math.random() * 3, 1) : .12) : 1; eyes.forEach(e => e.scale.y = bl);
-      mouth.scale.y = .05 + Math.max(0, P.mouth) * .55; smile.scale.y = 1 - Math.max(0, P.mouth) * .3;
+      blinkT -= dt; const bl = blinkT < 0 ? (blinkT < -.13 ? (blinkT = 2.2 + Math.random() * 3, 1) : .12) : 1; const hy = P.happy > .5; eyes.forEach((e, i) => { e.visible = !hy; e.scale.y = i === 1 ? Math.min(bl, 1 - P.wink * .9) : bl; }); happy.forEach(h => h.visible = hy);
+      brows.forEach((b, i) => { b.position.y = P.brow * .03 + (i === 1 ? P.wink * -.02 : 0); b.rotation.z = -b.userData.s * P.brow * .06; });
+      const mo = Math.max(0, P.mouth, talk); mouth.scale.y = .05 + mo * .6; smile.scale.y = 1 - mo * .3; smile.scale.x = 1 + P.happy * .15;
       U.beam.material.opacity = .07 + Math.sin(t * 3) * .015;
       renderer.render(scene, cam);
     }
     let running = false, raf = 0;
     const loop = () => { if (!running) return; frame(); raf = requestAnimationFrame(loop); };
     const visible = () => { const sl = el.closest('.slide'); return !document.hidden && (!sl || sl.classList.contains('active')); };
-    const tick = () => { const v = visible(); if (v && !running) { running = true; clock.getDelta(); step = 0; at = 0; loop(); } else if (!v && running) { running = false; cancelAnimationFrame(raf); } };
+    const tick = () => { const v = visible(); if (v && !running) { running = true; clock.getDelta(); step = 0; at = 0; say(PLAN[0][2]); loop(); } else if (!v && running) { running = false; cancelAnimationFrame(raf); } };
     setInterval(tick, 300); document.addEventListener('visibilitychange', tick); tick(); frame();
-    el._miner = { wave() { forced = 'wave'; at = 0; }, renderer, snap() { W = 0; size(); frame(); return renderer.domElement.toDataURL('image/png'); }, act(n) { forced = n; at = 0; } };
+    el._miner = { wave() { forced = 'wave'; at = 0; }, renderer, snap() { W = 0; size(); frame(); return renderer.domElement.toDataURL('image/png'); }, act(n) { if (typeof n === 'object') { const o = n; ACT._c = () => o; n = '_c'; } forced = n; at = 0; const e = PLAN.find(x => x[0] === n); if (e && e[2]) say(e[2]); }, say };
     return el._miner;
   }
   window.MinerRef = { mount };
