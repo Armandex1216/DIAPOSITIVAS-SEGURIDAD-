@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 394f97fa32 */
-const VERSION = '394f97fa32';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: b5167416c6 */
+const VERSION = 'b5167416c6';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -68,6 +68,7 @@ const FILES = [
 "assets/js/csst.js",
 "assets/js/deck.js",
 "assets/js/editor.js",
+"assets/js/export.js",
 "assets/js/gum-build.js",
 "assets/js/gum.js",
 "assets/js/lucho-voz.js",
@@ -78,6 +79,9 @@ const FILES = [
 "assets/lib/chart.umd.min.js",
 "assets/lib/chartjs-plugin-datalabels.min.js",
 "assets/lib/gsap.min.js",
+"assets/lib/html-to-image.min.js",
+"assets/lib/jszip.min.js",
+"assets/lib/pptxgen.bundle.js",
 "assets/lib/supabase.min.js",
 "assets/lib/three.min.js",
 "data/catalogo.js",
