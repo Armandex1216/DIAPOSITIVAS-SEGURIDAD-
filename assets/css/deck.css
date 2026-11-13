@@ -431,3 +431,5 @@ body.editing .cover-bg .slot .bg-ui .slot-btns{display:flex;gap:8px}
 body.editing .cover-bg .slot .bg-ui button{font-size:15px;padding:8px 14px;box-shadow:0 8px 18px -8px rgba(0,0,0,.6)}
 body.editing .cover-bg .slot{cursor:default}
 body.moving .cover-bg .slot .bg-ui{display:none!important}
+/* cuadros opcionales: el botón va arriba a la izquierda para no chocar con la barra de la tabla (+ Fila…) */
+[data-opc]>.box-tg{top:auto;bottom:-22px;right:18px}
