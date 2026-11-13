@@ -109,7 +109,7 @@
 
   /* ---------- bajar: al abrir, traer la última versión ---------- */
   let listo; D.nubeLista = new Promise(r => { listo = r; }); // las importaciones esperan a tener la última versión
-  const done = () => { document.documentElement.classList.remove('nube-cargando'); listo && listo(); };
+  const done = () => { const was = document.documentElement.classList.contains('nube-cargando'); document.documentElement.classList.remove('nube-cargando'); listo && listo(); if (was && D.reenter) D.reenter(); };
   setTimeout(done, 3500);
   (async () => {
     paint();

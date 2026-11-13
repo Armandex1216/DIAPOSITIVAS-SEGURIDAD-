@@ -181,7 +181,7 @@
     D.applyLayout(el, store.layout['free:' + fid]);
     if (f.t === 'img') { D.initSlot($('.slot', el));
       // al poner una imagen, el cuadro toma su proporción (así no se recorta ni se estira)
-      el.addEventListener('load', ev => { const im = ev.target; if (im.tagName !== 'IMG' || !im.naturalWidth) return; const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}); const w = L.w || el.offsetWidth, h = Math.round(w * im.naturalHeight / im.naturalWidth);
+      el.addEventListener('load', ev => { const im = ev.target; if (im.tagName !== 'IMG' || !im.naturalWidth) return; const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}); let w = L.w || el.offsetWidth, h = Math.round(w * im.naturalHeight / im.naturalWidth); if (L.fit && L.h && h > L.h + 3) { const w2 = Math.round(L.h * im.naturalWidth / im.naturalHeight); L.x = Math.round((L.x || 0) + (w - w2) / 2); L.w = w = w2; h = L.h; D.applyLayout(el, L); D.persist(); } delete L.fit;
         if (L.ar === im.currentSrc.slice(-40)) return; L.ar = im.currentSrc.slice(-40); if (Math.abs((L.h || el.offsetHeight) - h) > 3) { L.h = h; D.applyLayout(el, L); D.persist(); } }, true); }
     if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, KINDS[f.kind] ? chartMake(f.kind) : HC.maker(f.kind), f.def); HC.colorable['fc-' + fid] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(f.kind) || (f.def && f.def.porBarra) ? 'label' : 'series'; }
     if (D.editing()) setEditable(el, true);
@@ -319,11 +319,19 @@
     addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: Math.max(0, x - 20), y: Math.max(0, y - 24), w: 600 };
     const el = $(`.free[data-fid="${fid}"]`); if (el) D.applyLayout(el, store.layout['free:' + fid]); D.persist(); });
   // imagen libre (pegada, soltada o elegida): se coloca en la lámina actual y se puede mover y cambiar de tamaño
-  D.addImage = (file, ev) => { if (!file) return; const sl = cur(), W0 = 520, H0 = 360; let x, y;
-    if (ev && ev.clientX != null) { const r = sl.getBoundingClientRect(), sc = r.width / 1920; x = Math.round((ev.clientX - r.left) / sc - W0 / 2); y = Math.round((ev.clientY - r.top) / sc - H0 / 2); }
-    else { const n = Object.values(store.free).filter(f => f.s === sl.id && f.t === 'img').length % 6; x = 700 + n * 50; y = 300 + n * 45; }
-    x = Math.max(20, Math.min(1920 - W0 - 20, x)); y = Math.max(20, Math.min(1080 - H0 - 20, y));
-    addFree('img'); const fid = Object.keys(store.free).pop(); const L = store.layout['free:' + fid]; if (L) { L.x = x; L.y = y; L.w = W0; L.h = H0; }
+  // imagen libre: si la lámina tiene una zona guía («Pegue aquí…») se acomoda dentro, en fila; si se soltó con el mouse, va donde se soltó
+  D.addImage = (file, ev) => { if (!file) return; const sl = cur(); let W0 = 520, H0 = 360, x, y;
+    const sc = sl.getBoundingClientRect().width / 1920, hint = sl.querySelector('.paste-hint');
+    const n = Object.values(store.free).filter(f => f.s === sl.id && f.t === 'img').length;
+    if (ev && ev.type === 'drop') { const r = sl.getBoundingClientRect(); x = Math.round((ev.clientX - r.left) / sc - W0 / 2); y = Math.round((ev.clientY - r.top) / sc - H0 / 2); }
+    else if (hint && hint.offsetWidth) { const r = hint.getBoundingClientRect(), s0 = sl.getBoundingClientRect(); const A = { x: (r.left - s0.left) / sc, y: (r.top - s0.top) / sc, w: r.width / sc, h: r.height / sc };
+      W0 = Math.min(parseFloat(hint.dataset.w || 520), A.w); H0 = Math.min(Math.round(W0 * .72), A.h); const cols = Math.max(1, Math.floor((A.w + 24) / (W0 + 24)));
+      const used = cols * (W0 + 24) - 24, i = n % (cols * 2), row = Math.floor(i / cols);
+      x = Math.round(A.x + (A.w - used) / 2 + (i % cols) * (W0 + 24)); y = Math.round(A.y + (A.h - H0) / 2 + row * 40); }
+    else if (ev && ev.clientX != null) { const r = sl.getBoundingClientRect(); x = Math.round((ev.clientX - r.left) / sc - W0 / 2); y = Math.round((ev.clientY - r.top) / sc - H0 / 2); }
+    else { x = 700 + (n % 6) * 50; y = 300 + (n % 6) * 45; }
+    x = Math.max(10, Math.min(1920 - W0 - 10, x)); y = Math.max(10, Math.min(1080 - H0 - 10, y));
+    addFree('img'); const fid = Object.keys(store.free).pop(); const L = store.layout['free:' + fid]; if (L) { L.x = x; L.y = y; L.w = W0; L.h = H0; L.fit = 1; }
     const el = document.querySelector(`.free[data-fid="${fid}"]`); if (el) { D.applyLayout(el, L); const sk = el.querySelector('.slot'); sk && sk._put && sk._put(file); } D.persist(); };
   D.addText = () => { addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); };
 

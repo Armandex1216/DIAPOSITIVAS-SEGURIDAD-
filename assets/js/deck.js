@@ -499,5 +499,9 @@
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => enterSlide(slides[start], .2));
   wake();
   lastSnap = JSON.stringify(store); D.undo = undo; D.redo = redo;
+  // si la lámina activa quedó en negro (animación cortada al cargar o al volver a la pestaña), se vuelve a mostrar
+  D.reenter = () => { const sl = slides[D.i]; if (!sl || D.editing()) return; resetSlide(sl); enterSlide(sl, .05); };
+  const fixBlank = () => { const sl = slides[D.i]; if (!sl || D.editing() || document.hidden) return; const t = animTargets(sl); if (t.length && t.every(el => parseFloat(getComputedStyle(el).opacity) < .05)) showAll(sl); };
+  setTimeout(fixBlank, 4500); document.addEventListener('visibilitychange', () => setTimeout(fixBlank, 1800)); addEventListener('pageshow', () => setTimeout(fixBlank, 1800));
   try { const re = JSON.parse(sessionStorage.getItem('deck-reedit') || 'null'); if (re) { sessionStorage.removeItem('deck-reedit'); setTimeout(() => { if (!D.editing()) toggleEdit(); if (re.mv && !D.moving()) toggleMove(); toast(re.msg + ' · Ctrl+Z deshace · Ctrl+Y rehace', 1800); }, 350); } } catch (e) { }
 })();
