@@ -212,4 +212,13 @@
     return firstIdx || at + 1;
   }
   D.applyImport = applyImport;
+
+  // reporte diario: numera las fotos de hallazgos por su posición en la lámina (no por el orden en que se pegaron)
+  const numerar = () => document.querySelectorAll('#d-hallazgos,[data-base="d-hallazgos"]').forEach(sl => {
+    const fs = [...sl.querySelectorAll('.free.fimg')].filter(f => f.querySelector('.slot.has')).map(f => ({ f, r: f.getBoundingClientRect() })).filter(o => o.r.width);
+    if (!fs.length) return; const rowH = Math.min(...fs.map(o => o.r.height)) * .5;
+    fs.sort((a, b) => Math.abs(a.r.top - b.r.top) > rowH ? a.r.top - b.r.top : a.r.left - b.r.left);
+    fs.forEach((o, i) => { const n = String(i + 1), sk = o.f.querySelector('.slot'); if (o.f.dataset.n !== n) o.f.dataset.n = n; if (sk && sk.dataset.n !== n) sk.dataset.n = n; }); });
+  setInterval(() => { const sl = window.DECK && DECK.slides[DECK.i]; if (sl && (sl.id === 'd-hallazgos' || sl.dataset.base === 'd-hallazgos')) numerar(); }, 400);
+  addEventListener('load', () => setTimeout(numerar, 600)); addEventListener('beforeprint', numerar);
 })();
