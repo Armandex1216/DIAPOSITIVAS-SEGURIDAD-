@@ -44,7 +44,23 @@
   }
   slides = applyOrder();
 
-  const persist = () => { try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
+  /* deshacer / rehacer (Ctrl+Z / Ctrl+Y): fotos del estado antes de cada cambio en modo edición; los cambios seguidos (< 0,7 s) cuentan como uno */
+  const UK = 'deck-undo:' + LSK; let UND = { u: [], r: [] }; try { UND = JSON.parse(sessionStorage.getItem(UK)) || UND; } catch (e) { }
+  let lastSnap = null, burst = 0;
+  const saveUnd = () => { for (let i = 0; i < 3; i++) { try { sessionStorage.setItem(UK, JSON.stringify(UND)); return; } catch (e) { UND.u.splice(0, Math.ceil(UND.u.length / 2)); } } };
+  const snap = () => { const now = JSON.stringify(store); if (lastSnap == null) { lastSnap = now; return; } if (now === lastSnap) return;
+    if (D.editing && D.editing() && !D._restoring) { if (!burst) { UND.u.push(lastSnap); if (UND.u.length > 40) UND.u.shift(); UND.r = []; saveUnd(); } clearTimeout(burst); burst = setTimeout(() => { burst = 0; }, 700); }
+    lastSnap = now; };
+  const restore = (from, to, msg) => { if (!UND[from].length) { toast(from === 'u' ? 'No hay nada que deshacer' : 'No hay nada que rehacer'); return; }
+    UND[to].push(JSON.stringify(store)); const st = UND[from].pop(); saveUnd();
+    try { localStorage.setItem(LSK, st); } catch (e) { } if (D.onPersist) try { D.onPersist(); } catch (e) { }
+    sessionStorage.setItem('deck-reedit', JSON.stringify({ i: D.i, msg, mv: D.moving && D.moving() }));
+    location.hash = String(D.i + 1); location.reload(); };
+  const undo = () => restore('u', 'r', '↶ Deshecho'), redo = () => restore('r', 'u', '↷ Rehecho');
+  addEventListener('keydown', e => { if (!(e.ctrlKey || e.metaKey) || e.altKey) return; const k = e.key.toLowerCase(); if (k !== 'z' && k !== 'y') return;
+    const a = document.activeElement; if (a && (a.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; // dentro de un texto: deshacer normal del texto
+    if (!D.editing || !D.editing()) return; e.preventDefault(); e.stopImmediatePropagation(); if (k === 'y' || e.shiftKey) redo(); else undo(); }, true);
+  const persist = () => { snap(); try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
   const D = window.DECK = {
     i: 0, slides, busy: false, frags: [], store, deckId, LSK, $, $$,
@@ -69,7 +85,7 @@
   /* ---------- UI ---------- */
   const ui = document.createElement('div'); ui.className = 'ui';
   ui.innerHTML = `<button data-k="prev" title="Anterior (←)">◀</button><span class="num"></span><button data-k="next" title="Siguiente (→)">▶</button>
-  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
+  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
   <button data-k="save" title="Descargar los cambios para llevarlos a otra PC">💾 Guardar cambios</button><button data-k="load" title="Cargar un archivo de cambios">📂 Abrir</button>
   <button data-k="fs" title="Pantalla completa (F)">⛶</button><button data-k="pdf" title="Guardar PDF (P)">PDF</button>`;
   document.body.appendChild(ui);
@@ -94,7 +110,7 @@
   const tab = document.createElement('button'); tab.className = 'ui-tab'; tab.title = 'Mostrar los controles (tecla H)'; tab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>'; tab.onclick = e => { e.stopPropagation(); setUiHidden(false); }; document.body.appendChild(tab);
   hideB.addEventListener('click', e => { e.stopPropagation(); setUiHidden(true); });
   addEventListener('keydown', e => { if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && (document.activeElement.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))) setUiHidden(!body.classList.contains('ui-hidden')); });
-  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click() })[b.dataset.k]; if (typeof f === 'function') f(); };
+  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click(), undo: () => undo(), redo: () => redo() })[b.dataset.k]; if (typeof f === 'function') f(); };
 
   /* ---------- números ---------- */
   function parseNum(t) {
@@ -276,10 +292,14 @@
   function initSlots() {
     $$('.slot').forEach(initSlot);
     // Ctrl+V con una imagen copiada: va a la casilla bajo el mouse, si no a una casilla vacía; si no hay, queda como imagen libre que se puede mover
-    let overSlot = null; document.addEventListener('pointerover', e => { overSlot = e.target.closest && e.target.closest('.slot'); });
-    document.addEventListener('paste', e => { if (!D.editing() || e.target.isContentEditable) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; e.preventDefault(); const sl = slides[D.i], f = it.getAsFile();
-      const slot = (overSlot && sl.contains(overSlot) && overSlot._put) ? overSlot : $$('.slot:not(.has)', sl).find(x => x._put && !x.closest('.free'));
-      if (slot) slot._put(f); else if (D.addImage) D.addImage(f); });
+    // Ctrl+V con una imagen copiada: si el mouse está sobre una casilla VACÍA (no un fondo) la llena; si no, queda como imagen libre chica, seleccionada para moverla y cambiarle el tamaño
+    let overSlot = null; D.ptr = null;
+    document.addEventListener('pointerover', e => { overSlot = e.target.closest && e.target.closest('.slot'); });
+    document.addEventListener('pointermove', e => { D.ptr = { clientX: e.clientX, clientY: e.clientY }; }, { passive: true });
+    const isBg = x => !!x.closest('.cover-bg');
+    document.addEventListener('paste', e => { if (!D.editing()) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; e.preventDefault(); e.stopPropagation(); const sl = slides[D.i], f = it.getAsFile() || [...(e.clipboardData.files || [])].find(x => x.type.startsWith('image/')); if (!f) return;
+      const slot = overSlot && sl.contains(overSlot) && overSlot._put && !overSlot.classList.contains('has') && !isBg(overSlot) && !overSlot.closest('.free') ? overSlot : null;
+      if (slot) slot._put(f); else if (D.addImage) { const r = sl.getBoundingClientRect(), p = D.ptr; D.addImage(f, p && p.clientX > r.left && p.clientX < r.right && p.clientY > r.top && p.clientY < r.bottom ? p : null); } }, true);
     // soltar una imagen fuera de las casillas: imagen libre
     document.addEventListener('dragover', e => { if (D.editing() && [...(e.dataTransfer || {}).types || []].includes('Files')) e.preventDefault(); });
     document.addEventListener('drop', e => { if (!D.editing() || e.defaultPrevented) return; const f = [...(e.dataTransfer.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); D.addImage && D.addImage(f, e); });
@@ -296,7 +316,7 @@
       slot.addEventListener('click', e => { if (!D.editing()) return; e.stopPropagation(); const b = e.target.closest('[data-s]'); if (b && b.dataset.s === 'clear') { store.images[key] = ''; persist(); setSlot(slot, ''); return; } inp.click(); });
       slot.addEventListener('dragover', e => { if (D.editing()) { e.preventDefault(); slot.classList.add('drag'); } });
       slot.addEventListener('dragleave', () => slot.classList.remove('drag'));
-      slot.addEventListener('drop', e => { if (!D.editing()) return; e.preventDefault(); slot.classList.remove('drag'); put(e.dataTransfer.files[0]); });
+      slot.addEventListener('drop', e => { if (!D.editing() || slot.closest('.cover-bg')) return; e.preventDefault(); slot.classList.remove('drag'); put(e.dataTransfer.files[0]); });
       slot._put = put;
     }
   }
@@ -467,4 +487,6 @@
   D.i = start; slides[start].classList.add('active'); update();
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => enterSlide(slides[start], .2));
   wake();
+  lastSnap = JSON.stringify(store); D.undo = undo; D.redo = redo;
+  try { const re = JSON.parse(sessionStorage.getItem('deck-reedit') || 'null'); if (re) { sessionStorage.removeItem('deck-reedit'); setTimeout(() => { if (!D.editing()) toggleEdit(); if (re.mv && !D.moving()) toggleMove(); toast(re.msg + ' · Ctrl+Z deshace · Ctrl+Y rehace', 1800); }, 350); } } catch (e) { }
 })();
