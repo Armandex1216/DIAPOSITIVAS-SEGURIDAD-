@@ -262,3 +262,15 @@ body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt ul{counter-reset:ho;list-style:none;padding-left:0}
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt li{counter-increment:ho;position:relative;padding-left:48px;margin:4px 0}
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt li::before{content:counter(ho);position:absolute;left:0;top:.12em;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#c39531;color:#fff;font:900 18px/1 Montserrat,sans-serif}
+/* reporte diario sin casillas: zonas guía para pegar (solo en modo edición) */
+.paste-hint{position:absolute;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:3px dashed #d9c79d;border-radius:24px;background:repeating-linear-gradient(135deg,rgba(246,239,224,.75) 0 18px,rgba(251,246,234,.75) 18px 36px);color:#9a7422;pointer-events:none;padding:24px}
+.paste-hint b{font:800 30px/1.2 Montserrat,sans-serif}.paste-hint span{font:600 18px/1.35 Montserrat,sans-serif;color:#8d8a83;max-width:760px}
+body.editing .paste-hint{display:flex}
+body.editing .slide:has(.free.fimg .slot.has) .paste-hint{opacity:.35}
+body.moving .paste-hint{display:none}
+@media print{.paste-hint{display:none!important}}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-hint{left:70px;right:70px;top:330px;height:340px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off) .dh-hint{top:180px;height:490px}
+:is(#d-eventos,[data-base="d-eventos"]) .de-hint{left:70px;right:70px;top:220px;height:420px}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-area{flex:1;margin-top:26px;position:relative}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-area .paste-hint{inset:0}
