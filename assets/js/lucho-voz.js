@@ -25,23 +25,24 @@
     if (SS) { loadVoices(); SS.addEventListener && SS.addEventListener('voiceschanged', () => { loadVoices(); paintVoices(); }); }
     const MALE = /(raul|raúl|jorge|pablo|alvaro|álvaro|enrique|diego|tomas|tomás|gonzalo|lorenzo|mateo|alex|carlos|andr[eé]s|emilio|gerardo|francisco|liam|dario|darío|google español)/i;
     const PREF = ['es-PE', 'es-419', 'es-MX', 'es-US', 'es-CO', 'es-AR', 'es-CL', 'es-ES'];
-    const score = v => (MALE.test(v.name) ? 40 : 0) + (/natural|online|neural/i.test(v.name) ? 30 : 0) + (10 - Math.max(0, PREF.indexOf(v.lang.replace('_', '-')) < 0 ? 9 : PREF.indexOf(v.lang.replace('_', '-')))) + (v.localService ? 3 : 0);
+    const score = v => (/es[-_]PE/i.test(v.lang) ? 100 : 0) + (MALE.test(v.name) ? 40 : 0) + (/natural|online|neural/i.test(v.name) ? 30 : 0) + (10 - Math.max(0, PREF.indexOf(v.lang.replace('_', '-')) < 0 ? 9 : PREF.indexOf(v.lang.replace('_', '-')))) + (v.localService ? 3 : 0);
     const pickVoice = () => { const want = cfg().voz; return voices.find(v => v.name === want) || voices.slice().sort((a, b) => score(b) - score(a))[0] || null; };
 
     /* ---------- reproducción ---------- */
     const miner = sl => { const m = sl.querySelector('.miner'); return m && m._miner; };
     let run = null; // { sl, i, token }
     // tonos: cambian velocidad, tono de voz y gestos de Lucho (funciona con cualquier voz, sin cuentas)
-    const TONOS = { normal: { n: 'Normal', r: 1, p: .92, g: 'point' }, emocionado: { n: '🔥 Emocionado', r: 1.12, p: 1.14, g: 'explain' }, serio: { n: '⚠️ Serio / advertencia', r: .86, p: .8, g: 'point' },
-      charla: { n: '😄 Charla', r: 1.04, p: 1, g: 'explain' }, calma: { n: '🙂 Calmado', r: .9, p: .9, g: 'listen' } };
-    // marcas en el texto: *palabra* = énfasis · [pausa] o … = pausa · ¡…! = más energía · ¿…? = tono de pregunta
+    const TONOS = { normal: { n: 'Normal', r: 1.06, p: .95, g: 'point' }, emocionado: { n: '🔥 Emocionado', r: 1.16, p: 1.12, g: 'explain' }, serio: { n: '⚠️ Serio / advertencia', r: .98, p: .84, g: 'point' },
+      charla: { n: '😄 Charla', r: 1.12, p: 1, g: 'explain' }, calma: { n: '🙂 Calmado', r: 1, p: .92, g: 'listen' } };
+    // marcas: *palabra* = énfasis (la voz neural lo marca sola con la puntuación) · [pausa] = pausa corta · ¡…! más energía · ¿…? pregunta
+    // se habla en bloques largos: cada corte agrega espera con las voces en línea, por eso solo se corta en [pausa]
     const chunks = (txt, tono) => { const T = TONOS[tono] || TONOS.normal, out = [];
-      for (const fr of parts(String(txt || '').replace(/\.\.\.|…/g, ' [pausa] '))) {
-        const ex = /¡|!/.test(fr) ? 1.08 : 1, q = /\?/.test(fr) ? 1.05 : 1;
-        fr.split(/(\[pausa\]|\*[^*]+\*)/i).forEach(seg => { const t = seg.trim().replace(/^[,;:]\s*/, ''); if (!t) return;
-          if (/^\[pausa\]$/i.test(t)) { if (out.length) out[out.length - 1].pause = (out[out.length - 1].pause || 0) + 650; return; }
-          if (/^\*[^*]+\*$/.test(t)) { if (out.length) out[out.length - 1].pause = (out[out.length - 1].pause || 0) + 140; out.push({ t: t.slice(1, -1), r: T.r * .84, p: T.p * 1.12 * ex, pause: 160, emph: 1 }); return; }
-          out.push({ t, r: T.r * (ex > 1 ? 1.04 : 1), p: T.p * ex * q }); }); }
+      String(txt || '').replace(/\s+/g, ' ').split(/\[pausa\]/i).forEach((blk, bi, arr) => {
+        const t = blk.replace(/\*([^*]+)\*/g, '$1').replace(/^[,;:\s]+/, '').trim(); if (!t) return;
+        const ex = /[¡!]/.test(t) ? 1.04 : 1;
+        // bloques de hasta ~220 letras (las voces en línea cortan los textos muy largos)
+        const ps = (t.match(/[^.!?]+[.!?]*\s*/g) || [t]).reduce((a, x) => { if (a.length && (a[a.length - 1] + x).length < 220) a[a.length - 1] += x; else a.push(x); return a; }, []);
+        ps.forEach((x, k) => out.push({ t: x.trim(), r: T.r * (ex > 1 ? 1.03 : 1), p: T.p * ex, pause: k === ps.length - 1 && bi < arr.length - 1 ? 260 : 0 })); });
       return out; };
     const parts = txt => (String(txt || '').replace(/\s+/g, ' ').trim().match(/[^.!?;:]+[.!?;:]*\s*/g) || []).map(x => x.trim()).filter(Boolean)
       .reduce((a, x) => { if (a.length && (a[a.length - 1].length < 40 || x.length < 12)) a[a.length - 1] += ' ' + x; else a.push(x); return a; }, []);
@@ -63,7 +64,9 @@
       const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar a Lucho'; }
       if (!keepUI) setSub(sl, '');
     }
+    const voicesReady = () => new Promise(ok => { if (!SS) return ok(); loadVoices(); if (voices.length) return ok(); let n = 0; const iv = setInterval(() => { loadVoices(); if (voices.length || ++n > 30) { clearInterval(iv); ok(); } }, 100); });
     async function play(sl, from = 0) {
+      await voicesReady();
       stop(true); const list = cfg().esc.filter(e => (e.t || '').trim()); if (!list.length) { D.toast && D.toast('Primero escriba el guion de Lucho (✎ Editar → 🎙 Escribir el guion)'); return; }
       const token = {}; run = { sl, i: from, token };
       const lv = sl.querySelector('.lv'); lv.classList.add('playing'); lv.classList.remove('paused'); lv.querySelector('.lv-play').textContent = '⏸ Pausa';
@@ -73,7 +76,7 @@
         const e = cfg().esc[i]; if (!(e.t || '').trim()) continue;
         await showScene(sl, i); m && m.gesture && m.gesture((TONOS[e.tono] || TONOS.normal).g || (i % 2 ? 'explain' : 'point'));
         for (const c of chunks(e.t, e.tono)) { if (!run || run.token !== token) return; await say(sl, c.t, token, c); if (c.pause) await wait(c.pause); }
-        await wait(450);
+        await wait(120);
       }
       if (run && run.token === token) { stop(true); setSub(sl, '<i>Fin de la explicación · ▶ para escucharla de nuevo</i>'); }
     }
@@ -87,7 +90,7 @@
           let k = 0; const iv = setInterval(() => { if (!run || run.token !== token) { clearInterval(iv); return done(); } mark(k++); m && m.word && m.word(); if (k > words.length) { clearInterval(iv); setTimeout(done, 250); } }, 330); return;
         }
         const u = new SpeechSynthesisUtterance(frase); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-PE';
-        u.rate = Math.max(.5, Math.min(2, (+cfg().vel || 1) * .97 * (opt.r || 1))); u.pitch = Math.max(.4, Math.min(1.8, opt.p || .92));
+        u.rate = Math.max(.5, Math.min(2, (+cfg().vel || 1) * (opt.r || 1))); u.pitch = Math.max(.4, Math.min(1.8, opt.p || .92));
         let pos = 0, guard = setTimeout(fin, 1500 + frase.length * 120);
         const offs = []; { let c = 0; words.forEach(w => { offs.push(c); c += w.length + 1; }); }
         u.onboundary = ev => { if (ev.name && ev.name !== 'word') return; let k = 0; while (k + 1 < offs.length && offs[k + 1] <= ev.charIndex) k++; pos = k; mark(k); m && m.word && m.word(); };
@@ -134,15 +137,17 @@
       panel = document.createElement('div'); panel.className = 'lp'; panel.setAttribute('data-noedit', '');
       panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion de Lucho</b><span>Escriba lo que Lucho dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras Lucho la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
         <div class="lp-cfg"><label>Voz <select class="lp-voz"></select></label><label>Velocidad <input class="lp-vel" type="range" min=".7" max="1.3" step=".05"><em class="lp-velv"></em></label><button class="lp-test">🔊 Probar voz</button></div>
-        <div class="lp-list"></div><div class="lp-ft"><button class="lp-add">＋ Agregar parte</button><button class="lp-play">▶ Escuchar todo</button><button class="lp-ok">Listo</button></div>
+        <div class="lp-warn"></div><div class="lp-list"></div><div class="lp-ft"><button class="lp-add">＋ Agregar parte</button><button class="lp-play">▶ Escuchar todo</button><button class="lp-ok">Listo</button></div>
         <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). Las voces de <b>Microsoft Edge</b> («Online (Natural)») suenan más naturales; las de Windows funcionan sin internet.</p></div>`;
       document.body.appendChild(panel);
       const C = cfg(), list = panel.querySelector('.lp-list');
       if (!C.esc.length) C.esc.push({ id: uid(), t: '' });
       const vel = panel.querySelector('.lp-vel'); vel.value = C.vel || 1; panel.querySelector('.lp-velv').textContent = (+vel.value).toFixed(2) + '×';
       vel.oninput = () => { C.vel = +vel.value; panel.querySelector('.lp-velv').textContent = C.vel.toFixed(2) + '×'; save(); };
+      const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; const pe = voices.some(v => /es[-_]PE/i.test(v.lang)); w.innerHTML = pe ? '' : '⚠️ Este navegador no tiene la voz peruana <b>Alex (Perú)</b>. Abra la presentación en <b>Microsoft Edge</b> (con internet) para usarla.'; w.style.display = pe ? 'none' : 'block'; };
+      voicesReady().then(() => { paintVoices(); warn(); });
       paintVoices(); panel.querySelector('.lp-voz').onchange = e => { C.voz = e.target.value; save(); };
-      panel.querySelector('.lp-test').onclick = () => { if (!SS) return D.toast('Este navegador no tiene voz'); SS.cancel(); const u = new SpeechSynthesisUtterance('Hola equipo, soy Lucho. Hoy les explico el reglamento.'); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } u.rate = (+C.vel || 1) * .97; u.pitch = .92; SS.speak(u); };
+      panel.querySelector('.lp-test').onclick = () => { if (!SS) return D.toast('Este navegador no tiene voz'); SS.cancel(); const u = new SpeechSynthesisUtterance('¡Hola, equipo! Soy Lucho. Hoy les explico el reglamento, al toque.'); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } u.rate = (+C.vel || 1) * 1.1; u.pitch = 1; SS.speak(u); };
       const draw = () => { list.innerHTML = C.esc.map((e, i) => `<div class="lp-row" data-i="${i}"><div class="lp-num">${i + 1}</div><div class="lp-tx"><select class="lp-tono" title="Cómo lo dice Lucho">${Object.entries(TONOS).map(([k, t]) => `<option value="${k}" ${(e.tono || 'normal') === k ? 'selected' : ''}>${t.n}</option>`).join('')}</select><textarea placeholder="Lo que Lucho dirá en esta parte… (use *palabra* para resaltar, [pausa] para una pausa)">${esc(e.t || '')}</textarea></div>
           <div class="lp-img" tabindex="0" title="Clic para elegir, Ctrl+V para pegar o arrastre una imagen">${imgSrc(e.id) ? '<img>' : '<span>🖼 Imagen<br><small>clic · Ctrl+V · arrastrar</small></span>'}</div>
           <div class="lp-acts"><button data-a="up" title="Subir">↑</button><button data-a="down" title="Bajar">↓</button><button data-a="noimg" title="Quitar imagen">🚫🖼</button><button data-a="play" title="Escuchar desde aquí">▶</button><button data-a="del" title="Borrar parte">✕</button></div></div>`).join('');
