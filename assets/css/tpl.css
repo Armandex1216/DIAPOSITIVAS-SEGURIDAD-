@@ -283,7 +283,7 @@ body.proyector .miner .mn-name small{color:#fff}
 .lv-img.on{opacity:1;transform:none}
 .lv-empty{position:absolute;inset:0;display:grid;place-items:center;font:800 34px/1.2 Montserrat,sans-serif;color:#b89a5a;text-align:center;padding:30px}
 .lv.has-img .lv-empty{display:none}
-.lv-sub{min-height:86px;font:600 28px/1.42 Montserrat,sans-serif;color:#2a2722;text-align:center;padding:0 10px}
+.lv-sub{min-height:86px;font:600 25px/1.38 Montserrat,sans-serif;color:#2a2722;text-align:center;padding:0 10px}
 .lv-sub span{transition:color .15s}.lv.playing .lv-sub span{color:#b8b2a6}.lv.playing .lv-sub span.dicho{color:#1a1917}
 .lv-sub i{color:#9a8d72;font-weight:600;font-size:24px}
 .lv-ctrl{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -329,3 +329,4 @@ body.editing .lv-empty{color:transparent}
 #r-maestro .tbx table.tt{font-size:22px}#r-maestro .tbx table.tt td{padding:42px 12px}
 #r-present .tbx table.tt{font-size:26px}#r-present .tbx table.tt th{font-size:19px;padding:18px}#r-present .tbx table.tt td{padding:30px 14px}
 .lp-tx{display:flex;flex-direction:column;gap:6px}.lp-tono{align-self:flex-start;padding:5px 8px;border-radius:8px;border:1px solid #d9c79d;font:700 12.5px Montserrat,sans-serif;background:#fbf6ea;color:#5a4a26}
+.lp-warn{display:none;margin:0 24px;padding:10px 14px;border-radius:10px;background:#fff4d6;color:#7a5a12;font-size:13px;font-weight:600}
