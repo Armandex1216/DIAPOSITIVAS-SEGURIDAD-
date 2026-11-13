@@ -319,10 +319,11 @@
     addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: Math.max(0, x - 20), y: Math.max(0, y - 24), w: 600 };
     const el = $(`.free[data-fid="${fid}"]`); if (el) D.applyLayout(el, store.layout['free:' + fid]); D.persist(); });
   // imagen libre (pegada, soltada o elegida): se coloca en la lámina actual y se puede mover y cambiar de tamaño
-  D.addImage = (file, ev) => { if (!file) return; const sl = cur(); let x = 1100, y = 260;
-    if (ev && ev.clientX != null) { const r = sl.getBoundingClientRect(), sc = r.width / 1920; x = Math.max(0, Math.min(1920 - 640, Math.round((ev.clientX - r.left) / sc - 320))); y = Math.max(0, Math.min(1080 - 420, Math.round((ev.clientY - r.top) / sc - 210))); }
-    else { const n = Object.values(store.free).filter(f => f.s === sl.id && f.t === 'img').length; x = 1100 - n * 60; y = 260 + n * 50; }
-    addFree('img'); const fid = Object.keys(store.free).pop(); const L = store.layout['free:' + fid]; if (L) { L.x = x; L.y = y; }
+  D.addImage = (file, ev) => { if (!file) return; const sl = cur(), W0 = 520, H0 = 360; let x, y;
+    if (ev && ev.clientX != null) { const r = sl.getBoundingClientRect(), sc = r.width / 1920; x = Math.round((ev.clientX - r.left) / sc - W0 / 2); y = Math.round((ev.clientY - r.top) / sc - H0 / 2); }
+    else { const n = Object.values(store.free).filter(f => f.s === sl.id && f.t === 'img').length % 6; x = 700 + n * 50; y = 300 + n * 45; }
+    x = Math.max(20, Math.min(1920 - W0 - 20, x)); y = Math.max(20, Math.min(1080 - H0 - 20, y));
+    addFree('img'); const fid = Object.keys(store.free).pop(); const L = store.layout['free:' + fid]; if (L) { L.x = x; L.y = y; L.w = W0; L.h = H0; }
     const el = document.querySelector(`.free[data-fid="${fid}"]`); if (el) { D.applyLayout(el, L); const sk = el.querySelector('.slot'); sk && sk._put && sk._put(file); } D.persist(); };
   D.addText = () => { addFree('text', { html: 'Escriba aquí', st: { fs: 32 } }); };
 

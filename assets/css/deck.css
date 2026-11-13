@@ -413,3 +413,4 @@ body.editing .vs-x{display:block}
 body.editing [data-opc].box-off{display:block;opacity:.4;outline:3px dashed #c39531}
 [data-opc].box-off{display:none}
 @media print{[data-opc].box-off{display:none!important}}
+body:not(.editing) .ui .ed-only{display:none}
