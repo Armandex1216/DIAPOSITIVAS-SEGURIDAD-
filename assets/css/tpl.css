@@ -328,3 +328,4 @@ body.editing .lv-empty{color:transparent}
 #r-eecc .tbx table.tt td{padding:36px 10px}
 #r-maestro .tbx table.tt{font-size:22px}#r-maestro .tbx table.tt td{padding:42px 12px}
 #r-present .tbx table.tt{font-size:26px}#r-present .tbx table.tt th{font-size:19px;padding:18px}#r-present .tbx table.tt td{padding:30px 14px}
+.lp-tx{display:flex;flex-direction:column;gap:6px}.lp-tono{align-self:flex-start;padding:5px 8px;border-radius:8px;border:1px solid #d9c79d;font:700 12.5px Montserrat,sans-serif;background:#fbf6ea;color:#5a4a26}
