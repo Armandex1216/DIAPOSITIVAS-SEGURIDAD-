@@ -276,3 +276,50 @@ body.proyector .slide.dark :is(h1,h2,.dm-ttl){text-shadow:0 3px 14px rgba(0,0,0,
 body.proyector :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-t{color:#555}
 body.proyector :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-s{color:#666}
 body.proyector .miner .mn-name small{color:#fff}
+/* ===== Lucho habla: escenario del decreto dentro del globo ===== */
+.lv{display:flex;flex-direction:column;gap:14px}
+.lv-stage{position:relative;flex:1;min-height:0;border-radius:20px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#fbf6ea,#f1e7cf)}
+.lv-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.96) translateY(10px);transition:opacity .6s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.lv-img.on{opacity:1;transform:none}
+.lv-empty{position:absolute;inset:0;display:grid;place-items:center;font:800 34px/1.2 Montserrat,sans-serif;color:#b89a5a;text-align:center;padding:30px}
+.lv.has-img .lv-empty{display:none}
+.lv-sub{min-height:86px;font:600 28px/1.42 Montserrat,sans-serif;color:#2a2722;text-align:center;padding:0 10px}
+.lv-sub span{transition:color .15s}.lv.playing .lv-sub span{color:#b8b2a6}.lv.playing .lv-sub span.dicho{color:#1a1917}
+.lv-sub i{color:#9a8d72;font-weight:600;font-size:24px}
+.lv-ctrl{display:flex;align-items:center;justify-content:center;gap:12px}
+.lv-ctrl button{border:0;cursor:pointer;border-radius:999px;font:800 20px Montserrat,sans-serif;padding:10px 18px;background:#efe6d2;color:#6b5420;transition:transform .15s,background .2s}
+.lv-ctrl button:hover{transform:translateY(-2px);background:#e8d9b6}
+.lv-ctrl .lv-play{background:linear-gradient(135deg,#e2be6a,#c39531);color:#fff;padding:12px 30px;box-shadow:0 10px 22px -12px rgba(150,110,30,.9)}
+.lv.playing:not(.paused) .lv-play{animation:lvPulse 1.6s ease-in-out infinite}
+@keyframes lvPulse{50%{box-shadow:0 0 0 10px rgba(195,149,49,.15),0 10px 22px -12px rgba(150,110,30,.9)}}
+.lv-n{font:800 18px Montserrat,sans-serif;color:#9a8d72;min-width:60px}
+.lv.vacio .lv-ctrl{display:none}
+.lv-edit{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;border:0;cursor:pointer;border-radius:18px;padding:18px 30px;font:800 26px Montserrat,sans-serif;background:#1a1917;color:#f1d48a;box-shadow:0 16px 30px -16px rgba(0,0,0,.7)}
+body.editing .lv-edit{display:block}
+body.editing .lv:not(.vacio) .lv-edit{top:auto;bottom:-6px;transform:translateX(-50%);font-size:18px;padding:10px 20px}
+body.editing .lv .lv-ctrl{visibility:hidden}
+body.moving .lv-edit{display:none}
+@media print{.lv-ctrl,.lv-edit{display:none!important}.lv-img.on{transition:none}}
+/* panel del guion */
+.lp{position:fixed;inset:0;z-index:9999;background:rgba(14,13,11,.55);display:grid;place-items:center;font-family:Montserrat,sans-serif}
+.lp-box{width:min(980px,94vw);max-height:90vh;display:flex;flex-direction:column;background:#fffdf8;border-radius:22px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7);overflow:hidden}
+.lp-hd{position:relative;padding:20px 60px 14px 24px;background:#1a1917;color:#fff}.lp-hd b{display:block;font-size:22px;color:#f1d48a}.lp-hd span{font-size:13.5px;color:#d9d4c7;line-height:1.45}
+.lp-x{position:absolute;right:16px;top:16px;border:0;background:#333;color:#fff;border-radius:10px;width:34px;height:34px;cursor:pointer;font-size:16px}
+.lp-cfg{display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:14px 24px;border-bottom:1px solid #eee3cc;font-size:14px;font-weight:700;color:#5a4a26}
+.lp-cfg select{max-width:360px;margin-left:6px;padding:6px 8px;border-radius:8px;border:1px solid #d9c79d;font:600 13px Montserrat,sans-serif}
+.lp-cfg input{vertical-align:middle;margin:0 6px}.lp-velv{font-style:normal;color:#9a7422}
+.lp button{font-family:Montserrat,sans-serif}
+.lp-cfg button,.lp-ft button{border:0;border-radius:10px;padding:9px 16px;font-weight:800;font-size:14px;cursor:pointer;background:#efe6d2;color:#5a4a26}
+.lp-list{overflow:auto;padding:14px 24px;display:flex;flex-direction:column;gap:12px}
+.lp-row{display:grid;grid-template-columns:34px 1fr 150px auto;gap:12px;align-items:stretch;background:#fff;border:1px solid #eee3cc;border-radius:14px;padding:10px}
+.lp-num{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#c39531;color:#fff;font-weight:900}
+.lp-row textarea{min-height:96px;resize:vertical;border:1px solid #e6dcc6;border-radius:10px;padding:10px;font:500 15px/1.45 Montserrat,sans-serif;color:#1a1917}
+.lp-row textarea:focus{outline:2px solid #e2be6a}
+.lp-img{border:2px dashed #d9c79d;border-radius:10px;display:grid;place-items:center;text-align:center;color:#9a7422;font-weight:800;font-size:13px;cursor:pointer;overflow:hidden;background:#fbf6ea;min-height:96px}
+.lp-img small{font-weight:600;color:#9d978a}.lp-img img{width:100%;height:100%;object-fit:contain}
+.lp-img:focus{outline:2px solid #e2be6a}
+.lp-acts{display:flex;flex-direction:column;gap:4px}.lp-acts button{border:0;border-radius:8px;background:#f3ecdc;cursor:pointer;padding:5px 9px;font-size:13px}
+.lp-ft{display:flex;gap:10px;justify-content:flex-end;padding:12px 24px;border-top:1px solid #eee3cc}
+.lp-ft .lp-play{background:linear-gradient(135deg,#e2be6a,#c39531);color:#fff}.lp-ft .lp-ok{background:#1a1917;color:#f1d48a}
+.lp-tip{margin:0;padding:0 24px 16px;font-size:12.5px;color:#7d776b;line-height:1.5}
+body.editing .lv-empty{color:transparent}

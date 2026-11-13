@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="assets/icons/icon-180.png"><meta name="theme-color" content="#1a1917">
 <title>Reporte diario de seguridad</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261113a">
-<link rel="stylesheet" href="assets/css/tpl.css?v=20261113a">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261113b">
+<link rel="stylesheet" href="assets/css/tpl.css?v=20261113b">
 <script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
 </head>
 <body data-deck="diario-plantilla" data-transition="push">
@@ -46,7 +46,12 @@
       <h3 class="bd-t">Reglamento de Seguridad y Salud Ocupacional en Minería</h3>
       <p class="bd-s"><span class="edit">D.S. 024-2016-EM y modificatorias D.S. 023-2017-EM; D.S. 034-2023-EM</span></p>
     </div>
-    <div class="bd-area"><div data-noedit class="paste-hint" data-w="760"><b>Pegue aquí la imagen del artículo</b><span>Ctrl+V · luego muévala y ajuste el tamaño</span></div></div>
+    <div class="bd-area lv" data-noedit>
+      <div class="lv-stage"><img class="lv-img" alt=""><img class="lv-img" alt=""><div class="lv-empty">🎙 Lucho explicará el decreto</div></div>
+      <div class="lv-sub"></div>
+      <div class="lv-ctrl"><button data-lv="prev" title="Parte anterior">⏮</button><button data-lv="play" class="lv-play">▶ Escuchar a Lucho</button><button data-lv="next" title="Parte siguiente">⏭</button><span class="lv-n"></span></div>
+      <button class="lv-edit" data-lv="edit">🎙 Escribir el guion de Lucho</button>
+    </div>
   </div>
 </section>
 
@@ -80,14 +85,15 @@
 <script src="assets/lib/three.min.js"></script>
 <script src="assets/lib/chart.umd.min.js"></script>
 <script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
-<script src="assets/js/deck.js?v=20261113a"></script>
+<script src="assets/js/deck.js?v=20261113b"></script>
 <script src="assets/lib/supabase.min.js?v=2.119"></script>
-<script src="assets/js/cloud.js?v=20261113a"></script>
-<script src="assets/js/charts.js?v=20261113a"></script>
-<script src="assets/js/miner-ref.js?v=20261113a"></script>
-<script src="assets/js/miner3d.js?v=20261113a"></script>
-<script src="assets/js/tpl.js?v=20261113a"></script>
-<script src="assets/js/editor.js?v=20261113a"></script>
+<script src="assets/js/cloud.js?v=20261113b"></script>
+<script src="assets/js/charts.js?v=20261113b"></script>
+<script src="assets/js/lucho-voz.js?v=20261113b"></script>
+<script src="assets/js/miner-ref.js?v=20261113b"></script>
+<script src="assets/js/miner3d.js?v=20261113b"></script>
+<script src="assets/js/tpl.js?v=20261113b"></script>
+<script src="assets/js/editor.js?v=20261113b"></script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;location.reload()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 </body>
 </html>

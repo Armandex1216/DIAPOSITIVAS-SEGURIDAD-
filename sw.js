@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 377da11eb6 */
-const VERSION = '377da11eb6';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: a34e278e69 */
+const VERSION = 'a34e278e69';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -67,6 +67,7 @@ const FILES = [
 "assets/js/editor.js",
 "assets/js/gum-build.js",
 "assets/js/gum.js",
+"assets/js/lucho-voz.js",
 "assets/js/miner-ref.js",
 "assets/js/miner3d.js",
 "assets/js/tpl.js",
