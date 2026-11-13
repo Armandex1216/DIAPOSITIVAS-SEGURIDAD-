@@ -98,7 +98,7 @@
   const badge = document.createElement('div'); badge.className = 'edit-badge'; badge.innerHTML = 'MODO EDICIÓN · clic en un texto o cifra para cambiarlo · «✎ Datos» en los gráficos · E para salir'; document.body.appendChild(badge);
   const tst = document.createElement('div'); tst.className = 'toast'; document.body.appendChild(tst);
   function toast(m, t = 2600) { tst.textContent = m; tst.classList.add('on'); clearTimeout(tst._t); tst._t = setTimeout(() => tst.classList.remove('on'), t); }
-  D.toast = toast;
+  D.toast = toast; D.compress = (f, cb) => compress(f, cb);
   if (!body.dataset.nohome) { const h = document.createElement('a'); h.className = 'home'; h.href = 'index.html'; h.textContent = '← Presentaciones'; document.body.appendChild(h); }
   const ov = document.createElement('div'); ov.className = 'overview'; document.body.appendChild(ov);
   const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = '<img alt="">'; document.body.appendChild(lb);
@@ -301,7 +301,7 @@
     document.addEventListener('pointerover', e => { overSlot = e.target.closest && e.target.closest('.slot'); });
     document.addEventListener('pointermove', e => { D.ptr = { clientX: e.clientX, clientY: e.clientY }; }, { passive: true });
     const isBg = x => !!x.closest('.cover-bg');
-    document.addEventListener('paste', e => { if (!D.editing()) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; e.preventDefault(); e.stopPropagation(); const sl = slides[D.i], f = it.getAsFile() || [...(e.clipboardData.files || [])].find(x => x.type.startsWith('image/')); if (!f) return;
+    document.addEventListener('paste', e => { if (!D.editing() || (e.target.closest && e.target.closest('.lp'))) return; const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (!it) return; e.preventDefault(); e.stopPropagation(); const sl = slides[D.i], f = it.getAsFile() || [...(e.clipboardData.files || [])].find(x => x.type.startsWith('image/')); if (!f) return;
       const slot = overSlot && sl.contains(overSlot) && overSlot._put && !overSlot.classList.contains('has') && !isBg(overSlot) && !overSlot.closest('.free') ? overSlot : null;
       if (slot) slot._put(f); else if (D.addImage) { const r = sl.getBoundingClientRect(), p = D.ptr; D.addImage(f, p && p.clientX > r.left && p.clientX < r.right && p.clientY > r.top && p.clientY < r.bottom ? p : null); } }, true);
     // soltar una imagen fuera de las casillas: imagen libre
