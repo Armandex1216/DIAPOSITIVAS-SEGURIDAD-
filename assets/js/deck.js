@@ -433,12 +433,15 @@
   /* ---------- mover y cambiar tamaño (como Canva) ---------- */
   const MOVE_SEL = '.free,.card,.insight,.chartbox,.slot,.sh,.gauge,.mo,.ac,.ag,.ag-hub,.photos,.lab,.hx,.slogan,.ttl,.logo,.lg,.q,.donut,.kv,.months,.units,.unit,.mark,.tags,.hht,.big,.date,.kick,h1,h2,h3,dl,ul,table,.pill,.evd>*,.ins>*,.passo>*';
   const movables = sl => $$(MOVE_SEL, sl).filter(el => (!el.closest('.chartbox') || el.classList.contains('chartbox')) && !el.closest('.free-layer'));
-  const mkey = (sl, el) => el.dataset.fid ? 'free:' + el.dataset.fid : sl.id + ':' + movables(sl).indexOf(el);
+  // bloques extra que también se pueden mover (textos, tablas, títulos); llevan su propia numeración para no mover las posiciones ya guardadas
+  const MOVE_X = '.rich,.dh-tbl,.dm-tbl,.dm-next,.dm-ttl,.de-sub,.bubble-dl,.dl-tag,[data-movex]';
+  const movX = sl => $$(MOVE_X, sl).filter(el => !el.matches(MOVE_SEL) && !el.closest('.free-layer') && !el.closest('.chartbox'));
+  const mkey = (sl, el) => { if (el.dataset.fid) return 'free:' + el.dataset.fid; const i = movables(sl).indexOf(el); return i >= 0 ? sl.id + ':' + i : sl.id + ':x' + movX(sl).indexOf(el); };
   function applyLayout(el, L) {
     const x = (L && L.x) || 0, y = (L && L.y) || 0;
     if (window.gsap && el.matches(ANIM_SEL)) { el._lay = { x, y }; el.style.translate = ''; gsap.set(el, { x, y }); }
     else el.style.translate = x || y ? `${x}px ${y}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
-  function loadLayout() { slides.forEach(sl => movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); })); }
+  function loadLayout() { slides.forEach(sl => { movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); }); movX(sl).forEach((el, i) => { const L = store.layout[sl.id + ':x' + i]; if (L) applyLayout(el, L); }); }); }
   let selEl = null; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
   D.moving = () => body.classList.contains('moving');
   function drawSel() { if (!selEl || !D.moving()) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
@@ -455,7 +458,7 @@
   stage.addEventListener('pointerdown', e => {
     if (!D.moving()) return; if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
     const sl = slides[D.i]; const rz = e.target.closest('.rz');
-    if (!rz) { let el = e.target.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
+    if (!rz) { let el = e.target.closest(MOVE_SEL + ',' + MOVE_X); if (el && !el.matches(MOVE_SEL) && el.closest('.chartbox')) el = el.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
       if (!el || !sl.contains(el)) { selEl = null; drawSel(); return; } selEl = el; drawSel(); }
     if (!selEl) return; const [k, L] = lay(selEl), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = selEl.offsetWidth, h0 = selEl.offsetHeight, sc = D.scale;
     const ratio = !!(rz && !ev0Shift(e) && (selEl.classList.contains('fimg') || selEl.matches('img,.slot') || (selEl.querySelector('.slot,img') && !selEl.querySelector('canvas,[data-tbl],.ftx'))));
