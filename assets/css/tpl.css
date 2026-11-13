@@ -183,56 +183,56 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 /* ===== Reporte diario ===== */
 .dl-tag{position:absolute;left:0;top:44px;z-index:2}
 .dl-tag span{display:inline-block;padding:16px 70px 16px 72px;background:linear-gradient(90deg,#b8862a,#d9ad4f);color:#fff;font-size:46px;font-weight:900;letter-spacing:.01em;text-transform:uppercase;clip-path:polygon(0 0,100% 0,calc(100% - 34px) 100%,0 100%);box-shadow:0 14px 30px -18px rgba(90,60,10,.6)}
-#d-momento .dm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,11,.78),rgba(14,13,11,.62) 55%,rgba(14,13,11,.82));pointer-events:none}
-#d-momento .dm-ttl{position:absolute;left:70px;top:46px;margin:0;font-size:58px;font-weight:900;color:#fff;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:20px}
-#d-momento .dm-ic{display:inline-grid;place-items:center;width:84px;height:84px;border-radius:22px;background:var(--gold);font-size:46px;box-shadow:0 0 0 0 rgba(195,149,49,.6);animation:dmPulse 2.4s ease-out infinite}
+:is(#d-momento,[data-base="d-momento"]) .dm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,11,.78),rgba(14,13,11,.62) 55%,rgba(14,13,11,.82));pointer-events:none}
+:is(#d-momento,[data-base="d-momento"]) .dm-ttl{position:absolute;left:70px;top:46px;margin:0;font-size:58px;font-weight:900;color:#fff;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:20px}
+:is(#d-momento,[data-base="d-momento"]) .dm-ic{display:inline-grid;place-items:center;width:84px;height:84px;border-radius:22px;background:var(--gold);font-size:46px;box-shadow:0 0 0 0 rgba(195,149,49,.6);animation:dmPulse 2.4s ease-out infinite}
 @keyframes dmPulse{0%{box-shadow:0 0 0 0 rgba(195,149,49,.55)}70%{box-shadow:0 0 0 26px rgba(195,149,49,0)}100%{box-shadow:0 0 0 0 rgba(195,149,49,0)}}
-#d-momento .dm-mark{position:absolute;right:64px;top:46px;height:66px;filter:brightness(1.3)}
-#d-momento .dm-tbl{position:absolute;left:70px;top:168px;width:1000px}
-#d-momento .dm-tbl table.tt{font-size:24px}#d-momento .dm-tbl table.tt th{font-size:19px;padding:10px}#d-momento .dm-tbl table.tt td{padding:12px;font-weight:800}
-#d-momento .dm-imgs{position:absolute;left:0;right:0;top:300px;height:620px;pointer-events:none}
-#d-momento .dm-img{position:absolute;pointer-events:auto}
-#d-momento .dm-img .slot{width:100%;height:100%;border-radius:22px}
-#d-momento .dm-img.a{left:330px;top:0;width:640px;height:620px}
-#d-momento .dm-img.b{left:1010px;top:110px;width:720px;height:410px}
-#d-momento .dm-img .slot.has{box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
-#d-momento .dm-next{position:absolute;left:70px;bottom:50px;display:flex;align-items:center;gap:22px;color:#fff}
-#d-momento .dm-next p{margin:0;font-size:27px;line-height:1.4}#d-momento .dm-next b{color:var(--gold-l)}
-#d-momento .dm-ic2{display:inline-grid;place-items:center;width:70px;height:70px;border-radius:18px;border:3px solid var(--gold);font-size:36px}
+:is(#d-momento,[data-base="d-momento"]) .dm-mark{position:absolute;right:64px;top:46px;height:66px;filter:brightness(1.3)}
+:is(#d-momento,[data-base="d-momento"]) .dm-tbl{position:absolute;left:70px;top:168px;width:1000px}
+:is(#d-momento,[data-base="d-momento"]) .dm-tbl table.tt{font-size:24px}:is(#d-momento,[data-base="d-momento"]) .dm-tbl table.tt th{font-size:19px;padding:10px}:is(#d-momento,[data-base="d-momento"]) .dm-tbl table.tt td{padding:12px;font-weight:800}
+:is(#d-momento,[data-base="d-momento"]) .dm-imgs{position:absolute;left:0;right:0;top:300px;height:620px;pointer-events:none}
+:is(#d-momento,[data-base="d-momento"]) .dm-img{position:absolute;pointer-events:auto}
+:is(#d-momento,[data-base="d-momento"]) .dm-img .slot{width:100%;height:100%;border-radius:22px}
+:is(#d-momento,[data-base="d-momento"]) .dm-img.a{left:330px;top:0;width:640px;height:620px}
+:is(#d-momento,[data-base="d-momento"]) .dm-img.b{left:1010px;top:110px;width:720px;height:410px}
+:is(#d-momento,[data-base="d-momento"]) .dm-img .slot.has{box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+:is(#d-momento,[data-base="d-momento"]) .dm-next{position:absolute;left:70px;bottom:50px;display:flex;align-items:center;gap:22px;color:#fff}
+:is(#d-momento,[data-base="d-momento"]) .dm-next p{margin:0;font-size:27px;line-height:1.4}:is(#d-momento,[data-base="d-momento"]) .dm-next b{color:var(--gold-l)}
+:is(#d-momento,[data-base="d-momento"]) .dm-ic2{display:inline-grid;place-items:center;width:70px;height:70px;border-radius:18px;border:3px solid var(--gold);font-size:36px}
 /* Aprendamos juntos: minero + globo */
 @font-face{font-family:Oswald;font-weight:600;font-display:swap;src:url(../fonts/oswald-latin-600-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-600-normal.woff2) format('woff2')}
 @font-face{font-family:Oswald;font-weight:700;font-display:swap;src:url(../fonts/oswald-latin-700-normal.woff2) format('woff2'),url(../fonts/oswald-latin-ext-700-normal.woff2) format('woff2')}
-#d-aprendamos .bubble-dl{position:absolute;left:700px;top:240px;width:1140px;height:800px;padding:46px 60px 40px;display:flex;flex-direction:column;border-radius:56px;
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bubble-dl{position:absolute;left:700px;top:240px;width:1140px;height:800px;padding:46px 60px 40px;display:flex;flex-direction:column;border-radius:56px;
   background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#e8c97f,#c39531 45%,#9a7422) border-box;border:6px solid transparent;
   box-shadow:0 50px 90px -46px rgba(80,55,10,.55),0 0 0 14px rgba(195,149,49,.08)}
-#d-aprendamos .bd-tail{position:absolute;left:-118px;top:40px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
-#d-aprendamos .bd-q{position:absolute;right:46px;top:-10px;font:900 200px/1 Georgia,serif;color:rgba(195,149,49,.16);pointer-events:none}
-#d-aprendamos .bd-head{background:linear-gradient(180deg,#efefef,#e6e6e6);border-radius:22px;padding:22px 30px 18px;border-left:10px solid #c39531}
-#d-aprendamos .bd-t{margin:0;font:700 64px/1.02 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
-#d-aprendamos .bd-s{margin:10px 0 0;font:600 24px/1.25 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#8e8e8e;letter-spacing:.02em}
-#d-aprendamos .bd-img{flex:1;margin-top:26px;border-radius:18px}
-#d-aprendamos .bd-img.has{border:0}
-#d-aprendamos .miner{z-index:1}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-tail{position:absolute;left:-118px;top:40px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-q{position:absolute;right:46px;top:-10px;font:900 200px/1 Georgia,serif;color:rgba(195,149,49,.16);pointer-events:none}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-head{background:linear-gradient(180deg,#efefef,#e6e6e6);border-radius:22px;padding:22px 30px 18px;border-left:10px solid #c39531}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-t{margin:0;font:700 64px/1.02 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-s{margin:10px 0 0;font:600 24px/1.25 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#8e8e8e;letter-spacing:.02em}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-img{flex:1;margin-top:26px;border-radius:18px}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-img.has{border:0}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .miner{z-index:1}
 /* Acto y condición subestándar */
-#d-hallazgos .dh-tbl{position:absolute;left:90px;right:90px;top:170px}
-#d-hallazgos .dh-tbl table.tt{font-size:25px}#d-hallazgos .dh-tbl table.tt th{background:#1a1917;border-color:#1a1917;font-size:19px;padding:11px}#d-hallazgos .dh-tbl table.tt td{padding:13px}
-#d-hallazgos .dh-fotos{position:absolute;left:70px;right:70px;top:330px;height:330px;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
-#d-hallazgos .dh-fotos .slot{height:100%;border-radius:18px}
-#d-hallazgos .dh-fotos .slot.has{box-shadow:0 22px 40px -24px rgba(60,40,10,.7)}
-#d-hallazgos .dh-txt{position:absolute;left:90px;right:90px;top:700px;font-size:27px;line-height:1.38;color:#1a1917}
-#d-hallazgos .dh-txt h5{margin:0 0 4px;font-size:29px;font-weight:900;color:#1a1917}
-#d-hallazgos .dh-txt h5:not(:first-child){margin-top:12px}
-#d-hallazgos .dh-txt ul{margin:0;padding-left:34px}#d-hallazgos .dh-txt li::marker{color:var(--gold)}
-#d-hallazgos .dh-txt p{margin:0}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-tbl{position:absolute;left:90px;right:90px;top:170px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-tbl table.tt{font-size:25px}:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-tbl table.tt th{background:#1a1917;border-color:#1a1917;font-size:19px;padding:11px}:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-tbl table.tt td{padding:13px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos{position:absolute;left:70px;right:70px;top:330px;height:330px;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot{height:100%;border-radius:18px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot.has{box-shadow:0 22px 40px -24px rgba(60,40,10,.7)}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt{position:absolute;left:90px;right:90px;top:700px;font-size:27px;line-height:1.38;color:#1a1917}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt h5{margin:0 0 4px;font-size:29px;font-weight:900;color:#1a1917}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt h5:not(:first-child){margin-top:12px}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt ul{margin:0;padding-left:34px}:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt li::marker{color:var(--gold)}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt p{margin:0}
 /* Aprender de eventos */
-#d-eventos .de-sub{position:absolute;left:72px;top:150px;margin:0;font-size:32px;font-weight:800;color:#9e1f1f}
-#d-eventos .de-fotos{position:absolute;left:70px;right:70px;top:220px;height:420px;display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:26px}
-#d-eventos figure{margin:0;display:flex;flex-direction:column;gap:10px}
-#d-eventos figure .slot{flex:1;border-radius:18px}
-#d-eventos figcaption{text-align:center;font-size:24px;font-weight:900;letter-spacing:.2em;color:#fff;background:#1a1917;border-radius:10px;padding:6px}
-#d-eventos figure:nth-child(2) figcaption{background:#b7791f}#d-eventos figure:nth-child(3) figcaption{background:#c0262d}
-#d-eventos .de-txt{position:absolute;left:90px;right:90px;top:680px;font-size:27px;line-height:1.4;color:#1a1917}
-#d-eventos .de-txt p{margin:0 0 12px}#d-eventos .de-txt b{color:#9e1f1f}
+:is(#d-eventos,[data-base="d-eventos"]) .de-sub{position:absolute;left:72px;top:150px;margin:0;font-size:32px;font-weight:800;color:#9e1f1f}
+:is(#d-eventos,[data-base="d-eventos"]) .de-fotos{position:absolute;left:70px;right:70px;top:220px;height:420px;display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:26px}
+:is(#d-eventos,[data-base="d-eventos"]) figure{margin:0;display:flex;flex-direction:column;gap:10px}
+:is(#d-eventos,[data-base="d-eventos"]) figure .slot{flex:1;border-radius:18px}
+:is(#d-eventos,[data-base="d-eventos"]) figcaption{text-align:center;font-size:24px;font-weight:900;letter-spacing:.2em;color:#fff;background:#1a1917;border-radius:10px;padding:6px}
+:is(#d-eventos,[data-base="d-eventos"]) figure:nth-child(2) figcaption{background:#b7791f}:is(#d-eventos,[data-base="d-eventos"]) figure:nth-child(3) figcaption{background:#c0262d}
+:is(#d-eventos,[data-base="d-eventos"]) .de-txt{position:absolute;left:90px;right:90px;top:680px;font-size:27px;line-height:1.4;color:#1a1917}
+:is(#d-eventos,[data-base="d-eventos"]) .de-txt p{margin:0 0 12px}:is(#d-eventos,[data-base="d-eventos"]) .de-txt b{color:#9e1f1f}
 /* Lucho: frases y nombre */
 .miner .mn-say{position:absolute;left:24px;top:-34px;max-width:1760px;min-height:78px;display:flex;align-items:center;padding:16px 34px 16px 30px;background:#fff;border:4px solid #c39531;border-radius:42px;
   box-shadow:0 24px 40px -26px rgba(80,55,10,.6);font:800 29px/1.2 Montserrat,sans-serif;color:#1a1917;white-space:nowrap;opacity:0;transform:translateY(14px) scale(.85);transform-origin:300px 100%;transition:opacity .25s,transform .45s cubic-bezier(.3,1.6,.5,1);pointer-events:none;z-index:3}
@@ -246,3 +246,19 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .miner .mn-name small{font:700 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;color:#d9d4c7;text-transform:uppercase}
 body.printing .miner .mn-say{display:none}
 @media print{.miner .mn-say{display:none!important}}
+
+/* hallazgos: con 1 o 2 fotos las fotos se agrandan (las casillas vacías no salen al presentar) */
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot:not(.has){display:none}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-fotos{height:440px}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-txt{top:810px}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off) .dh-fotos{top:180px}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-fotos{height:520px}
+body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-txt{top:750px}
+/* hallazgos numerados: la foto N corresponde a la observación N */
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos{counter-reset:hf}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot.has{counter-increment:hf}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot.has::before{content:counter(hf);position:absolute;left:14px;top:14px;z-index:2;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#e2be6a,#c39531);color:#fff;font:900 24px/1 Montserrat,sans-serif;box-shadow:0 6px 14px -6px rgba(0,0,0,.6);border:3px solid #fff}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt ul{counter-reset:ho;list-style:none;padding-left:0}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt li{counter-increment:ho;position:relative;padding-left:48px;margin:4px 0}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-txt li::before{content:counter(ho);position:absolute;left:0;top:.12em;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#c39531;color:#fff;font:900 18px/1 Montserrat,sans-serif}
