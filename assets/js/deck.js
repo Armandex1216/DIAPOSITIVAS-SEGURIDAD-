@@ -89,7 +89,7 @@
   /* ---------- UI ---------- */
   const ui = document.createElement('div'); ui.className = 'ui';
   ui.innerHTML = `<button data-k="prev" title="Anterior (←)">◀</button><span class="num"></span><button data-k="next" title="Siguiente (→)">▶</button>
-  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="proy" title="Modo proyector: más contraste, colores más vivos y letras más gruesas (tecla L)">☀ Proyector</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
+  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="dl" title="Descargar un respaldo: paquete que funciona sin internet (con animaciones y video) o PowerPoint">⬇ Descargar</button><button data-k="proy" title="Modo proyector: más contraste, colores más vivos y letras más gruesas (tecla L)">☀ Proyector</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
   <button data-k="save" title="Descargar los cambios para llevarlos a otra PC">💾 Guardar cambios</button><button data-k="load" title="Cargar un archivo de cambios">📂 Abrir</button>
   <button data-k="fs" title="Pantalla completa (F)">⛶</button><button data-k="pdf" title="Guardar PDF (P)">PDF</button>`;
   document.body.appendChild(ui);
@@ -114,7 +114,7 @@
   const tab = document.createElement('button'); tab.className = 'ui-tab'; tab.title = 'Mostrar los controles (tecla H)'; tab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>'; tab.onclick = e => { e.stopPropagation(); setUiHidden(false); }; document.body.appendChild(tab);
   hideB.addEventListener('click', e => { e.stopPropagation(); setUiHidden(true); });
   addEventListener('keydown', e => { if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && (document.activeElement.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))) setUiHidden(!body.classList.contains('ui-hidden')); });
-  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click(), undo: () => undo(), redo: () => redo(), proy: () => setProy(!body.classList.contains('proyector')) })[b.dataset.k]; if (typeof f === 'function') f(); };
+  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click(), undo: () => undo(), redo: () => redo(), proy: () => setProy(!body.classList.contains('proyector')), dl: () => openDownloads() })[b.dataset.k]; if (typeof f === 'function') f(); };
 
   /* ---------- números ---------- */
   function parseNum(t) {
@@ -413,6 +413,11 @@
     }, 250);
   }
   D.print = printDeck;
+  // descargas de respaldo (paquete sin internet y PowerPoint): el módulo se carga solo cuando se usa
+  const BASE = (document.currentScript && document.currentScript.src || '').replace(/assets\/js\/deck\.js.*$/, '') || '';
+  D.root = BASE; D.vBlob = k => vGet((body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k).catch(() => null);
+  D.loadScript = src => new Promise((ok, ko) => { if (document.querySelector(`script[data-lz="${src}"]`)) return ok(); const sc = document.createElement('script'); sc.src = BASE + src; sc.dataset.lz = src; sc.onload = ok; sc.onerror = () => ko(new Error('No se pudo cargar ' + src)); document.head.appendChild(sc); });
+  const openDownloads = () => D.loadScript('assets/js/export.js?v=2').then(() => D.exportMenu()).catch(e => toast('No se pudo abrir las descargas: ' + e.message, 5000));
 
   /* ---------- arranque ---------- */
   /* ---------- comentarios oscuros (.insight): ocultar / mostrar en modo edición ---------- */
