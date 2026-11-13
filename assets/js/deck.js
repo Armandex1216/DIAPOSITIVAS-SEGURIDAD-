@@ -19,6 +19,7 @@
   let fileEdits = (window.DECK_EDITS && window.DECK_EDITS[deckId]) || null;
   let local = null; try { local = JSON.parse(localStorage.getItem(LSK) || 'null'); } catch (e) { }
   const store = merge(fileEdits, local);
+  if (store.images) for (const k of Object.keys(store.images)) if (store.images[k] != null && typeof store.images[k] !== 'string') delete store.images[k]; // limpia valores dañados
   /* ---------- láminas creadas por el usuario (en blanco o duplicadas) ---------- */
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const BLANK = (t, k) => `<div class="hexbg"></div><div class="topbar" data-a="grow"></div><img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><div class="sh"><div class="kick" data-a="left">${esc(k || 'Sección')}</div><h2 data-a="up">${esc(t || 'Título de la lámina')}</h2></div>`;
