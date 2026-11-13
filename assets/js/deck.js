@@ -149,7 +149,6 @@
     $$('[data-count]', sl).forEach(el => { el.textContent = fmtNum(0, el); });
   }
   function showAll(sl) {
-    $$('.free-layer > .free', sl).forEach(el => { gsap.killTweensOf(el); gsap.set(el, { clearProps: 'transform,opacity' }); });
     animTargets(sl).forEach(el => { gsap.killTweensOf(el); gsap.set(el, { opacity: 1, x: bx(el), y: by(el), scale: 1, scaleX: 1, rotationX: 0, filter: 'none' }); });
     $$('[data-frag]', sl).forEach(el => { gsap.set(el, { opacity: 1, x: bx(el), y: by(el) }); el.classList.add('shown'); });
     $$('[data-draw]', sl).forEach(p => gsap.set(p, { strokeDashoffset: 0 }));
@@ -165,9 +164,6 @@
       const at = el.dataset.at != null ? parseFloat(el.dataset.at) : t + d;
       tl.to(el, to, at); t = at + parseFloat(el.dataset.gap || .09);
     });
-    // imágenes y textos libres (pegados): entran con un pequeño zoom, una tras otra
-    $$('.free-layer > .free', sl).forEach((el, i) => { gsap.killTweensOf(el); const img = el.classList.contains('fimg');
-      tl.fromTo(el, { opacity: 0, scale: img ? .9 : 1, y: img ? 26 : 18 }, { opacity: 1, scale: 1, y: 0, duration: img ? .7 : .5, ease: img ? 'back.out(1.5)' : 'power3.out', clearProps: 'transform,opacity' }, .12 + i * .09); });
     $$('[data-draw]', sl).forEach(p => tl.to(p, { strokeDashoffset: 0, duration: parseFloat(p.dataset.dur || 1.4), ease: 'power2.inOut' }, parseFloat(p.dataset.draw || .3)));
     $$('[data-count]', sl).filter(el => !el.closest('[data-frag]')).forEach(el => countUp(el, base + parseFloat(el.dataset.cd || .4)));
     D.frags = $$('[data-frag]', sl).sort((a, b) => (+a.dataset.frag || 0) - (+b.dataset.frag || 0));
