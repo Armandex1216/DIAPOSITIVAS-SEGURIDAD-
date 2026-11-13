@@ -266,7 +266,8 @@ body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not
 .paste-hint{position:absolute;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:3px dashed #d9c79d;border-radius:24px;background:repeating-linear-gradient(135deg,rgba(246,239,224,.75) 0 18px,rgba(251,246,234,.75) 18px 36px);color:#9a7422;pointer-events:none;padding:24px}
 .paste-hint b{font:800 30px/1.2 Montserrat,sans-serif}.paste-hint span{font:600 18px/1.35 Montserrat,sans-serif;color:#8d8a83;max-width:760px}
 body.editing .paste-hint{display:flex}
-body.editing .slide:has(.free.fimg .slot.has) .paste-hint{opacity:.35}
+body.editing .slide:has(.free.fimg .slot.has) .paste-hint{background:none;border-color:rgba(195,149,49,.25)}
+body.editing .slide:has(.free.fimg .slot.has) .paste-hint>*{display:none}
 body.moving .paste-hint{display:none}
 @media print{.paste-hint{display:none!important}}
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-hint{left:70px;right:70px;top:330px;height:340px}
