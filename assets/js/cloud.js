@@ -47,10 +47,11 @@
   async function uploadImages() {
     const imgs = D.store.images;
     for (const k of Object.keys(imgs)) {
-      const v = imgs[k]; if (!v || !v.startsWith('data:')) continue;
+      const v = imgs[k]; if (v != null && typeof v !== 'string') { delete imgs[k]; continue; } // valor dañado: se descarta en vez de bloquear el guardado
+      if (!v || !v.startsWith('data:')) continue;
       const iid = `${id}/${k}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-      const { error } = await sb.from('diapo_imagenes').insert({ id: iid, deck_id: id, data: v });
-      if (error) throw error;
+      let error; for (let t = 0; t < 3; t++) { ({ error } = await sb.from('diapo_imagenes').insert({ id: iid, deck_id: id, data: v })); if (!error) break; await new Promise(z => setTimeout(z, 1500)); }
+      if (error) { console.warn('imagen', k, error); throw error; }
       cache.set('dbimg:' + iid, Promise.resolve(v));
       if (imgs[k] === v) imgs[k] = 'dbimg:' + iid;
     }
@@ -95,7 +96,7 @@
       if (error) throw error;
       localStorage.removeItem(DIRTY); localStorage.setItem(STAMP, now); sessionStorage.setItem(STAMP, now); setBase(out); paint();
       if (merged) { D.toast('Se juntaron tus cambios con los de otro equipo; actualizando…', 2500); setTimeout(() => location.reload(), 1200); }
-    } catch (e) { console.warn(e); paint('err'); if (navigator.onLine) { D.toast('No se pudo guardar en la nube; queda guardado en este equipo y se reintentará', 3800); setTimeout(push, 15000); } else D.toast('Sin internet: los cambios quedan en este equipo y se suben solos al volver la conexión', 4000); }
+    } catch (e) { console.warn(e); paint('err'); if (navigator.onLine) { D.toast('No se pudo guardar en la nube (' + String((e && (e.message || e.code)) || e).slice(0, 80) + '); queda guardado en este equipo y se reintentará', 5000); setTimeout(push, 15000); } else D.toast('Sin internet: los cambios quedan en este equipo y se suben solos al volver la conexión', 4000); }
     busy = false; if (again) { again = false; push(); }
   }
   D.onPersist = () => { localStorage.setItem(DIRTY, '1'); if (!user) return; clearTimeout(t); t = setTimeout(push, 1200); };
