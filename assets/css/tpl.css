@@ -248,13 +248,6 @@ body.printing .miner .mn-say{display:none}
 @media print{.miner .mn-say{display:none!important}}
 
 /* hallazgos: con 1 o 2 fotos las fotos se agrandan (las casillas vacías no salen al presentar) */
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot:not(.has){display:none}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-fotos{height:440px}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-txt{top:810px}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off) .dh-fotos{top:180px}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-fotos{height:520px}
-body:not(.editing) :is(#d-hallazgos,[data-base="d-hallazgos"]):has(.box-off):not(:has(.slot.has ~ .slot.has ~ .slot.has)) .dh-txt{top:750px}
 /* hallazgos numerados: la foto N corresponde a la observación N */
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos{counter-reset:hf}
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .dh-fotos .slot.has{counter-increment:hf}
@@ -275,3 +268,7 @@ body.moving .paste-hint{display:none}
 :is(#d-eventos,[data-base="d-eventos"]) .de-hint{left:70px;right:70px;top:220px;height:420px}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-area{flex:1;margin-top:26px;position:relative}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-area .paste-hint{inset:0}
+/* fotos libres de hallazgos numeradas en el orden en que se pegaron (foto 1 ↔ observación 1) */
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .free-layer{counter-reset:hfl}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .free.fimg .slot.has{counter-increment:hfl}
+:is(#d-hallazgos,[data-base="d-hallazgos"]) .free.fimg .slot.has::before{content:counter(hfl);position:absolute;left:12px;top:12px;z-index:2;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#e2be6a,#c39531);color:#fff;font:900 22px/1 Montserrat,sans-serif;box-shadow:0 6px 14px -6px rgba(0,0,0,.6);border:3px solid #fff}
