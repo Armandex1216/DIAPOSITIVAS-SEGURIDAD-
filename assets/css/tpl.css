@@ -183,7 +183,7 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 /* ===== Reporte diario ===== */
 .dl-tag{position:absolute;left:0;top:44px;z-index:2}
 .dl-tag span{display:inline-block;padding:16px 70px 16px 72px;background:linear-gradient(90deg,#b8862a,#d9ad4f);color:#fff;font-size:46px;font-weight:900;letter-spacing:.01em;text-transform:uppercase;clip-path:polygon(0 0,100% 0,calc(100% - 34px) 100%,0 100%);box-shadow:0 14px 30px -18px rgba(90,60,10,.6)}
-:is(#d-momento,[data-base="d-momento"]) .dm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,11,.78),rgba(14,13,11,.62) 55%,rgba(14,13,11,.82));pointer-events:none}
+:is(#d-momento,[data-base="d-momento"]) .dm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,11,.7),rgba(14,13,11,.4) 50%,rgba(14,13,11,.72));pointer-events:none}
 :is(#d-momento,[data-base="d-momento"]) .dm-ttl{position:absolute;left:70px;top:46px;margin:0;font-size:58px;font-weight:900;color:#fff;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:20px}
 :is(#d-momento,[data-base="d-momento"]) .dm-ic{display:inline-grid;place-items:center;width:84px;height:84px;border-radius:22px;background:var(--gold);font-size:46px;box-shadow:0 0 0 0 rgba(195,149,49,.6);animation:dmPulse 2.4s ease-out infinite}
 @keyframes dmPulse{0%{box-shadow:0 0 0 0 rgba(195,149,49,.55)}70%{box-shadow:0 0 0 26px rgba(195,149,49,0)}100%{box-shadow:0 0 0 0 rgba(195,149,49,0)}}
@@ -270,3 +270,9 @@ body.moving .paste-hint{display:none}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-area .paste-hint{inset:0}
 /* fotos libres de hallazgos numeradas según su posición (de izquierda a derecha y de arriba abajo): foto 1 ↔ observación 1 */
 :is(#d-hallazgos,[data-base="d-hallazgos"]) .free.fimg .slot.has[data-n]::before{content:attr(data-n);position:absolute;left:12px;top:12px;z-index:2;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#e2be6a,#c39531);color:#fff;font:900 22px/1 Montserrat,sans-serif;box-shadow:0 6px 14px -6px rgba(0,0,0,.6);border:3px solid #fff}
+body.proyector :is(#d-momento,[data-base="d-momento"]) .dm-shade{opacity:.7}
+body.proyector .g-shade{opacity:.78}
+body.proyector .slide.dark :is(h1,h2,.dm-ttl){text-shadow:0 3px 14px rgba(0,0,0,.55)}
+body.proyector :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-t{color:#555}
+body.proyector :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-s{color:#666}
+body.proyector .miner .mn-name small{color:#fff}

@@ -18,7 +18,7 @@
 html,body{margin:0;height:100%;background:#0d0c0b;overflow:hidden;font-family:Montserrat,system-ui,"Segoe UI",sans-serif;color:var(--ink)}
 .viewport{position:fixed;inset:0;overflow:hidden;background:radial-gradient(ellipse at center,#1d1b18 0%,#060605 80%);perspective:2600px}
 .stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;transform-style:preserve-3d}
-.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:none;background:var(--cream);backface-visibility:hidden;will-change:transform,opacity}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:none;background:var(--cream);backface-visibility:hidden}
 .slide.active,.slide.leaving{display:block}
 .slide.leaving{pointer-events:none}
 
@@ -433,3 +433,10 @@ body.editing .cover-bg .slot{cursor:default}
 body.moving .cover-bg .slot .bg-ui{display:none!important}
 /* cuadros opcionales: el botón va arriba a la izquierda para no chocar con la barra de la tabla (+ Fila…) */
 [data-opc]>.box-tg{top:auto;bottom:-22px;right:18px}
+/* ===== Modo proyector: compensa el lavado de color y contraste de los proyectores ===== */
+body.proyector .viewport{filter:contrast(1.16) saturate(1.25) brightness(1.02)}
+body.proyector .slide :is(p,li,td,th,span,h5,h6,small,figcaption,.edit){-webkit-text-stroke:.35px currentColor}
+body.proyector .slide :is(h1,h2,h3,h4){-webkit-text-stroke:.6px currentColor}
+body.proyector .slide.light{--ink:#0d0c0b}
+body.proyector .ui [data-k=proy].on{background:#f1d48a;color:#1a1917}
+@media print{body.proyector .viewport{filter:none}body.proyector .slide *{-webkit-text-stroke:0!important}}
