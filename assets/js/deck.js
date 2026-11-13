@@ -307,13 +307,24 @@
   function initSlot(slot) {
     if (slot._put) return; {
       const key = slot.dataset.slot; if (!$('img', slot)) slot.insertAdjacentHTML('afterbegin', '<img alt="">');
-      if (!$('.slot-ui', slot)) slot.insertAdjacentHTML('beforeend', `<div class="slot-ui"><b>${slot.dataset.ph || 'Pegue aquí una imagen'}</b><span>Modo edición: clic para elegir archivo, arrastre la imagen o péguela con Ctrl+V</span><div class="slot-btns"><button data-s="pick">Elegir imagen</button><button data-s="clear">Quitar</button></div></div>`);
+      const bgS = !!slot.closest('.cover-bg'), inFree = !!slot.closest('.free');
+      if (!$('.slot-ui', slot)) slot.insertAdjacentHTML('beforeend', bgS
+        ? '<div class="slot-ui bg-ui" data-noedit contenteditable="false"><div class="slot-btns"><button data-s="pick">🖼 Cambiar fondo</button><button data-s="orig">↺ Fondo original</button></div></div>'
+        : `<div class="slot-ui"><b>${slot.dataset.ph || 'Pegue aquí una imagen'}</b><span>Modo edición: clic para elegir archivo, arrastre la imagen o péguela con Ctrl+V</span><div class="slot-btns"><button data-s="pick">Elegir imagen</button><button data-s="clear">Quitar imagen</button>${inFree ? '' : '<button data-s="hide">✕ Ocultar casilla</button>'}</div><button class="slot-show" data-s="show">↺ Mostrar casilla</button></div>`);
+      const hk = 'slot:' + key, paintOff = () => slot.classList.toggle('slot-off', !!store.hidden[hk]); paintOff();
       const def = slot.dataset.src || '';
       setSlot(slot, store.images[key] !== undefined ? store.images[key] : def);
       const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true; slot.appendChild(inp);
       const put = f => { if (!f || !/^image\//.test(f.type)) return; compress(f, url => { store.images[key] = url; persist(); setSlot(slot, url); toast('Imagen colocada'); }); };
       inp.onchange = () => { put(inp.files[0]); inp.value = ''; };
-      slot.addEventListener('click', e => { if (!D.editing()) return; e.stopPropagation(); const b = e.target.closest('[data-s]'); if (b && b.dataset.s === 'clear') { store.images[key] = ''; persist(); setSlot(slot, ''); return; } inp.click(); });
+      slot.addEventListener('click', e => { if (!D.editing()) return; const b = e.target.closest('[data-s]');
+        if (bgS && !b) return; // el fondo no se toca por un clic: solo con «Cambiar fondo»
+        e.stopPropagation(); const a = b && b.dataset.s;
+        if (a === 'clear') { store.images[key] = ''; persist(); setSlot(slot, ''); return; }
+        if (a === 'orig') { delete store.images[key]; persist(); setSlot(slot, def); toast('Fondo original'); return; }
+        if (a === 'hide') { store.hidden[hk] = 1; persist(); paintOff(); toast('Casilla oculta (no sale al presentar) · «Mostrar casilla» la devuelve'); return; }
+        if (a === 'show') { delete store.hidden[hk]; persist(); paintOff(); return; }
+        if (slot.classList.contains('slot-off')) return; inp.click(); });
       slot.addEventListener('dragover', e => { if (D.editing()) { e.preventDefault(); slot.classList.add('drag'); } });
       slot.addEventListener('dragleave', () => slot.classList.remove('drag'));
       slot.addEventListener('drop', e => { if (!D.editing() || slot.closest('.cover-bg')) return; e.preventDefault(); slot.classList.remove('drag'); put(e.dataTransfer.files[0]); });
