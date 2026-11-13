@@ -89,7 +89,7 @@
   /* ---------- UI ---------- */
   const ui = document.createElement('div'); ui.className = 'ui';
   ui.innerHTML = `<button data-k="prev" title="Anterior (←)">◀</button><span class="num"></span><button data-k="next" title="Siguiente (→)">▶</button>
-  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="dl" title="Descargar un respaldo: paquete que funciona sin internet (con animaciones y video) o PowerPoint">⬇ Descargar</button><button data-k="proy" title="Modo proyector: más contraste, colores más vivos y letras más gruesas (tecla L)">☀ Proyector</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
+  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="dl" title="Descargar la presentación en UN archivo que se abre con doble clic, sin internet, con animaciones, Lucho y video">⬇ Descargar</button><button data-k="proy" title="Modo proyector: más contraste, colores más vivos y letras más gruesas (tecla L)">☀ Proyector</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
   <button data-k="save" title="Descargar los cambios para llevarlos a otra PC">💾 Guardar cambios</button><button data-k="load" title="Cargar un archivo de cambios">📂 Abrir</button>
   <button data-k="fs" title="Pantalla completa (F)">⛶</button><button data-k="pdf" title="Guardar PDF (P)">PDF</button>`;
   document.body.appendChild(ui);
@@ -417,7 +417,7 @@
   const BASE = (document.currentScript && document.currentScript.src || '').replace(/assets\/js\/deck\.js.*$/, '') || '';
   D.root = BASE; D.vBlob = k => vGet((body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k).catch(() => null);
   D.loadScript = src => new Promise((ok, ko) => { if (document.querySelector(`script[data-lz="${src}"]`)) return ok(); const sc = document.createElement('script'); sc.src = BASE + src; sc.dataset.lz = src; sc.onload = ok; sc.onerror = () => ko(new Error('No se pudo cargar ' + src)); document.head.appendChild(sc); });
-  const openDownloads = () => D.loadScript('assets/js/export.js?v=2').then(() => D.exportMenu()).catch(e => toast('No se pudo abrir las descargas: ' + e.message, 5000));
+  const openDownloads = () => D.loadScript('assets/js/export.js?v=3').then(() => D.exportMenu()).catch(e => toast('No se pudo abrir las descargas: ' + e.message, 5000));
 
   /* ---------- arranque ---------- */
   /* ---------- comentarios oscuros (.insight): ocultar / mostrar en modo edición ---------- */
