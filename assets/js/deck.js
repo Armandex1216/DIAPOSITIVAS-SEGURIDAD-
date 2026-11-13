@@ -61,6 +61,9 @@
   addEventListener('keydown', e => { if (!(e.ctrlKey || e.metaKey) || e.altKey) return; const k = e.key.toLowerCase(); if (k !== 'z' && k !== 'y') return;
     const a = document.activeElement; if (a && (a.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; // dentro de un texto: deshacer normal del texto
     if (!D.editing || !D.editing()) return; e.preventDefault(); e.stopImmediatePropagation(); if (k === 'y' || e.shiftKey) redo(); else undo(); }, true);
+  // modo proyector: los proyectores lavan los colores y el contraste; esto los compensa (se recuerda en este equipo)
+  const setProy = on => { body.classList.toggle('proyector', on); try { localStorage.setItem('deck-proyector', on ? '1' : ''); } catch (e) { } const b = document.querySelector('.ui [data-k=proy]'); if (b) b.classList.toggle('on', on); if (typeof toast === 'function' && setProy._init) toast(on ? '☀ Modo proyector activado: más contraste y nitidez' : 'Modo proyector desactivado'); setProy._init = 1; };
+  addEventListener('keydown', e => { if ((e.key === 'l' || e.key === 'L') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && document.activeElement.isContentEditable) && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName)) setProy(!body.classList.contains('proyector')); });
   const persist = () => { snap(); try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
   const D = window.DECK = {
@@ -86,7 +89,7 @@
   /* ---------- UI ---------- */
   const ui = document.createElement('div'); ui.className = 'ui';
   ui.innerHTML = `<button data-k="prev" title="Anterior (←)">◀</button><span class="num"></span><button data-k="next" title="Siguiente (→)">▶</button>
-  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
+  <button data-k="ov" title="Ver, ir u ocultar láminas (O)">▦ Láminas</button><button data-k="proy" title="Modo proyector: más contraste, colores más vivos y letras más gruesas (tecla L)">☀ Proyector</button><button data-k="edit" title="Editar textos, cifras, gráficos e imágenes (E)">✎ Editar</button><button data-k="undo" class="ed-only" title="Deshacer el último cambio (Ctrl+Z)">↶ Deshacer</button><button data-k="redo" class="ed-only" title="Rehacer (Ctrl+Y)">↷ Rehacer</button><button data-k="move" title="Mover y cambiar tamaño de los elementos, como en Canva (M)">✥ Mover</button>
   <button data-k="save" title="Descargar los cambios para llevarlos a otra PC">💾 Guardar cambios</button><button data-k="load" title="Cargar un archivo de cambios">📂 Abrir</button>
   <button data-k="fs" title="Pantalla completa (F)">⛶</button><button data-k="pdf" title="Guardar PDF (P)">PDF</button>`;
   document.body.appendChild(ui);
@@ -111,7 +114,7 @@
   const tab = document.createElement('button'); tab.className = 'ui-tab'; tab.title = 'Mostrar los controles (tecla H)'; tab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>'; tab.onclick = e => { e.stopPropagation(); setUiHidden(false); }; document.body.appendChild(tab);
   hideB.addEventListener('click', e => { e.stopPropagation(); setUiHidden(true); });
   addEventListener('keydown', e => { if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && (document.activeElement.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))) setUiHidden(!body.classList.contains('ui-hidden')); });
-  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click(), undo: () => undo(), redo: () => redo() })[b.dataset.k]; if (typeof f === 'function') f(); };
+  ui.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); const f = ({ prev, next, ov: toggleOv, edit: toggleEdit, move: () => toggleMove(), fs: toggleFs, pdf: () => printDeck(), save: exportEdits, load: () => fileIn.click(), undo: () => undo(), redo: () => redo(), proy: () => setProy(!body.classList.contains('proyector')) })[b.dataset.k]; if (typeof f === 'function') f(); };
 
   /* ---------- números ---------- */
   function parseNum(t) {
@@ -503,6 +506,7 @@
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => enterSlide(slides[start], .2));
   wake();
   lastSnap = JSON.stringify(store); D.undo = undo; D.redo = redo;
+  try { setProy(localStorage.getItem('deck-proyector') === '1'); } catch (e) { setProy(false); }
   // si la lámina activa quedó en negro (animación cortada al cargar o al volver a la pestaña), se vuelve a mostrar
   D.reenter = () => { const sl = slides[D.i]; if (!sl || D.editing()) return; resetSlide(sl); enterSlide(sl, .05); };
   const fixBlank = () => { const sl = slides[D.i]; if (!sl || D.editing() || document.hidden) return; const t = animTargets(sl); if (t.length && t.every(el => parseFloat(getComputedStyle(el).opacity) < .05)) showAll(sl); };
