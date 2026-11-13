@@ -440,3 +440,4 @@ body.proyector .slide :is(h1,h2,h3,h4){-webkit-text-stroke:.6px currentColor}
 body.proyector .slide.light{--ink:#0d0c0b}
 body.proyector .ui [data-k=proy].on{background:#f1d48a;color:#1a1917}
 @media print{body.proyector .viewport{filter:none}body.proyector .slide *{-webkit-text-stroke:0!important}}
+.offline-pkg .ui [data-k=dl]{display:none}
