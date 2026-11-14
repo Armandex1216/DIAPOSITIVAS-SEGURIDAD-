@@ -208,7 +208,7 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-tail{position:absolute;left:-118px;top:110px;width:124px;height:114px;overflow:visible;filter:drop-shadow(-6px 10px 10px rgba(80,55,10,.12))}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-q{position:absolute;right:46px;top:-10px;font:900 200px/1 Georgia,serif;color:rgba(195,149,49,.16);pointer-events:none}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-head{background:linear-gradient(180deg,#efefef,#e6e6e6);border-radius:22px;padding:16px 26px 14px;border-left:10px solid #c39531}
-:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-t{margin:0;font:700 38px/1.05 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
+:is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-t{margin:0;white-space:nowrap;font:700 34px/1.05 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#7b7b7b;letter-spacing:.005em}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-s{margin:6px 0 0;font:600 21px/1.25 Oswald,'Arial Narrow',sans-serif;text-transform:uppercase;color:#8e8e8e;letter-spacing:.02em}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-art{margin:10px 0 0;font:700 21px/1.55 Montserrat,sans-serif;color:#5a554b;text-transform:uppercase;letter-spacing:.02em}
 :is(#d-aprendamos,[data-base="d-aprendamos"]) .bd-art b{display:inline-block;margin-right:10px;vertical-align:middle;background:#e8731a;color:#fff;font:900 26px/1 Montserrat,sans-serif;padding:8px 16px;border-radius:10px;letter-spacing:.04em;box-shadow:0 6px 14px -8px rgba(160,70,0,.7)}
