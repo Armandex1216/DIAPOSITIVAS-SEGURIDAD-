@@ -222,3 +222,36 @@
   setInterval(() => { const sl = window.DECK && DECK.slides[DECK.i]; if (sl && (sl.id === 'd-hallazgos' || sl.dataset.base === 'd-hallazgos')) numerar(); }, 400);
   addEventListener('load', () => setTimeout(numerar, 600)); addEventListener('beforeprint', numerar);
 })();
+
+/* Riesgos críticos OPT: barras de avance en las celdas %, fechas vencidas y filas que entran animadas */
+(function () {
+  const D = window.DECK; if (!D) return;
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esR = sl => /^r-(cia|eecc|maestro|present)$/.test(sl.id) || /^r-(cia|eecc|maestro|present)$/.test(sl.dataset.base || '');
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  function pintar(sl, desde0) {
+    $$('td.pc', sl).forEach(td => {
+      const v = Math.max(0, Math.min(100, parseFloat((td.textContent || '').replace(',', '.')) || 0));
+      td.classList.add('rp-bar'); if (!/\d/.test(td.textContent || '')) { td.dataset.lv = 'na'; td.style.setProperty('--p', 0); return; } td.dataset.lv = v >= 100 ? 2 : v >= 50 ? 1 : 0;
+      td.style.setProperty('--pc', v >= 100 ? '#1f9d5c' : v >= 50 ? '#e6a316' : '#d23c3c');
+      if (desde0) { td.style.setProperty('--p', 0); requestAnimationFrame(() => requestAnimationFrame(() => td.style.setProperty('--p', v / 100))); }
+      else td.style.setProperty('--p', v / 100);
+    });
+    $$('td.due', sl).forEach(td => {
+      const m = (td.textContent || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); const tr = td.closest('tr');
+      const pc = tr && tr.querySelector('td.pc:last-child'); const ok = pc && parseFloat(pc.textContent) >= 100;
+      let late = false; if (m) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; late = new Date(y, m[2] - 1, m[1]) < hoy; }
+      td.classList.toggle('rp-late', late && !ok);
+    });
+  }
+  function entrar(sl) {
+    pintar(sl, !D.editing());
+    if (D.editing() || !window.gsap) return;
+    const rows = $$('.tbx table.tt tbody tr', sl);
+    gsap.fromTo(rows, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .55, ease: 'power3.out', stagger: .09, delay: .35, clearProps: 'transform,opacity' });
+  }
+  $$('.slide').filter(esR).forEach(sl => {
+    D.on(sl.id, 'enter', entrar); D.on(sl.id, 'edited', s => pintar(s, false)); pintar(sl, false);
+    sl.addEventListener('input', () => pintar(sl, false));
+  });
+})();
