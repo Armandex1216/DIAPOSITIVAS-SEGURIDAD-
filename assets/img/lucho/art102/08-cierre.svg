@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400">
+<style>
+text{font-family:'Montserrat','Segoe UI','Arial Black',Arial,sans-serif}
+.in{animation:in .7s cubic-bezier(.2,.8,.2,1) both}
+.chip{animation:chip .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes chip{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+.ic{transform-origin:200px 200px;animation:pop .8s cubic-bezier(.2,.8,.2,1) both}
+</style>
+<g class="ic"><circle cx="200" cy="200" r="170" fill="#fff" stroke="#c39531" stroke-width="6"/><circle cx="200" cy="200" r="150" fill="#3a8f5c" opacity=".08"/>
+<path d="M200 70 L300 110 V200 C300 270 250 315 200 335 C150 315 100 270 100 200 V110 Z" fill="#1a1917" stroke="#c39531" stroke-width="8"/>
+<path d="M150 205 L188 243 L258 165" fill="none" stroke="#7CFF9A" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="190" stroke-dashoffset="190"><animate attributeName="stroke-dashoffset" values="190;0;0;190" keyTimes="0;.3;.85;1" dur="3.5s" repeatCount="indefinite"/></path>
+<path d="M200 70 L300 110 V200 C300 270 250 315 200 335 C150 315 100 270 100 200 V110 Z" fill="none" stroke="#c39531" stroke-width="4"><animate attributeName="stroke-width" values="4;14;4" dur="1.75s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;.2;.9" dur="1.75s" repeatCount="indefinite"/></path></g>
+<g class="in" style="animation-delay:.15s"><rect x="430" y="40" width="169" height="38" rx="8" fill="#3a8f5c"/><text x="442" y="67" font-size="20" font-weight="800" fill="#fff" letter-spacing="1.5">EN RESUMEN</text></g>
+<text class="in" style="animation-delay:.25s" x="430" y="140" font-size="50" font-weight="900" fill="#1a1917">Mide y protégete</text>
+<text class="in" style="animation-delay:.35s" x="432" y="188" font-size="24" font-weight="600" fill="#6b6457">Lo que no se mide, no se controla</text>
+<g class="chip" style="animation-delay:0.5s"><rect x="430" y="228" width="505" height="42" rx="21" fill="#fff" stroke="#3a8f5c" stroke-width="2.5"/>
+<circle cx="452" cy="249" r="9" fill="#3a8f5c"/><path d="M447 249 l4 4 l7 -8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="472" y="257" font-size="21" font-weight="700" fill="#1a1917">Respeta las señales y el monitoreo</text></g><g class="chip" style="animation-delay:0.85s"><rect x="430" y="282" width="505" height="42" rx="21" fill="#fff" stroke="#3a8f5c" stroke-width="2.5"/>
+<circle cx="452" cy="303" r="9" fill="#3a8f5c"/><path d="M447 303 l4 4 l7 -8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="472" y="311" font-size="21" font-weight="700" fill="#1a1917">Usa tu EPP: oídos, abrigo, lámpara</text></g><g class="chip" style="animation-delay:1.2s"><rect x="430" y="336" width="430" height="42" rx="21" fill="#fff" stroke="#3a8f5c" stroke-width="2.5"/>
+<circle cx="452" cy="357" r="9" fill="#3a8f5c"/><path d="M447 357 l4 4 l7 -8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="472" y="365" font-size="21" font-weight="700" fill="#1a1917">Si notas algo raro, REPORTA</text></g>
+</svg>

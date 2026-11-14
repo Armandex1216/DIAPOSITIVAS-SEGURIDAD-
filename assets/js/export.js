@@ -73,8 +73,9 @@
       else if (blob) { const name = `${fileBase()}_video_${slug(k)}.${/webm/.test(blob.type) ? 'webm' : 'mp4'}`; extra.push([blob, name]); mv[k] = name; }
       else if (link) vids.push({ k, missing: true }); }
     html = await inlineImages(html);
+    let voz = {}; if (D.lucho && D.lucho.bundle) { prog('Guardando la voz de Lucho…', 90); try { voz = await D.lucho.bundle(); } catch (e) { } }
     const ico = await dataURL('assets/icons/favicon.svg');
-    const pre = `<link rel="icon" href="${ico || ''}"><script>document.documentElement.classList.add('offline-pkg');window.DECK_OFFLINE=true;window.DECK_EDITS={${JSON.stringify(id)}:${JSON.stringify(st).replace(/</g, '\\u003c')}};</script>` +
+    const pre = `<link rel="icon" href="${ico || ''}"><script>document.documentElement.classList.add('offline-pkg');window.DECK_OFFLINE=true;window.DECK_EDITS={${JSON.stringify(id)}:${JSON.stringify(st).replace(/</g, '\\u003c')}};window.LUCHO_AUDIO=${JSON.stringify(voz)};</script>` +
       vids.filter(v => v.b64).map(v => `<script type="text/plain" id="vid-${v.k}">${v.b64}</script><script>(function(){try{var s=document.getElementById(${JSON.stringify('vid-' + v.k)}),b=atob(s.textContent),n=b.length,a=new Uint8Array(n);for(var i=0;i<n;i++)a[i]=b.charCodeAt(i);s.remove();var m=window.DECK_EDITS[${JSON.stringify(id)}].meta;m.videos=m.videos||{};m.videos[${JSON.stringify(v.k)}]=URL.createObjectURL(new Blob([a],{type:${JSON.stringify(v.type)}}));}catch(e){console.warn(e)}})();</script>`).join('');
     html = html.replace(/<body([^>]*)>/, m => m + pre);
     prog('Listo, descargando…', 98);
