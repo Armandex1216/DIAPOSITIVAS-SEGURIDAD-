@@ -24,7 +24,7 @@
     //    Se guarda en el equipo (IndexedDB) y dentro del archivo descargado: después funciona sin internet.
     // 2) Si no hay internet ni audio guardado, usa la voz del navegador / Windows.
     const NEURAL = [['es-PE-AlexNeural', 'Alex · Perú'], ['es-PE-CamilaNeural', 'Camila · Perú'], ['es-MX-JorgeNeural', 'Jorge · México'], ['es-CO-GonzaloNeural', 'Gonzalo · Colombia'], ['es-US-AlonsoNeural', 'Alonso · Latino'], ['es-ES-AlvaroNeural', 'Álvaro · España']];
-    const useNeural = () => { const v = cfg().voz || ''; return !v || v.startsWith('n:'); };
+    const useNeural = () => true; // siempre la voz natural; la del equipo solo si no hay internet ni audio guardado
     const nVoice = () => { const v = cfg().voz || ''; return v.startsWith('n:') ? v.slice(2) : 'es-PE-AlexNeural'; };
     let voices = [];
     const loadVoices = () => { voices = SS ? SS.getVoices().filter(v => /^es(-|_|$)/i.test(v.lang)) : []; };
@@ -137,7 +137,8 @@
       const mark = k => { const g = grp[Math.max(0, Math.min(words.length - 1, k))]; sl.querySelectorAll('.lv-sub span').forEach((x, j) => { x.classList.toggle('dicho', j <= k); x.classList.toggle('now', j === k && k < words.length); x.classList.toggle('off', grp[j] !== g); }); };
       const m = miner(sl);
       if (useNeural()) { let o = null; try { o = await getAudio(c); } catch (e) { }
-        if (o && run && run.token === token) { paint(); return sayAudio(o, words, mark, m, token); } }
+        if (o && run && run.token === token) { paint(); return sayAudio(o, words, mark, m, token); } 
+        if (!o && !warned) { warned = true; D.toast && D.toast('⚠️ No se pudo cargar la voz natural (¿sin internet?). Se usa la voz de este equipo.', 6000); } }
       paint(); return sayBrowser(frase, words, mark, m, token, c);
     }
     // voz natural: un solo audio por bloque (fluido); subtítulos y boca siguen las palabras que marca el audio
@@ -157,7 +158,7 @@
       });
     }
     // el navegador no deja sonar audio hasta que la persona toque la página una vez: se muestra un botón grande
-    let tapBtn = null;
+    let tapBtn = null, warned = false;
     function askTap(go) {
       if (tapBtn) tapBtn.remove(); const lv = run && run.sl.querySelector('.lv'); if (!lv) return go();
       tapBtn = document.createElement('button'); tapBtn.className = 'lv-tap'; tapBtn.innerHTML = '🔊 Toque aquí para escuchar al Ingeniero';
@@ -171,7 +172,7 @@
         if (!SS || !voices.length && !SS.getVoices().length) { // sin voz en este equipo: subtítulos al ritmo de lectura
           let k = 0; const iv = setInterval(() => { if (!run || run.token !== token) { clearInterval(iv); return done(); } if (run.paused) return; mark(k++); m && m.word && m.word(); if (k > words.length) { clearInterval(iv); setTimeout(done, 250); } }, 300); return;
         }
-        const u = new SpeechSynthesisUtterance(frase); const v = useNeural() ? voices.slice().sort((a, b) => score(b) - score(a))[0] : pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-PE';
+        const u = new SpeechSynthesisUtterance(frase); const v = voices.slice().sort((a, b) => score(b) - score(a))[0]; if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-PE';
         u.rate = Math.max(.5, Math.min(2, (+cfg().vel || 1) * (opt.r || 1))); u.pitch = Math.max(.4, Math.min(1.8, opt.p || .92));
         let guard = setTimeout(fin, 1500 + frase.length * 120);
         const offs = []; { let c = 0; words.forEach(w => { offs.push(c); c += w.length + 1; }); }
@@ -214,9 +215,9 @@
 
     /* ---------- panel del guion (modo edición) ---------- */
     let panel = null;
-    function paintVoices() { if (!panel) return; const sel = panel.querySelector('.lp-voz'), want = cfg().voz || 'n:es-PE-AlexNeural';
+    function paintVoices() { if (!panel) return; const sel = panel.querySelector('.lp-voz'), want = /^n:/.test(cfg().voz || '') ? cfg().voz : 'n:es-PE-AlexNeural';
       sel.innerHTML = `<optgroup label="🎙 Voz natural (recomendada, fluida)">${NEURAL.map(([id, n]) => `<option value="n:${id}" ${want === 'n:' + id ? 'selected' : ''}>${n} · natural</option>`).join('')}</optgroup>` +
-        (voices.length ? `<optgroup label="Voces de este equipo (más robóticas, sin internet)">${voices.map(v => `<option value="${esc(v.name)}" ${v.name === want ? 'selected' : ''}>${esc(v.name)} · ${v.lang}</option>`).join('')}</optgroup>` : ''); }
+''; }
     function openPanel(sl) {
       if (panel) panel.remove(); stop();
       panel = document.createElement('div'); panel.className = 'lp'; panel.setAttribute('data-noedit', '');
