@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 2881a00bb4 */
-const VERSION = '2881a00bb4';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 0ff6e4ffad */
+const VERSION = '0ff6e4ffad';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -11,8 +11,11 @@ const FILES = [
 "gum-octubre-2026.html",
 "gum.html",
 "index.html",
+"requirements.txt",
 "riesgos-corp.html",
 "riesgos-opt.html",
+"api/tts.py",
+"api/__pycache__/tts.cpython-313.pyc",
 "assets/css/deck.css",
 "assets/css/tpl.css",
 "assets/fonts/montserrat-latin-400-normal.woff2",
@@ -59,6 +62,14 @@ const FILES = [
 "assets/img/diario/2026-11-12/momento-2.jpg",
 "assets/img/diario/2026-11-13/hallazgo-1.jpg",
 "assets/img/diario/2026-11-13/hallazgo-2.jpg",
+"assets/img/lucho/art102/01-intro.svg",
+"assets/img/lucho/art102/02-monitorear.svg",
+"assets/img/lucho/art102/03-ruido.svg",
+"assets/img/lucho/art102/04-temperatura.svg",
+"assets/img/lucho/art102/05-vibracion.svg",
+"assets/img/lucho/art102/06-iluminacion.svg",
+"assets/img/lucho/art102/07-radiacion.svg",
+"assets/img/lucho/art102/08-cierre.svg",
 "assets/img/riesgos/2026-11-14/dinamica.jpg",
 "assets/img/riesgos/2026-11-14/momento.jpg",
 "assets/img/riesgos/2026-11-14/portada.jpg",

@@ -417,7 +417,7 @@
   const BASE = (document.currentScript && document.currentScript.src || '').replace(/assets\/js\/deck\.js.*$/, '') || '';
   D.root = BASE; D.vBlob = k => vGet((body.dataset.deck || '') + ':' + (new URLSearchParams(location.search).get('d') || '') + ':' + k).catch(() => null);
   D.loadScript = src => new Promise((ok, ko) => { if (document.querySelector(`script[data-lz="${src}"]`)) return ok(); const sc = document.createElement('script'); sc.src = BASE + src; sc.dataset.lz = src; sc.onload = ok; sc.onerror = () => ko(new Error('No se pudo cargar ' + src)); document.head.appendChild(sc); });
-  const openDownloads = () => D.loadScript('assets/js/export.js?v=3').then(() => D.exportMenu()).catch(e => toast('No se pudo abrir las descargas: ' + e.message, 5000));
+  const openDownloads = () => D.loadScript('assets/js/export.js?v=4').then(() => D.exportMenu()).catch(e => toast('No se pudo abrir las descargas: ' + e.message, 5000));
 
   /* ---------- arranque ---------- */
   /* ---------- comentarios oscuros (.insight): ocultar / mostrar en modo edición ---------- */

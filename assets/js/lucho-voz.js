@@ -1,5 +1,5 @@
 /* ==========================================================
-   Lucho explica el decreto con voz (gratis: la voz del propio navegador / Windows, sin internet y sin gastar la nube).
+   Lucho explica el decreto con voz natural (gratis, sin cuentas; queda guardada para usarla sin internet y no gasta la nube).
    Guion por partes: cada parte = texto que Lucho lee + (opcional) una imagen que aparece mientras lo dice.
    Se guarda en store.meta.lucho = { voz, vel, esc: [{ id, t }] } y las imágenes en store.images['lucho-<id>'].
    ========================================================== */
@@ -20,6 +20,12 @@
     const save = (() => { let t; return () => { clearTimeout(t); t = setTimeout(() => D.persist(), 350); }; })();
 
     /* ---------- voces ---------- */
+    // 1) Voz NATURAL (neural, la misma «Alex Perú» de Edge) generada en /api/tts: suena fluida en cualquier navegador.
+    //    Se guarda en el equipo (IndexedDB) y dentro del archivo descargado: después funciona sin internet.
+    // 2) Si no hay internet ni audio guardado, usa la voz del navegador / Windows.
+    const NEURAL = [['es-PE-AlexNeural', 'Alex · Perú'], ['es-PE-CamilaNeural', 'Camila · Perú'], ['es-MX-JorgeNeural', 'Jorge · México'], ['es-CO-GonzaloNeural', 'Gonzalo · Colombia'], ['es-US-AlonsoNeural', 'Alonso · Latino'], ['es-ES-AlvaroNeural', 'Álvaro · España']];
+    const useNeural = () => { const v = cfg().voz || ''; return !v || v.startsWith('n:'); };
+    const nVoice = () => { const v = cfg().voz || ''; return v.startsWith('n:') ? v.slice(2) : 'es-PE-AlexNeural'; };
     let voices = [];
     const loadVoices = () => { voices = SS ? SS.getVoices().filter(v => /^es(-|_|$)/i.test(v.lang)) : []; };
     if (SS) { loadVoices(); SS.addEventListener && SS.addEventListener('voiceschanged', () => { loadVoices(); paintVoices(); }); }
@@ -28,24 +34,48 @@
     const score = v => (/es[-_]PE/i.test(v.lang) ? 100 : 0) + (MALE.test(v.name) ? 40 : 0) + (/natural|online|neural/i.test(v.name) ? 30 : 0) + (10 - Math.max(0, PREF.indexOf(v.lang.replace('_', '-')) < 0 ? 9 : PREF.indexOf(v.lang.replace('_', '-')))) + (v.localService ? 3 : 0);
     const pickVoice = () => { const want = cfg().voz; return voices.find(v => v.name === want) || voices.slice().sort((a, b) => score(b) - score(a))[0] || null; };
 
+    /* ---------- audio natural: pedir, guardar y reutilizar ---------- */
+    const MEM = window.LUCHO_AUDIO = window.LUCHO_AUDIO || {}; // en el archivo descargado ya viene lleno
+    const API = []; if (/^https?:$/.test(location.protocol) && !/github\.io$/.test(location.hostname)) API.push((D.root || '') + 'api/tts'); API.push('https://diapositivas-seguridad.vercel.app/api/tts');
+    let idb = null; const db = () => idb || (idb = new Promise(ok => { try { const r = indexedDB.open('lucho-voz', 1); r.onupgradeneeded = () => r.result.createObjectStore('a'); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } }));
+    const idbGet = async k => { const d = await db(); if (!d) return null; return new Promise(ok => { try { const q = d.transaction('a').objectStore('a').get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); } catch (e) { ok(null); } }); };
+    const idbPut = async (k, v) => { const d = await db(); if (!d) return; try { d.transaction('a', 'readwrite').objectStore('a').put(v, k); } catch (e) { } };
+    let downUntil = 0; const pend = {};
+    const pct = x => (x >= 0 ? '+' : '') + Math.round(x) + '%', hz = x => (x >= 0 ? '+' : '') + Math.round(x) + 'Hz';
+    const nParams = c => ({ v: nVoice(), r: pct(Math.max(-30, Math.min(45, ((1 + c.nr / 100) * (+cfg().vel || 1) - 1) * 100))), p: hz(c.np), t: c.t });
+    const keyOf = q => q.v + '|' + q.r + '|' + q.p + '|' + q.t;
+    function getAudio(c) {
+      const q = nParams(c), k = keyOf(q); if (MEM[k]) return Promise.resolve(MEM[k]); if (pend[k]) return pend[k];
+      return pend[k] = (async () => {
+        const hit = await idbGet(k); if (hit) return MEM[k] = hit;
+        if (Date.now() < downUntil || navigator.onLine === false) throw new Error('sin internet');
+        let err; for (const base of API) for (let n = 0; n < 2; n++) {
+          try { const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`); if (r.status === 404) break;
+            if (!r.ok) throw new Error('voz ' + r.status); const j = await r.json(); if (!j.a) throw new Error('sin audio');
+            const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } }
+        downUntil = Date.now() + 45000; throw err || new Error('voz no disponible');
+      })().finally(() => { delete pend[k]; });
+    }
+    // deja listo todo el guion (al entrar a la lámina, al cerrar el panel y antes de descargar)
+    const allChunks = () => cfg().esc.flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
+    async function prefetch(list = allChunks()) { if (!useNeural()) return 0; let ok = 0, i = 0;
+      await Promise.all([0, 1, 2, 3].map(async () => { while (i < list.length) { const c = list[i++]; try { await getAudio(c); ok++; } catch (e) { } } })); return ok; }
+
     /* ---------- reproducción ---------- */
     const miner = sl => { const m = sl.querySelector('.miner'); return m && m._miner; };
     let run = null; // { sl, i, token }
-    // tonos: cambian velocidad, tono de voz y gestos de Lucho (funciona con cualquier voz, sin cuentas)
-    const TONOS = { normal: { n: 'Normal', r: 1.06, p: .95, g: 'point' }, emocionado: { n: '🔥 Emocionado', r: 1.16, p: 1.12, g: 'explain' }, serio: { n: '⚠️ Serio / advertencia', r: .98, p: .84, g: 'point' },
-      charla: { n: '😄 Charla', r: 1.12, p: 1, g: 'explain' }, calma: { n: '🙂 Calmado', r: 1, p: .92, g: 'listen' } };
-    // marcas: *palabra* = énfasis (la voz neural lo marca sola con la puntuación) · [pausa] = pausa corta · ¡…! más energía · ¿…? pregunta
-    // se habla en bloques largos: cada corte agrega espera con las voces en línea, por eso solo se corta en [pausa]
+    const au = new Audio(); au.preload = 'auto';
+    // tonos: velocidad y tono de voz (natural: nr % / np Hz · navegador: r / p) y gesto de Lucho
+    const TONOS = { normal: { n: 'Normal', nr: 8, np: 0, r: 1.06, p: .95, g: 'point' }, emocionado: { n: '🔥 Emocionado', nr: 15, np: 4, r: 1.16, p: 1.12, g: 'explain' },
+      serio: { n: '⚠️ Serio / advertencia', nr: 2, np: -4, r: .98, p: .84, g: 'point' }, charla: { n: '😄 Charla', nr: 12, np: 2, r: 1.12, p: 1, g: 'explain' }, calma: { n: '🙂 Calmado', nr: 3, np: -2, r: 1, p: .92, g: 'listen' } };
+    // marcas: *palabra* = énfasis · [pausa] = pausa corta · ¡…! más energía · ¿…? pregunta. Solo se corta en [pausa]: así suena de corrido.
     const chunks = (txt, tono) => { const T = TONOS[tono] || TONOS.normal, out = [];
       String(txt || '').replace(/\s+/g, ' ').split(/\[pausa\]/i).forEach((blk, bi, arr) => {
         const t = blk.replace(/\*([^*]+)\*/g, '$1').replace(/^[,;:\s]+/, '').trim(); if (!t) return;
         const ex = /[¡!]/.test(t) ? 1.04 : 1;
-        // bloques de hasta ~220 letras (las voces en línea cortan los textos muy largos)
-        const ps = (t.match(/[^.!?]+[.!?]*\s*/g) || [t]).reduce((a, x) => { if (a.length && (a[a.length - 1] + x).length < 220) a[a.length - 1] += x; else a.push(x); return a; }, []);
-        ps.forEach((x, k) => out.push({ t: x.trim(), r: T.r * (ex > 1 ? 1.03 : 1), p: T.p * ex, pause: k === ps.length - 1 && bi < arr.length - 1 ? 260 : 0 })); });
+        const ps = (t.match(/[^.!?]+[.!?]*\s*/g) || [t]).reduce((a, x) => { if (a.length && (a[a.length - 1] + x).length < 900) a[a.length - 1] += x; else a.push(x); return a; }, []);
+        ps.forEach((x, k) => out.push({ t: x.trim(), nr: T.nr, np: T.np, r: T.r * (ex > 1 ? 1.03 : 1), p: T.p * ex, pause: k === ps.length - 1 && bi < arr.length - 1 ? 220 : 0 })); });
       return out; };
-    const parts = txt => (String(txt || '').replace(/\s+/g, ' ').trim().match(/[^.!?;:]+[.!?;:]*\s*/g) || []).map(x => x.trim()).filter(Boolean)
-      .reduce((a, x) => { if (a.length && (a[a.length - 1].length < 40 || x.length < 12)) a[a.length - 1] += ' ' + x; else a.push(x); return a; }, []);
 
     async function showScene(sl, i) {
       const lv = sl.querySelector('.lv'), esc = cfg().esc[i]; if (!lv) return;
@@ -59,41 +89,66 @@
     const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
     function stop(keepUI) {
-      if (!run) return; const { sl } = run; run = null; try { SS && SS.cancel(); } catch (e) { }
+      if (!run) return; const { sl } = run; run = null; try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
       const m = miner(sl); m && m.talk && m.talk(false);
       const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar a Lucho'; }
       if (!keepUI) setSub(sl, '');
     }
     const voicesReady = () => new Promise(ok => { if (!SS) return ok(); loadVoices(); if (voices.length) return ok(); let n = 0; const iv = setInterval(() => { loadVoices(); if (voices.length || ++n > 30) { clearInterval(iv); ok(); } }, 100); });
     async function play(sl, from = 0) {
-      await voicesReady();
       stop(true); const list = cfg().esc.filter(e => (e.t || '').trim()); if (!list.length) { D.toast && D.toast('Primero escriba el guion de Lucho (✎ Editar → 🎙 Escribir el guion)'); return; }
       const token = {}; run = { sl, i: from, token };
       const lv = sl.querySelector('.lv'); lv.classList.add('playing'); lv.classList.remove('paused'); lv.querySelector('.lv-play').textContent = '⏸ Pausa';
       const m = miner(sl); m && m.talk && m.talk(true, 'point');
+      const rest = cfg().esc.slice(from).flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
+      if (useNeural()) { const first = rest[0] && getAudio(rest[0]).catch(() => null); setSub(sl, '<i>Lucho se está preparando…</i>'); prefetch(rest); await first; }
+      else await voicesReady();
       for (let i = from; i < cfg().esc.length; i++) {
         if (!run || run.token !== token) return; run.i = i;
         const e = cfg().esc[i]; if (!(e.t || '').trim()) continue;
         await showScene(sl, i); m && m.gesture && m.gesture((TONOS[e.tono] || TONOS.normal).g || (i % 2 ? 'explain' : 'point'));
-        for (const c of chunks(e.t, e.tono)) { if (!run || run.token !== token) return; await say(sl, c.t, token, c); if (c.pause) await wait(c.pause); }
-        await wait(120);
+        for (const c of chunks(e.t, e.tono)) { if (!run || run.token !== token) return; await say(sl, c, token); if (c.pause) await wait(c.pause); }
+        await wait(80);
       }
       if (run && run.token === token) { stop(true); setSub(sl, '<i>Fin de la explicación · ▶ para escucharla de nuevo</i>'); }
     }
-    const wait = ms => new Promise(r => setTimeout(r, ms));
-    function say(sl, frase, token, opt = {}) {
+    const wait = ms => new Promise(r => { const t0 = Date.now(), tick = () => (run && run.paused) ? setTimeout(tick, 100) : Date.now() - t0 >= ms ? r() : setTimeout(tick, 30); tick(); });
+    const norm = w => String(w).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ]/g, '');
+    async function say(sl, c, token) {
+      const frase = c.t, words = frase.split(' ');
+      // subtítulos por renglones (~13 palabras o fin de frase): se ve solo el renglón que Lucho está diciendo
+      const grp = []; { let g = 0, n = 0; words.forEach(w => { grp.push(g); n++; if (n >= 13 || (n >= 5 && /[.!?…]$/.test(w))) { g++; n = 0; } }); }
+      const paint = () => setSub(sl, words.map((w, k) => `<span data-w="${k}" class="${grp[k] ? 'off' : ''}">${esc(w)}</span>`).join(' '));
+      const mark = k => { const g = grp[Math.max(0, Math.min(words.length - 1, k))]; sl.querySelectorAll('.lv-sub span').forEach((x, j) => { x.classList.toggle('dicho', j <= k); x.classList.toggle('off', grp[j] !== g); }); };
+      const m = miner(sl);
+      if (useNeural()) { let o = null; try { o = await getAudio(c); } catch (e) { }
+        if (o && run && run.token === token) { paint(); return sayAudio(o, words, mark, m, token); } }
+      paint(); return sayBrowser(frase, words, mark, m, token, c);
+    }
+    // voz natural: un solo audio por bloque (fluido); subtítulos y boca siguen las palabras que marca el audio
+    function sayAudio(o, words, mark, m, token) {
       return new Promise(done => {
-        const words = frase.split(' '); setSub(sl, words.map((w, k) => `<span data-w="${k}">${esc(w)}</span>`).join(' '));
-        const mark = k => { const s = sl.querySelectorAll('.lv-sub span'); s.forEach((x, j) => x.classList.toggle('dicho', j <= k)); };
-        const m = miner(sl);
+        // emparejar cada palabra del audio con la palabra escrita
+        const at = []; let j = 0; o.w.forEach(([t, , txt]) => { const n = norm(txt); let f = -1; for (let s = j; s < Math.min(words.length, j + 4); s++) if (n && norm(words[s]).includes(n)) { f = s; break; } if (f < 0) f = Math.min(words.length - 1, j); at.push([t, f]); j = f + 1; });
+        let raf = 0, last = -1, fin = false;
+        const tick = () => { if (fin) return; const ms = au.currentTime * 1000; let k = -1; for (const [t, f] of at) { if (t <= ms + 40) k = f; else break; } if (k !== last) { last = k; mark(k); m && m.word && m.word(); } raf = requestAnimationFrame(tick); };
+        const end = () => { if (fin) return; fin = true; cancelAnimationFrame(raf); au.onended = au.onerror = null; mark(words.length); done(); };
+        au.onended = end; au.onerror = end; au.src = o.a; au.playbackRate = 1;
+        if (!run || run.token !== token) return end();
+        const p = au.play(); p && p.catch(() => { D.toast && D.toast('Toque ▶ para que Lucho hable (el navegador pide un clic primero)'); end(); });
+        raf = requestAnimationFrame(tick);
+      });
+    }
+    function sayBrowser(frase, words, mark, m, token, opt) {
+      return new Promise(done => {
         if (!SS || !voices.length && !SS.getVoices().length) { // sin voz en este equipo: subtítulos al ritmo de lectura
-          let k = 0; const iv = setInterval(() => { if (!run || run.token !== token) { clearInterval(iv); return done(); } mark(k++); m && m.word && m.word(); if (k > words.length) { clearInterval(iv); setTimeout(done, 250); } }, 330); return;
+          let k = 0; const iv = setInterval(() => { if (!run || run.token !== token) { clearInterval(iv); return done(); } if (run.paused) return; mark(k++); m && m.word && m.word(); if (k > words.length) { clearInterval(iv); setTimeout(done, 250); } }, 300); return;
         }
-        const u = new SpeechSynthesisUtterance(frase); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-PE';
+        const u = new SpeechSynthesisUtterance(frase); const v = useNeural() ? voices.slice().sort((a, b) => score(b) - score(a))[0] : pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-PE';
         u.rate = Math.max(.5, Math.min(2, (+cfg().vel || 1) * (opt.r || 1))); u.pitch = Math.max(.4, Math.min(1.8, opt.p || .92));
-        let pos = 0, guard = setTimeout(fin, 1500 + frase.length * 120);
+        let guard = setTimeout(fin, 1500 + frase.length * 120);
         const offs = []; { let c = 0; words.forEach(w => { offs.push(c); c += w.length + 1; }); }
-        u.onboundary = ev => { if (ev.name && ev.name !== 'word') return; let k = 0; while (k + 1 < offs.length && offs[k + 1] <= ev.charIndex) k++; pos = k; mark(k); m && m.word && m.word(); };
+        u.onboundary = ev => { if (ev.name && ev.name !== 'word') return; let k = 0; while (k + 1 < offs.length && offs[k + 1] <= ev.charIndex) k++; mark(k); m && m.word && m.word(); };
         u.onstart = () => { m && m.word && m.word(); };
         function fin() { clearTimeout(guard); mark(words.length); done(); }
         u.onend = fin; u.onerror = fin;
@@ -102,8 +157,8 @@
     }
     function togglePause(sl) {
       if (!run) return play(sl, 0); const lv = sl.querySelector('.lv'), m = miner(sl);
-      if (lv.classList.toggle('paused')) { try { SS && SS.pause(); } catch (e) { } m && m.pause && m.pause(true); lv.querySelector('.lv-play').textContent = '▶ Continuar'; }
-      else { try { SS && SS.resume(); } catch (e) { } m && m.pause && m.pause(false); lv.querySelector('.lv-play').textContent = '⏸ Pausa'; }
+      if (lv.classList.toggle('paused')) { run.paused = true; try { SS && SS.pause(); } catch (e) { } try { au.pause(); } catch (e) { } m && m.pause && m.pause(true); lv.querySelector('.lv-play').textContent = '▶ Continuar'; }
+      else { run.paused = false; try { SS && SS.resume(); } catch (e) { } if (au.src && au.paused && au.onended) au.play().catch(() => { }); m && m.pause && m.pause(false); lv.querySelector('.lv-play').textContent = '⏸ Pausa'; }
     }
 
     /* ---------- controles en la lámina ---------- */
@@ -124,30 +179,36 @@
     // al entrar a la lámina Lucho empieza a hablar solo; al salir se calla
     let last = -1, autoT = 0;
     setInterval(() => { const i = D.i; if (i === last) return; last = i; clearTimeout(autoT); const sl = D.slides[i];
-      if (run && run.sl !== sl) stop(); if (slides.includes(sl) && !D.editing() && cfg().esc.some(e => (e.t || '').trim())) autoT = setTimeout(() => { if (D.slides[D.i] === sl && !D.editing() && !run) play(sl, 0); }, 1600); }, 250);
+      if (run && run.sl !== sl) stop(); if (slides.includes(sl) && cfg().esc.some(e => (e.t || '').trim())) prefetch();
+      if (slides.includes(sl) && !D.editing() && cfg().esc.some(e => (e.t || '').trim())) autoT = setTimeout(() => { if (D.slides[D.i] === sl && !D.editing() && !run) play(sl, 0); }, 1600); }, 250);
     new MutationObserver(() => { if (D.editing() && run) stop(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
     addEventListener('beforeprint', () => stop());
 
     /* ---------- panel del guion (modo edición) ---------- */
     let panel = null;
-    function paintVoices() { if (!panel) return; const sel = panel.querySelector('.lp-voz'), want = cfg().voz, best = pickVoice();
-      sel.innerHTML = voices.length ? voices.map(v => `<option value="${esc(v.name)}" ${(want ? v.name === want : best && v.name === best.name) ? 'selected' : ''}>${esc(v.name)} · ${v.lang}${v.localService ? '' : ' (con internet)'}</option>`).join('') : '<option value="">Este navegador no tiene voces en español</option>'; }
+    function paintVoices() { if (!panel) return; const sel = panel.querySelector('.lp-voz'), want = cfg().voz || 'n:es-PE-AlexNeural';
+      sel.innerHTML = `<optgroup label="🎙 Voz natural (recomendada, fluida)">${NEURAL.map(([id, n]) => `<option value="n:${id}" ${want === 'n:' + id ? 'selected' : ''}>${n} · natural</option>`).join('')}</optgroup>` +
+        (voices.length ? `<optgroup label="Voces de este equipo (más robóticas, sin internet)">${voices.map(v => `<option value="${esc(v.name)}" ${v.name === want ? 'selected' : ''}>${esc(v.name)} · ${v.lang}</option>`).join('')}</optgroup>` : ''); }
     function openPanel(sl) {
       if (panel) panel.remove(); stop();
       panel = document.createElement('div'); panel.className = 'lp'; panel.setAttribute('data-noedit', '');
       panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion de Lucho</b><span>Escriba lo que Lucho dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras Lucho la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
         <div class="lp-cfg"><label>Voz <select class="lp-voz"></select></label><label>Velocidad <input class="lp-vel" type="range" min=".7" max="1.3" step=".05"><em class="lp-velv"></em></label><button class="lp-test">🔊 Probar voz</button></div>
         <div class="lp-warn"></div><div class="lp-list"></div><div class="lp-ft"><button class="lp-add">＋ Agregar parte</button><button class="lp-play">▶ Escuchar todo</button><button class="lp-ok">Listo</button></div>
-        <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). Las voces de <b>Microsoft Edge</b> («Online (Natural)») suenan más naturales; las de Windows funcionan sin internet.</p></div>`;
+        <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). La <b>voz natural</b> se descarga una vez y queda guardada: luego Lucho habla aunque no haya señal (también en el archivo descargado).</p></div>`;
       document.body.appendChild(panel);
       const C = cfg(), list = panel.querySelector('.lp-list');
       if (!C.esc.length) C.esc.push({ id: uid(), t: '' });
       const vel = panel.querySelector('.lp-vel'); vel.value = C.vel || 1; panel.querySelector('.lp-velv').textContent = (+vel.value).toFixed(2) + '×';
       vel.oninput = () => { C.vel = +vel.value; panel.querySelector('.lp-velv').textContent = C.vel.toFixed(2) + '×'; save(); };
-      const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; const pe = voices.some(v => /es[-_]PE/i.test(v.lang)); w.innerHTML = pe ? '' : '⚠️ Este navegador no tiene la voz peruana <b>Alex (Perú)</b>. Abra la presentación en <b>Microsoft Edge</b> (con internet) para usarla.'; w.style.display = pe ? 'none' : 'block'; };
+      const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; w.style.display = 'none'; };
       voicesReady().then(() => { paintVoices(); warn(); });
       paintVoices(); panel.querySelector('.lp-voz').onchange = e => { C.voz = e.target.value; save(); };
-      panel.querySelector('.lp-test').onclick = () => { if (!SS) return D.toast('Este navegador no tiene voz'); SS.cancel(); const u = new SpeechSynthesisUtterance('¡Hola, equipo! Soy Lucho. Hoy les explico el reglamento, al toque.'); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } u.rate = (+C.vel || 1) * 1.1; u.pitch = 1; SS.speak(u); };
+      panel.querySelector('.lp-test').onclick = async () => { const t = '¡Hola, equipo! Soy Lucho, su compañero de seguridad. Hoy les explico el reglamento, al toque y bien clarito.';
+        try { SS && SS.cancel(); au.pause(); } catch (e) { }
+        if (useNeural()) { const b = panel.querySelector('.lp-test'); b.textContent = '⏳ Cargando voz…'; try { const o = await getAudio(chunks(t, 'charla')[0]); au.onended = null; au.src = o.a; au.play(); }
+          catch (e) { D.toast('No se pudo cargar la voz natural (¿sin internet?). Se usará la voz del equipo.', 5000); } b.textContent = '🔊 Probar voz'; return; }
+        if (!SS) return D.toast('Este navegador no tiene voz'); const u = new SpeechSynthesisUtterance(t); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } u.rate = (+C.vel || 1) * 1.1; u.pitch = 1; SS.speak(u); };
       const draw = () => { list.innerHTML = C.esc.map((e, i) => `<div class="lp-row" data-i="${i}"><div class="lp-num">${i + 1}</div><div class="lp-tx"><select class="lp-tono" title="Cómo lo dice Lucho">${Object.entries(TONOS).map(([k, t]) => `<option value="${k}" ${(e.tono || 'normal') === k ? 'selected' : ''}>${t.n}</option>`).join('')}</select><textarea placeholder="Lo que Lucho dirá en esta parte… (use *palabra* para resaltar, [pausa] para una pausa)">${esc(e.t || '')}</textarea></div>
           <div class="lp-img" tabindex="0" title="Clic para elegir, Ctrl+V para pegar o arrastre una imagen">${imgSrc(e.id) ? '<img>' : '<span>🖼 Imagen<br><small>clic · Ctrl+V · arrastrar</small></span>'}</div>
           <div class="lp-acts"><button data-a="up" title="Subir">↑</button><button data-a="down" title="Bajar">↓</button><button data-a="noimg" title="Quitar imagen">🚫🖼</button><button data-a="play" title="Escuchar desde aquí">▶</button><button data-a="del" title="Borrar parte">✕</button></div></div>`).join('');
@@ -173,13 +234,15 @@
       list.addEventListener('drop', e => { const row = e.target.closest('.lp-row'); if (!row) return; e.preventDefault(); e.stopPropagation(); putImg(+row.dataset.i, [...e.dataTransfer.files].find(f => /^image\//.test(f.type))); });
       panel.addEventListener('paste', e => { const it = [...(e.clipboardData || {}).items || []].find(x => x.type.startsWith('image/')); if (!it) return; e.preventDefault(); e.stopPropagation(); putImg(focusI, it.getAsFile()); }, true);
       panel.querySelector('.lp-add').onclick = () => { C.esc.push({ id: uid(), t: '' }); D.persist(); draw(); const ta = list.querySelectorAll('textarea'); ta[ta.length - 1].focus(); };
-      const close = () => { D.persist(); refresh(); panel.remove(); panel = null; };
+      const close = () => { D.persist(); refresh(); panel.remove(); panel = null; prefetch(); };
       panel.querySelector('.lp-x').onclick = close; panel.querySelector('.lp-ok').onclick = close;
       panel.querySelector('.lp-play').onclick = () => { close(); setTimeout(() => play(sl, 0), 300); };
       panel.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') close(); }, true);
       panel.addEventListener('pointerdown', e => e.stopPropagation());
       setTimeout(() => { const ta = list.querySelector('textarea'); ta && ta.focus(); }, 50);
     }
-    D.lucho = { play: () => play(slides[0], 0), stop, open: () => openPanel(slides[0]) };
+    // para la descarga: deja todo el audio del guion dentro del archivo (Lucho habla sin internet)
+    async function bundle() { const list = allChunks(); await prefetch(list); const out = {}; list.forEach(c => { const k = keyOf(nParams(c)); if (MEM[k]) out[k] = MEM[k]; }); return out; }
+    D.lucho = { play: () => play(slides[0], 0), stop, open: () => openPanel(slides[0]), prefetch: () => prefetch(), bundle };
   }
 })();
