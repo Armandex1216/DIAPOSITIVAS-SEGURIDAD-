@@ -377,7 +377,7 @@ body.editing .lv-empty{color:transparent}
 .slide .tbx table.tt td.pc.rp-bar{position:relative;font-weight:900;font-size:1.05em}
 .slide .tbx table.tt td.pc.rp-bar::after{content:"";position:absolute;left:12%;right:12%;bottom:12px;height:9px;border-radius:9px;background:#ebe6da}
 .slide .tbx table.tt td.pc.rp-bar::before{content:"";position:absolute;left:12%;bottom:12px;height:9px;border-radius:9px;z-index:1;width:calc(76% * var(--p,0));background:var(--pc,#d23c3c);box-shadow:0 0 12px -2px var(--pc,#d23c3c);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
-.slide .tbx table.tt td.pc.rp-bar[data-lv="0"]{color:#c0392b}.slide .tbx table.tt td.pc.rp-bar[data-lv="1"]{color:#c27a00}.slide .tbx table.tt td.pc.rp-bar[data-lv="2"]{color:#1f8a4c}.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]{color:#8a8577}.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]::before,.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]::after{display:none}
+.slide .tbx table.tt td.pc.rp-bar[data-lv="0"]{color:#8a8577}.slide .tbx table.tt td.pc.rp-bar[data-lv="1"]{color:#c27a00}.slide .tbx table.tt td.pc.rp-bar[data-lv="2"]{color:#1f8a4c}.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]{color:#8a8577}.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]::before,.slide .tbx table.tt td.pc.rp-bar[data-lv="na"]::after{display:none}
 .slide .tbx table.tt td.due.rp-late{color:#c0392b;font-weight:900;animation:rpLate 1.6s ease-in-out infinite}
 @keyframes rpLate{0%,100%{background:transparent}50%{background:rgba(210,60,60,.12)}}
 :is(#r-cia,#r-eecc,#r-maestro,[data-base="r-cia"],[data-base="r-eecc"],[data-base="r-maestro"]) h2.ttl-n::after{content:"";display:block;height:5px;width:0;margin:10px auto 0;border-radius:5px;background:linear-gradient(90deg,#f0a020,#ffd36b);animation:rpBar 1s cubic-bezier(.2,.8,.2,1) .4s forwards}
@@ -394,3 +394,10 @@ body.editing .lv-empty{color:transparent}
 :is(#r-present,[data-base="r-present"]) .rp-say::after{content:"";position:absolute;left:-6px;top:112px;width:14px;height:74px;background:#fff}
 .slide.active:is(#r-present,[data-base="r-present"]) .rp-say{animation:rpBob 3.2s ease-in-out 1.4s infinite}
 @keyframes rpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* las celdas de avance no se pintan enteras (sin bloques verdes/rojos): solo el número y su barrita */
+.slide .tbx table.tt tbody tr td.pc.rp-bar{background:#fff!important}
+.slide .tbx table.tt tbody tr:nth-child(even) td.pc.rp-bar{background:#f8f6f1!important}
+.slide .tbx table.tt tbody tr:hover td.pc.rp-bar{background:#fff4dc!important}
+:is(#r-cia,#r-eecc,#r-maestro,#r-present,[data-base="r-cia"],[data-base="r-eecc"],[data-base="r-maestro"],[data-base="r-present"]) .tbx table.tt td.due.c-bad{background:transparent;color:#c0392b}
+:is(#r-cia,#r-eecc,#r-maestro,#r-present,[data-base="r-cia"],[data-base="r-eecc"],[data-base="r-maestro"],[data-base="r-present"]) .tbx table.tt tbody tr:nth-child(even) td.due.c-bad{background:#f8f6f1}
