@@ -234,8 +234,7 @@
       const v = Math.max(0, Math.min(100, parseFloat((td.textContent || '').replace(',', '.')) || 0));
       td.classList.add('rp-bar'); if (!/\d/.test(td.textContent || '')) { td.dataset.lv = 'na'; td.style.setProperty('--p', 0); return; } td.dataset.lv = v >= 100 ? 2 : v > 0 ? 1 : 0;
       td.style.setProperty('--pc', v >= 100 ? '#1f9d5c' : '#e6a316');
-      if (desde0) { td.style.setProperty('--p', 0); requestAnimationFrame(() => requestAnimationFrame(() => td.style.setProperty('--p', v / 100))); }
-      else td.style.setProperty('--p', v / 100);
+      td.style.setProperty('--p', v / 100);
     });
     $$('td.due', sl).forEach(td => {
       const m = (td.textContent || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); const tr = td.closest('tr');
@@ -244,14 +243,31 @@
       td.classList.toggle('rp-late', late && !ok);
     });
   }
+  // sin parpadeo: las filas y barras se dejan "listas" (ocultas / en 0) cuando la lámina NO se ve, y al entrar solo aparecen
+  const filas = sl => $$('.tbx table.tt tbody tr', sl);
+  function preparar(sl, n = 0) {
+    if (D.editing()) return;
+    if (sl.classList.contains('active')) { if (sl.classList.contains('leaving') && n < 12) setTimeout(() => preparar(sl, n + 1), 300); return; }
+    if (window.gsap) gsap.set(filas(sl), { opacity: 0, x: 50 });
+    $$('td.pc.rp-bar', sl).forEach(td => { td.style.transition = 'none'; td.style.setProperty('--p', 0); });
+  }
+  function mostrar(sl) {
+    if (window.gsap) { gsap.killTweensOf(filas(sl)); gsap.set(filas(sl), { opacity: 1, x: 0, clearProps: 'transform,opacity' }); }
+    pintar(sl, false);
+  }
   function entrar(sl) {
-    pintar(sl, !D.editing());
-    if (D.editing() || !window.gsap) return;
-    const rows = $$('.tbx table.tt tbody tr', sl);
-    gsap.fromTo(rows, { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .55, ease: 'power3.out', stagger: .09, delay: .35, clearProps: 'transform,opacity' });
+    if (D.editing() || !window.gsap) return mostrar(sl);
+    if (sl._rpIn && Date.now() - sl._rpIn < 1600) return; sl._rpIn = Date.now(); // 'enter' puede llegar dos veces: una sola animación
+    const rows = filas(sl); gsap.killTweensOf(rows);
+    if (rows.some(r => getComputedStyle(r).opacity !== '0')) gsap.set(rows, { opacity: 0, x: 50 });
+    gsap.to(rows, { opacity: 1, x: 0, duration: .5, ease: 'power2.out', stagger: .07, delay: .25, clearProps: 'transform,opacity' });
+    $$('td.pc.rp-bar', sl).forEach(td => td.style.transition = '');
+    setTimeout(() => pintar(sl, false), 350);
   }
   $$('.slide').filter(esR).forEach(sl => {
-    D.on(sl.id, 'enter', entrar); D.on(sl.id, 'edited', s => pintar(s, false)); pintar(sl, false);
+    pintar(sl, false); preparar(sl);
+    D.on(sl.id, 'enter', entrar); D.on(sl.id, 'edit', mostrar); D.on(sl.id, 'edited', s => pintar(s, false));
+    D.on(sl.id, 'leave', s => { s._rpIn = 0; setTimeout(() => preparar(s), 700); });
     sl.addEventListener('input', () => pintar(sl, false));
   });
 })();
