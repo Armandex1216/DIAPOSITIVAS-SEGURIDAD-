@@ -354,8 +354,8 @@ body.editing .lv-empty{color:transparent}
 :is(#r-portada,[data-base="r-portada"]) .cover-band.gray .dt{display:inline-block;align-self:flex-start;margin-top:18px;padding:8px 22px;border-radius:40px;background:#f0a020;color:#1a1917;font-size:34px;box-shadow:0 10px 24px -10px rgba(240,160,32,.8)}
 :is(#r-portada,[data-base="r-portada"]) .rp-logo{position:absolute;left:90px;top:70px;height:120px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}
 :is(#r-portada,[data-base="r-portada"]) .rp-deco{position:absolute;inset:0;pointer-events:none}
-:is(#r-portada,[data-base="r-portada"]) .rp-tape{position:absolute;right:-80px;top:-8px;width:760px;height:40px;transform:rotate(-3deg);background:repeating-linear-gradient(-45deg,#f0c020 0 34px,#1a1917 34px 68px);background-size:96px 46px;animation:rpTape 2.4s linear infinite;box-shadow:0 12px 30px -10px rgba(0,0,0,.6);opacity:.95}
-@keyframes rpTape{to{background-position:96px 0}}
+:is(#r-portada,[data-base="r-portada"]) .rp-tape{position:absolute;left:0;right:0;top:0;height:30px;background:repeating-linear-gradient(-45deg,#f0c020 0 30px,#1a1917 30px 60px);background-size:84.85px 30px;animation:rpTape 2.4s linear infinite;box-shadow:0 8px 20px -8px rgba(0,0,0,.6)}
+@keyframes rpTape{to{background-position:84.85px 0}}
 :is(#r-portada,[data-base="r-portada"]) .rp-ring{position:absolute;right:30px;top:300px;width:170px;height:170px;border:4px solid rgba(240,160,32,.8);border-radius:50%;animation:rpRing 3s ease-out infinite}
 :is(#r-portada,[data-base="r-portada"]) .rp-ring.r2{animation-delay:1.5s}
 @keyframes rpRing{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.8);opacity:0}}
@@ -386,12 +386,12 @@ body.editing .lv-empty{color:transparent}
 /* ===== Presentación de OPT · el ingeniero anuncia (solo texto) ===== */
 :is(#r-present,[data-base="r-present"]) .navy{padding-top:200px}
 :is(#r-present,[data-base="r-present"]) .rp-miner .mn-say{display:none!important}
-:is(#r-present,[data-base="r-present"]) .rp-miner .mn-name{transform:scale(.85);transform-origin:left bottom}
+:is(#r-present,[data-base="r-present"]) .rp-miner .mn-name{display:none!important}
 :is(#r-present,[data-base="r-present"]) .rp-say{position:absolute;left:600px;right:70px;top:110px;min-height:170px;padding:30px 44px;box-sizing:border-box;background:#fff;border:5px solid #f0a020;border-radius:36px;box-shadow:0 26px 60px -28px rgba(20,30,60,.55);display:flex;align-items:center}
 :is(#r-present,[data-base="r-present"]) .rp-say p{margin:0;font:800 38px/1.25 Montserrat,sans-serif;color:#1d2a4d}
 :is(#r-present,[data-base="r-present"]) .rp-say p b{color:#e8731a}
-:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail{position:absolute;left:-272px;top:96px;width:280px;height:230px;fill:#fff;stroke:#f0a020;stroke-width:5;overflow:visible}
-:is(#r-present,[data-base="r-present"]) .rp-say::after{content:"";position:absolute;left:-6px;top:112px;width:14px;height:74px;background:#fff}
+:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail{position:absolute;left:-284px;top:36px;width:290px;height:270px;overflow:visible}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .f{fill:#fff}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .l{fill:none;stroke:#f0a020;stroke-width:5;stroke-linejoin:round}
+
 .slide.active:is(#r-present,[data-base="r-present"]) .rp-say{animation:rpBob 3.2s ease-in-out 1.4s infinite}
 @keyframes rpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
