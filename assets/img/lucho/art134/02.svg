@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="521" height="42" rx="10" fill="#d4402b"/><text x="277" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 134 · TRABAJOS EN ALTURA</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(170 170) scale(1.1)"><rect x="-90" y="-56" width="180" height="112" rx="12" fill="#fff" stroke="#1a1917" stroke-width="5"/><circle cx="-50" cy="-8" r="22" fill="#f3c9a4"/><rect x="-74" y="18" width="48" height="22" rx="8" fill="#e8f000"/><rect x="-10" y="-30" width="80" height="10" rx="5" fill="#d8d0bd"/><rect x="-10" y="-12" width="60" height="10" rx="5" fill="#d8d0bd"/><rect x="-14" y="10" width="92" height="34" rx="8" fill="#3a8f5c"/><text x="32" y="31" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">APTO ALTURA</text></g></g><g class="p" style="animation-delay:1.2s"><rect x="388" y="92" width="264" height="29" rx="14" fill="#2a9d8f"/><text x="520" y="116" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Pérdida de conciencia</text></g><g class="p" style="animation-delay:1.65s"><rect x="696" y="92" width="209" height="29" rx="14" fill="#2a9d8f"/><text x="800" y="116" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Brazos o piernas</text></g><g class="p" style="animation-delay:2.1s"><rect x="460" y="172" width="119" height="29" rx="14" fill="#2a9d8f"/><text x="520" y="196" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Obesidad</text></g><g class="p" style="animation-delay:2.55s"><rect x="729" y="172" width="142" height="29" rx="14" fill="#2a9d8f"/><text x="800" y="196" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Equilibrio</text></g><g class="p" style="animation-delay:3.0s"><rect x="444" y="252" width="153" height="29" rx="14" fill="#2a9d8f"/><text x="520" y="276" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Alcoholismo</text></g><g class="p" style="animation-delay:3.45s"><rect x="712" y="252" width="175" height="29" rx="14" fill="#2a9d8f"/><text x="800" y="276" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Psiquiátricas</text></g></svg>

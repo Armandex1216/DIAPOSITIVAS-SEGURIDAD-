@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="420" height="42" rx="10" fill="#d4402b"/><text x="226" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 135 · ALTA TENSIÓN</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(160 190)"><path d="M-20 80 V-40 l-20 -40 h20 l20 30 l20 -30 h20 l-20 40 V80 Z" fill="#f4c400" stroke="#1a1917" stroke-width="5"/><rect x="-24" y="10" width="48" height="70" rx="8" fill="#d4402b"/></g></g><text class="u" style="animation-delay:0.6s" x="160" y="320" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">Herramienta aislada</text><g class="p" style="animation-delay:1.2s"><g transform="translate(400 190) scale(0.9)"><path d="M-40 60 v-70 q0 -12 12 -12 q12 0 12 12 v-40 q0 -12 12 -12 q12 0 12 12 v-6 q0 -12 12 -12 q12 0 12 12 v18 q0 -12 12 -12 q12 0 12 12 v60 q0 40 -40 50 h-30 z" fill="#e8731a" stroke="#1a1917" stroke-width="5" stroke-linejoin="round"/><rect x="-44" y="56" width="74" height="26" rx="6" fill="#1a1917"/></g></g><text class="u" style="animation-delay:1.4s" x="400" y="320" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">EPP dieléctrico</text><g class="p" style="animation-delay:2.0s"><g transform="translate(720 190) scale(1.1)"><g transform="translate(-50 0) scale(0.9)"><path d="M-30 -20 v-26 a30 30 0 0 1 60 0 v26" fill="none" stroke="#1a1917" stroke-width="10"/><rect x="-46" y="-22" width="92" height="76" rx="12" fill="#d4402b" stroke="#1a1917" stroke-width="5"/><circle cy="10" r="10" fill="#1a1917"/><rect x="-4" y="12" width="8" height="22" fill="#1a1917"/></g><path d="M-10 -10 L30 -40" stroke="#1a1917" stroke-width="4"/><g transform="rotate(10 70 0)"><rect x="30" y="-60" width="90" height="130" rx="8" fill="#d4402b" stroke="#1a1917" stroke-width="5"/><circle cx="75" cy="-44" r="7" fill="#fff"/><text x="75" y="0" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">PELIGRO</text><text x="75" y="26" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">NO OPERAR</text></g></g></g></svg>

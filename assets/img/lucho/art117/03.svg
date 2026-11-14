@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="504" height="42" rx="10" fill="#2a9d8f"/><text x="268" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 117 · SALUD OCUPACIONAL</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(170 180) scale(1)"><circle r="62" fill="#fff" stroke="#3a8f5c" stroke-width="7"/><path d="M-16 -40 h32 v24 h24 v32 h-24 v24 h-32 v-24 h-24 v-32 h24 z" fill="#3a8f5c"/></g></g><text class="u" style="animation-delay:0.6s" x="170" y="300" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">Primeros auxilios</text><g class="p" style="animation-delay:1.2s"><g><g transform="translate(430 205) scale(0.85)"><g ><path d="M-26 -40 l-18 50 M26 -40 l18 50" stroke="#f3c9a4" stroke-width="13" stroke-linecap="round"/><path d="M-30 -50 q30 -14 60 0 l4 70 h-68 z" fill="#e8f000" stroke="#1a1917" stroke-width="4"/>
+<rect x="-30" y="-14" width="60" height="7" fill="#b9b9b9"/><path d="M-26 20 l-4 66 M26 20 l4 66" stroke="#2c3e66" stroke-width="20" stroke-linecap="round"/>
+<circle cy="-78" r="26" fill="#f3c9a4"/><path d="M-30 -84 C-30 -122 30 -122 30 -84 Z" fill="#f4c400" stroke="#1a1917" stroke-width="4"/><rect x="-36" y="-88" width="72" height="9" rx="4" fill="#f4c400" stroke="#1a1917" stroke-width="3"/>
+<circle cx="-9" cy="-74" r="3.5" fill="#1a1917"/><circle cx="9" cy="-74" r="3.5" fill="#1a1917"/><path d="M-9 -62 q9 7 18 0" fill="none" stroke="#1a1917" stroke-width="3" stroke-linecap="round"/></g></g><g transform="translate(510 205) scale(0.85)"><g ><path d="M-26 -40 l-18 50 M26 -40 l18 50" stroke="#f3c9a4" stroke-width="13" stroke-linecap="round"/><path d="M-30 -50 q30 -14 60 0 l4 70 h-68 z" fill="#e8f000" stroke="#1a1917" stroke-width="4"/>
+<rect x="-30" y="-14" width="60" height="7" fill="#b9b9b9"/><path d="M-26 20 l-4 66 M26 20 l4 66" stroke="#2c3e66" stroke-width="20" stroke-linecap="round"/>
+<circle cy="-78" r="26" fill="#f3c9a4"/><path d="M-30 -84 C-30 -122 30 -122 30 -84 Z" fill="#e8731a" stroke="#1a1917" stroke-width="4"/><rect x="-36" y="-88" width="72" height="9" rx="4" fill="#e8731a" stroke="#1a1917" stroke-width="3"/>
+<circle cx="-9" cy="-74" r="3.5" fill="#1a1917"/><circle cx="9" cy="-74" r="3.5" fill="#1a1917"/><path d="M-9 -62 q9 7 18 0" fill="none" stroke="#1a1917" stroke-width="3" stroke-linecap="round"/></g></g><g transform="translate(590 205) scale(0.85)"><path d="M-30 -50 q30 -14 60 0 l6 74 h-72 z" fill="#fff" stroke="#1a1917" stroke-width="4"/><path d="M-8 -50 l8 20 l8 -20" fill="#2a9d8f"/>
+<path d="M-18 -40 q-14 30 6 44 a10 10 0 1 0 6 -2" fill="none" stroke="#1a1917" stroke-width="4"/><path d="M-26 24 l-4 62 M26 24 l4 62" stroke="#2c3e66" stroke-width="20" stroke-linecap="round"/>
+<path d="M-26 -40 l-16 50 M26 -40 l16 50" stroke="#fff" stroke-width="13" stroke-linecap="round"/><circle cy="-78" r="26" fill="#f3c9a4"/><path d="M-26 -88 q26 -26 52 0 q-4 -24 -26 -24 q-22 0 -26 24z" fill="#3b3833"/>
+<circle cx="-9" cy="-76" r="3.5" fill="#1a1917"/><circle cx="9" cy="-76" r="3.5" fill="#1a1917"/><path d="M-9 -64 q9 7 18 0" fill="none" stroke="#1a1917" stroke-width="3" stroke-linecap="round"/></g></g></g><text class="u" style="animation-delay:1.6s" x="510" y="320" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">Comité</text><g class="p" style="animation-delay:2.4s"><g transform="translate(820 180) scale(1.2)"><g class="pl"><path d="M0 40 C-80 -10 -50 -70 0 -36 C50 -70 80 -10 0 40 Z" fill="#d4402b" stroke="#1a1917" stroke-width="5"/></g></g></g><text class="u" style="animation-delay:2.6s" x="820" y="300" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">Bienestar</text></svg>
