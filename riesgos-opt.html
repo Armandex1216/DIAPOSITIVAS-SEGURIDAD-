@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="assets/icons/icon-180.png"><meta name="theme-color" content="#1a1917">
 <title>Análisis de eventos y riesgos críticos</title>
-<link rel="stylesheet" href="assets/css/deck.css?v=20261114o">
-<link rel="stylesheet" href="assets/css/tpl.css?v=20261114o">
+<link rel="stylesheet" href="assets/css/deck.css?v=20261114p">
+<link rel="stylesheet" href="assets/css/tpl.css?v=20261114p">
 <style></style>
 <script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
 </head>
@@ -46,11 +46,17 @@
     <h1 class="ev-h" data-a="up" data-d=".25">ACCIDENTE CON TIEMPO PERDIDO <span>N.° 01</span></h1>
     <p class="ev-sub" data-a="up" data-d=".45">E.C. COMIN · U.M. PALLANCATA · 23/10/2026</p>
   </div>
-  <div class="ev-art" data-a="right" data-d=".2"><svg class="ev-scene" viewBox="0 0 900 760" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <div class="ev-art" data-a="right" data-d=".2"><svg class="ev-scene" viewBox="0 0 900 760" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="cam">
 <defs>
  <linearGradient id="evWall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c9993" stop-opacity="0"/><stop offset=".18" stop-color="#9c9993"/><stop offset="1" stop-color="#6d6a64"/></linearGradient>
  <linearGradient id="evFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a968e"/><stop offset="1" stop-color="#7a766f"/></linearGradient>
  <linearGradient id="evBank" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f8b84" stop-opacity="0"/><stop offset=".3" stop-color="#8f8b84" stop-opacity=".85"/><stop offset="1" stop-color="#85817a"/></linearGradient>
+ <linearGradient id="evSuit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d7dbe2"/></linearGradient>
+ <linearGradient id="evSuit2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6e9ee"/><stop offset="1" stop-color="#bfc5cf"/></linearGradient>
+ <linearGradient id="evStone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2d9cb"/><stop offset="1" stop-color="#a99d8a"/></linearGradient>
+ <linearGradient id="evRay" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d8" stop-opacity=".32"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></linearGradient>
+ <radialGradient id="evVig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#d4402b" stop-opacity="0"/><stop offset="1" stop-color="#d4402b" stop-opacity=".55"/></radialGradient>
+ <filter id="evSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>
  <radialGradient id="evGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4a2c" stop-opacity=".6"/><stop offset="1" stop-color="#ff4a2c" stop-opacity="0"/></radialGradient>
 </defs>
 <style>
@@ -70,6 +76,20 @@
 @keyframes evGlowA{0%,32%{opacity:0}38%{opacity:1}70%{opacity:.6}90%,100%{opacity:0}}
 .ev-scene .drip{animation:evDrip 1.1s ease-in infinite;opacity:0}
 @keyframes evDrip{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(0,46px);opacity:0}}
+.ev-scene .cam{animation:evCam 7s ease-in-out infinite;transform-box:view-box;transform-origin:520px 520px}
+@keyframes evCam{0%,26%{transform:scale(1)}31%{transform:scale(1.06)}33%{transform:scale(1.07) translate(-6px,4px)}34%{transform:scale(1.07) translate(6px,-4px)}35%{transform:scale(1.07) translate(-4px,2px)}36%{transform:scale(1.07) translate(3px,-2px)}38%,82%{transform:scale(1.07)}94%,100%{transform:scale(1)}}
+.ev-scene .vig{animation:evVigA 7s ease-out infinite;opacity:0}
+@keyframes evVigA{0%,32%{opacity:0}34%{opacity:1}48%{opacity:.35}85%,100%{opacity:0}}
+.ev-scene .streak{animation:evStreak 7s linear infinite}
+@keyframes evStreak{0%,27%{opacity:0;transform:translate(0,0)}29%{opacity:.9}33%{opacity:0;transform:translate(26px,26px)}100%{opacity:0}}
+.ev-scene .mark{animation:evMark 7s ease-out infinite}
+@keyframes evMark{0%,42%{stroke-dashoffset:470;opacity:1}55%,86%{stroke-dashoffset:0;opacity:1}94%,100%{stroke-dashoffset:0;opacity:0}}
+.ev-scene .mote{animation:evMote 6s ease-in-out infinite;opacity:0}
+@keyframes evMote{0%{opacity:0;transform:translate(0,0)}30%{opacity:.8}100%{opacity:0;transform:translate(-30px,-60px)}}
+.ev-scene .rays{animation:evRays 6s ease-in-out infinite alternate}
+@keyframes evRays{from{opacity:.6}to{opacity:1}}
+.ev-scene .lift{animation:evLift 7s ease-in-out infinite;transform-box:view-box;transform-origin:280px 600px}
+@keyframes evLift{0%,4%{transform:translateY(-8px)}24%,100%{transform:translateY(0)}}
 </style>
 <!-- terreno del fondo (lado izquierdo) -->
 <path d="M0 60 Q200 30 430 0 L540 620 L0 620 Z" fill="url(#evBank)"/>
@@ -89,18 +109,22 @@
 <polygon points="720,430 790,410 850,440 840,515 760,520 716,490" fill="#c4b9a8" stroke="#6e6559" stroke-width="4" stroke-linejoin="round"/><polygon points="720,430 790,410 820,435" fill="#968b78" opacity=".45"/>
 <polygon points="820,640 900,620 900,720 830,730" fill="#cbc0b0" stroke="#6e6559" stroke-width="4" stroke-linejoin="round"/><polygon points="820,640 900,620 900,680" fill="#9a8e7c" opacity=".45"/>
 <polygon points="470,640 530,628 560,670 500,700 462,684" fill="#d0c6b8" stroke="#6e6559" stroke-width="4" stroke-linejoin="round"/><polygon points="470,640 530,628 545,659" fill="#a39785" opacity=".45"/></g>
+<g class="rays"><path d="M900 0 L640 0 L360 760 L520 760 Z" fill="url(#evRay)"/><path d="M900 120 L820 0 L620 760 L700 760 Z" fill="url(#evRay)" opacity=".7"/></g>
+<g fill="#fff8e6"><circle class="mote" style="animation-delay:0.0s" cx="560" cy="120" r="2"/><circle class="mote" style="animation-delay:0.6s" cx="613" cy="217" r="3"/><circle class="mote" style="animation-delay:1.2s" cx="666" cy="314" r="4"/><circle class="mote" style="animation-delay:1.8s" cx="719" cy="411" r="2"/><circle class="mote" style="animation-delay:2.4s" cx="772" cy="508" r="3"/><circle class="mote" style="animation-delay:3.0s" cx="825" cy="185" r="4"/><circle class="mote" style="animation-delay:3.6s" cx="578" cy="282" r="2"/><circle class="mote" style="animation-delay:4.2s" cx="631" cy="379" r="3"/><circle class="mote" style="animation-delay:4.8s" cx="684" cy="476" r="4"/><circle class="mote" style="animation-delay:5.4s" cx="737" cy="153" r="2"/></g>
+<ellipse cx="275" cy="626" rx="120" ry="16" fill="#000" opacity=".28" filter="url(#evSoft)"/>
+<ellipse cx="660" cy="660" rx="230" ry="22" fill="#000" opacity=".22" filter="url(#evSoft)"/>
 <ellipse class="glow" cx="525" cy="560" rx="120" ry="80" fill="url(#evGlow)"/>
 <!-- el colaborador en cuclillas, overol blanco -->
-<g class="body">
+<g class="lift"><g class="body">
  <!-- botas y piernas en cuclillas -->
  <path d="M196 600 h66 q10 0 10 12 v8 h-84 z" fill="#1a1917"/><path d="M286 606 h62 q10 0 10 12 v8 h-80 z" fill="#1a1917"/>
- <path d="M200 600 Q170 520 230 470 L300 470 Q350 520 330 604 L290 606 Q300 540 270 520 Q240 540 250 600 Z" fill="#f4f4f2" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
- <path d="M300 470 Q380 470 390 520 Q392 560 350 604 L300 604 Q320 560 300 520 Z" fill="#d9dbe0" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M200 600 Q170 520 230 470 L300 470 Q350 520 330 604 L290 606 Q300 540 270 520 Q240 540 250 600 Z" fill="url(#evSuit)" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M300 470 Q380 470 390 520 Q392 560 350 604 L300 604 Q320 560 300 520 Z" fill="url(#evSuit2)" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
  <!-- espalda encorvada -->
- <path d="M200 500 Q170 400 240 330 Q300 290 360 320 Q400 350 400 420 Q395 470 330 480 L230 490 Z" fill="#f4f4f2" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M200 500 Q170 400 240 330 Q300 290 360 320 Q400 350 400 420 Q395 470 330 480 L230 490 Z" fill="url(#evSuit)" stroke="#9aa0a8" stroke-width="4" stroke-linejoin="round"/>
  <path d="M226 360 Q280 330 340 340" stroke="#d6d9de" stroke-width="10" fill="none"/>
  <!-- capucha del overol -->
- <path d="M300 300 Q340 260 392 280 Q410 300 400 330 L320 342 Z" fill="#d9dbe0" stroke="#9aa0a8" stroke-width="4"/>
+ <path d="M300 300 Q340 260 392 280 Q410 300 400 330 L320 342 Z" fill="url(#evSuit2)" stroke="#9aa0a8" stroke-width="4"/>
  <!-- cabeza -->
  <g transform="translate(398 268)">
   <path d="M-30 20 Q-26 62 8 64 Q40 60 44 26 L44 -6 L-30 -6 Z" fill="#e9b98f" stroke="#1a1917" stroke-width="4"/>
@@ -108,13 +132,13 @@
   <path d="M-46 0 Q-44 -62 8 -64 Q60 -60 62 -2 Z" fill="#f6c21a" stroke="#1a1917" stroke-width="4"/>
   <path d="M-50 -2 H76 Q84 4 74 10 H-48 Z" fill="#f6c21a" stroke="#1a1917" stroke-width="4"/>
   <rect x="8" y="-40" width="40" height="14" rx="3" fill="#d4402b" transform="rotate(-8 28 -33)"/>
-  <g class="face-ok"><circle cx="28" cy="16" r="4" fill="#1a1917"/></g>
+  <g class="face-ok"><circle cx="28" cy="16" r="4.5" fill="#1a1917"/><circle cx="29.5" cy="14.5" r="1.4" fill="#fff"/><path d="M20 6 q8 -4 16 0" stroke="#1a1917" stroke-width="3" fill="none" stroke-linecap="round"/></g>
   <g class="face-pain"><path d="M18 10 l14 6 l-14 6" fill="none" stroke="#1a1917" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 2 l14 6" stroke="#1a1917" stroke-width="4" stroke-linecap="round"/></g>
  </g>
  <!-- brazos que bajan la roca -->
  <g class="carry">
-  <path d="M350 360 Q420 410 452 470" fill="none" stroke="#9aa0a8" stroke-width="38" stroke-linecap="round"/><path d="M350 360 Q420 410 452 470" fill="none" stroke="#f4f4f2" stroke-width="30" stroke-linecap="round"/>
-  <path d="M300 380 Q380 450 430 500" fill="none" stroke="#9aa0a8" stroke-width="38" stroke-linecap="round"/><path d="M300 380 Q380 450 430 500" fill="none" stroke="#d9dbe0" stroke-width="30" stroke-linecap="round"/>
+  <path d="M350 360 Q420 410 452 470" fill="none" stroke="#9aa0a8" stroke-width="38" stroke-linecap="round"/><path d="M350 360 Q420 410 452 470" fill="none" stroke="#f7f8fa" stroke-width="30" stroke-linecap="round"/>
+  <path d="M300 380 Q380 450 430 500" fill="none" stroke="#9aa0a8" stroke-width="38" stroke-linecap="round"/><path d="M300 380 Q380 450 430 500" fill="none" stroke="#dfe3ea" stroke-width="30" stroke-linecap="round"/>
   <!-- guantes anticorte mojados -->
   <ellipse cx="460" cy="486" rx="24" ry="16" fill="#7d8a99" stroke="#1a1917" stroke-width="4"/><ellipse cx="438" cy="514" rx="24" ry="16" fill="#5f6b78" stroke="#1a1917" stroke-width="4"/>
   <path d="M452 478 q8 -4 14 2" stroke="#cfe6f7" stroke-width="3" fill="none"/><path d="M430 506 q8 -4 14 2" stroke="#cfe6f7" stroke-width="3" fill="none"/>
@@ -123,12 +147,15 @@
   <!-- gotas que caen de los guantes -->
   <g fill="#6fc0ff"><path class="drip" d="M452 500 q-4 8 0 11 q4 -3 0 -11z"/><path class="drip" style="animation-delay:.4s" d="M432 528 q-4 8 0 11 q4 -3 0 -11z"/><path class="drip" style="animation-delay:.75s" d="M468 504 q-4 8 0 11 q4 -3 0 -11z"/></g>
   <!-- la roca que estaba colocando: resbala -->
-  <g class="slip"><polygon points="456,440 520,418 578,438 588,500 540,540 476,532 452,490" fill="#d8cebf" stroke="#6e6559" stroke-width="4" stroke-linejoin="round"/><polygon points="456,440 520,418 549,438" fill="#a99d8c" opacity=".45"/><path d="M500 470 l30 -8 M520 510 l26 4" stroke="#8a7f70" stroke-width="4" stroke-linecap="round"/></g>
+  <g class="slip"><polygon points="456,440 520,418 578,438 588,500 540,540 476,532 452,490" fill="url(#evStone)" stroke="#6e6559" stroke-width="4" stroke-linejoin="round"/><polygon points="456,440 520,418 549,438" fill="#8f8372" opacity=".45"/><path d="M500 470 l30 -8 M520 510 l26 4" stroke="#8a7f70" stroke-width="4" stroke-linecap="round"/></g>
  </g>
-</g>
+</g></g>
+<g class="streak" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0"><path d="M440 420 l-26 -22"/><path d="M470 405 l-22 -26"/><path d="M500 398 l-14 -30"/></g>
+<circle class="mark" cx="488" cy="522" r="74" fill="none" stroke="#e5262a" stroke-width="7" stroke-dasharray="470" stroke-dashoffset="470"/>
 <!-- estrella del impacto en el dedo -->
 <g class="burst"><path d="M512 470 l12 28 l30 -14 l-13 28 l32 7 l-30 13 l18 25 l-30 -8 l-5 30 l-15 -27 l-22 22 l2 -32 l-30 2 l24 -20 l-25 -18 l32 -2 l-5 -30 l23 20 z" fill="#ffd23f" stroke="#e8731a" stroke-width="4" stroke-linejoin="round" transform="translate(30 40) scale(.8)"/></g>
-<g class="ouch"><path d="M40 40 h360 q20 0 20 20 v84 q0 20 -20 20 h-60 l30 44 l-90 -44 h-240 q-20 0 -20 -20 v-84 q0 -20 20 -20 z" fill="#fff" stroke="#d4402b" stroke-width="6"/><text x="220" y="124" text-anchor="middle" font-family="Montserrat,Arial Black,sans-serif" font-size="44" font-weight="900" fill="#d4402b">¡AY, MI DEDO!</text></g>
+<g class="ouch"><g transform="translate(34 30)"><path d="M70 40 h300 q20 0 20 20 v84 q0 20 -20 20 h-40 l40 44 l-90 -44 h-210 q-20 0 -20 -20 v-84 q0 -20 20 -20 z" fill="#fff" stroke="#d4402b" stroke-width="6"/><text x="220" y="124" text-anchor="middle" font-family="Montserrat,Arial Black,sans-serif" font-size="44" font-weight="900" fill="#d4402b">¡AY, MI DEDO!</text></g></g>
+</g><rect class="vig" x="0" y="0" width="900" height="760" fill="url(#evVig)"/>
 </svg></div>
 </section>
 <section class="slide light white" id="r-present" data-title="Presentación de OPT">
@@ -145,15 +172,15 @@
 <script src="assets/lib/gsap.min.js"></script>
 <script src="assets/lib/chart.umd.min.js"></script>
 <script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
-<script src="assets/js/deck.js?v=20261114o"></script>
+<script src="assets/js/deck.js?v=20261114p"></script>
 <script src="assets/lib/three.min.js"></script>
 <script src="assets/lib/supabase.min.js?v=2.119"></script>
-<script src="assets/js/cloud.js?v=20261114o"></script>
-<script src="assets/js/charts.js?v=20261114o"></script>
-<script src="assets/js/tpl.js?v=20261114o"></script>
-<script src="assets/js/editor.js?v=20261114o"></script>
-<script src="assets/js/miner-ref.js?v=20261114o"></script>
-<script src="assets/js/miner3d.js?v=20261114o"></script>
+<script src="assets/js/cloud.js?v=20261114p"></script>
+<script src="assets/js/charts.js?v=20261114p"></script>
+<script src="assets/js/tpl.js?v=20261114p"></script>
+<script src="assets/js/editor.js?v=20261114p"></script>
+<script src="assets/js/miner-ref.js?v=20261114p"></script>
+<script src="assets/js/miner3d.js?v=20261114p"></script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&DECK.hablando?setTimeout(go,1500):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>
