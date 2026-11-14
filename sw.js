@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 727f2ef5b6 */
-const VERSION = '727f2ef5b6';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 5413afcd9c */
+const VERSION = '5413afcd9c';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -119,6 +119,8 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin !== location.origin) return;
+  // la voz del ingeniero (/api/…) va directo a la red: el navegador ya la guarda aparte (IndexedDB)
+  if (url.pathname.startsWith('/api/')) return;
   // páginas: primero la red (para ver la última versión); sin internet, la copia guardada
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     e.respondWith((async () => {

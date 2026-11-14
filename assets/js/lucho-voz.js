@@ -50,7 +50,7 @@
         const hit = await idbGet(k); if (hit) return MEM[k] = hit;
         if (Date.now() < downUntil || navigator.onLine === false) throw new Error('sin internet');
         let err; for (const base of API) for (let n = 0; n < 2; n++) {
-          try { const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`); if (r.status === 404) break;
+          try { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000); const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`, { signal: ac.signal }).finally(() => clearTimeout(to)); if (r.status === 404) break;
             if (!r.ok) throw new Error('voz ' + r.status); const j = await r.json(); if (!j.a) throw new Error('sin audio');
             const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } }
         downUntil = Date.now() + 45000; throw err || new Error('voz no disponible');
@@ -104,7 +104,7 @@
     const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
     function stop(keepUI) {
-      if (!run) return; const { sl } = run; run = null; try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
+      if (!run) return; const { sl } = run; run = null; if (tapBtn) { tapBtn.remove(); tapBtn = null; } try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
       const m = miner(sl); m && m.talk && m.talk(false);
       const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar al Ingeniero'; }
       if (!keepUI) setSub(sl, '');
@@ -150,9 +150,21 @@
         const end = () => { if (fin) return; fin = true; cancelAnimationFrame(raf); au.onended = au.onerror = null; mark(words.length); done(); };
         au.onended = end; au.onerror = end; au.src = o.a; au.playbackRate = 1;
         if (!run || run.token !== token) return end();
-        const p = au.play(); p && p.catch(() => { D.toast && D.toast('Toque ▶ para que el Ingeniero hable (el navegador pide un clic primero)'); end(); });
+        const p = au.play(); p && p.catch(err => { if (fin) return;
+          if (err && err.name === 'NotAllowedError') { askTap(() => { if (!fin && run && run.token === token) au.play().catch(end); else end(); }); }
+          else end(); });
         raf = requestAnimationFrame(tick);
       });
+    }
+    // el navegador no deja sonar audio hasta que la persona toque la página una vez: se muestra un botón grande
+    let tapBtn = null;
+    function askTap(go) {
+      if (tapBtn) tapBtn.remove(); const lv = run && run.sl.querySelector('.lv'); if (!lv) return go();
+      tapBtn = document.createElement('button'); tapBtn.className = 'lv-tap'; tapBtn.innerHTML = '🔊 Toque aquí para escuchar al Ingeniero';
+      tapBtn.onclick = e => { e.stopPropagation(); tapBtn.remove(); tapBtn = null; go(); };
+      lv.querySelector('.lv-stage').appendChild(tapBtn);
+      const any = () => { removeEventListener('keydown', any, true); removeEventListener('pointerdown', any, true); if (tapBtn) { tapBtn.remove(); tapBtn = null; setTimeout(go, 30); } };
+      addEventListener('keydown', any, true); addEventListener('pointerdown', any, true);
     }
     function sayBrowser(frase, words, mark, m, token, opt) {
       return new Promise(done => {
@@ -191,6 +203,7 @@
     const refresh = () => slides.forEach(sl => { const lv = sl.querySelector('.lv'); if (!lv) return; const n = cfg().esc.filter(e => (e.t || '').trim()).length;
       lv.classList.toggle('vacio', !n); if (!run || run.sl !== sl) { showScene(sl, 0); setSub(sl, n ? '<i>Presione ▶ y el Ing. Pallancón Selenio explicará el decreto</i>' : ''); } });
     refresh();
+    setTimeout(() => { if (cfg().esc.some(e => (e.t || '').trim())) prefetch(); }, 2500);
     // al entrar a la lámina Lucho empieza a hablar solo; al salir se calla
     let last = -1, autoT = 0;
     setInterval(() => { const i = D.i; if (i === last) return; last = i; clearTimeout(autoT); const sl = D.slides[i];

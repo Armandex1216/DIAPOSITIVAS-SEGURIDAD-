@@ -25,6 +25,8 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin !== location.origin) return;
+  // la voz del ingeniero (/api/…) va directo a la red: el navegador ya la guarda aparte (IndexedDB)
+  if (url.pathname.startsWith('/api/')) return;
   // páginas: primero la red (para ver la última versión); sin internet, la copia guardada
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     e.respondWith((async () => {
