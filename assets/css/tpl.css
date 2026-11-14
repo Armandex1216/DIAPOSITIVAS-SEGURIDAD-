@@ -387,10 +387,10 @@ body.editing .lv-empty{color:transparent}
 :is(#r-present,[data-base="r-present"]) .navy{padding-top:200px}
 :is(#r-present,[data-base="r-present"]) .rp-miner .mn-say{display:none!important}
 :is(#r-present,[data-base="r-present"]) .rp-miner .mn-name{display:none!important}
-:is(#r-present,[data-base="r-present"]) .rp-say{position:absolute;left:600px;right:70px;top:110px;min-height:170px;padding:30px 44px;box-sizing:border-box;background:#fff;border:5px solid #f0a020;border-radius:36px;box-shadow:0 26px 60px -28px rgba(20,30,60,.55);display:flex;align-items:center}
-:is(#r-present,[data-base="r-present"]) .rp-say p{margin:0;font:800 38px/1.25 Montserrat,sans-serif;color:#1d2a4d}
+:is(#r-present,[data-base="r-present"]) .rp-say{position:absolute;left:600px;right:70px;top:70px;min-height:170px;padding:30px 44px;box-sizing:border-box;background:#fff;border:5px solid #f0a020;border-radius:36px;box-shadow:0 26px 60px -28px rgba(20,30,60,.55);display:flex;align-items:center}
+:is(#r-present,[data-base="r-present"]) .rp-say p{margin:0;font:800 33px/1.25 Montserrat,sans-serif;color:#1d2a4d}
 :is(#r-present,[data-base="r-present"]) .rp-say p b{color:#e8731a}
-:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail{position:absolute;left:-284px;top:36px;width:290px;height:270px;overflow:visible}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .f{fill:#fff}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .l{fill:none;stroke:#f0a020;stroke-width:5;stroke-linejoin:round}
+:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail{position:absolute;left:-330px;top:40px;width:340px;height:400px;overflow:visible}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .f{fill:#fff}:is(#r-present,[data-base="r-present"]) .rp-say .rp-tail .l{fill:none;stroke:#f0a020;stroke-width:5;stroke-linejoin:round}
 
 .slide.active:is(#r-present,[data-base="r-present"]) .rp-say{animation:rpBob 3.2s ease-in-out 1.4s infinite}
 @keyframes rpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -401,3 +401,18 @@ body.editing .lv-empty{color:transparent}
 .slide .tbx table.tt tbody tr:hover td.pc.rp-bar{background:#fff4dc!important}
 :is(#r-cia,#r-eecc,#r-maestro,#r-present,[data-base="r-cia"],[data-base="r-eecc"],[data-base="r-maestro"],[data-base="r-present"]) .tbx table.tt td.due.c-bad{background:transparent;color:#c0392b}
 :is(#r-cia,#r-eecc,#r-maestro,#r-present,[data-base="r-cia"],[data-base="r-eecc"],[data-base="r-maestro"],[data-base="r-present"]) .tbx table.tt tbody tr:nth-child(even) td.due.c-bad{background:#f8f6f1}
+
+/* ===== Riesgos OPT · Revisión del evento (portada del accidente) ===== */
+:is(#r-evento,[data-base="r-evento"]){background:radial-gradient(120% 90% at 75% 60%,#2a1d24 0%,#141a2e 55%,#0e1220 100%);overflow:hidden}
+:is(#r-evento,[data-base="r-evento"]) .ev-tape{position:absolute;left:0;right:0;top:0;height:30px;background:repeating-linear-gradient(-45deg,#f0c020 0 30px,#1a1917 30px 60px);background-size:84.85px 30px;animation:rpTape 2.4s linear infinite;box-shadow:0 8px 20px -8px rgba(0,0,0,.6)}
+:is(#r-evento,[data-base="r-evento"]) .ev-logo{position:absolute;left:90px;top:80px;height:110px}
+:is(#r-evento,[data-base="r-evento"]) .ev-text{position:absolute;left:90px;top:300px;width:900px}
+:is(#r-evento,[data-base="r-evento"]) .ev-tag{display:inline-block;margin:0 0 26px;padding:12px 26px;border-radius:12px;background:#d4402b;color:#fff;font:900 30px/1 Montserrat,sans-serif;letter-spacing:.08em;box-shadow:0 0 0 0 rgba(212,64,43,.6);animation:evPulse 2s ease-out infinite}
+@keyframes evPulse{0%{box-shadow:0 0 0 0 rgba(212,64,43,.6)}100%{box-shadow:0 0 0 26px rgba(212,64,43,0)}}
+:is(#r-evento,[data-base="r-evento"]) .ev-h{margin:0;font:900 92px/1.02 Montserrat,sans-serif;color:#fff;text-shadow:0 10px 30px rgba(0,0,0,.5)}
+:is(#r-evento,[data-base="r-evento"]) .ev-h span{display:inline-block;color:#f0a020}
+:is(#r-evento,[data-base="r-evento"]) .ev-h::after{content:"";display:block;height:7px;width:0;margin-top:26px;border-radius:7px;background:linear-gradient(90deg,#f0a020,#ffd36b)}
+.slide.active:is(#r-evento,[data-base="r-evento"]) .ev-h::after{animation:rpBar 1.1s cubic-bezier(.2,.8,.2,1) .7s forwards}
+:is(#r-evento,[data-base="r-evento"]) .ev-sub{margin:26px 0 0;font:800 36px/1.3 Montserrat,sans-serif;color:#d8d3c6;letter-spacing:.03em}
+:is(#r-evento,[data-base="r-evento"]) .ev-art{position:absolute;right:30px;bottom:40px;width:960px;height:810px}
+:is(#r-evento,[data-base="r-evento"]) .ev-art svg{width:100%;height:100%;display:block}
