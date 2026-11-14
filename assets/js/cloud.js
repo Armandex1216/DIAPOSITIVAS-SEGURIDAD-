@@ -95,7 +95,7 @@
       const { error } = await sb.from(TABLE).upsert({ deck_id: id, data: out, updated_at: now, updated_by: 'web' });
       if (error) throw error;
       localStorage.removeItem(DIRTY); localStorage.setItem(STAMP, now); sessionStorage.setItem(STAMP, now); setBase(out); paint();
-      if (merged) { D.toast('Se juntaron tus cambios con los de otro equipo; actualizando…', 2500); setTimeout(() => location.reload(), 1200); }
+      if (merged) { D.toast('Se juntaron tus cambios con los de otro equipo; actualizando…', 2500); const go = () => D.hablando ? setTimeout(go, 1500) : location.reload(); setTimeout(go, 1200); }
     } catch (e) { console.warn(e); paint('err'); if (navigator.onLine) { D.toast('No se pudo guardar en la nube (' + String((e && (e.message || e.code)) || e).slice(0, 80) + '); queda guardado en este equipo y se reintentará', 5000); setTimeout(push, 15000); } else D.toast('Sin internet: los cambios quedan en este equipo y se suben solos al volver la conexión', 4000); }
     busy = false; if (again) { again = false; push(); }
   }
@@ -104,7 +104,7 @@
   addEventListener('offline', () => paint('err')); if (!navigator.onLine) setTimeout(() => paint('err'), 0);
 
   // al volver a esta pestaña: si en la nube hay una versión más nueva y aquí no hay cambios pendientes, se actualiza
-  document.addEventListener('visibilitychange', async () => { if (document.hidden || localStorage.getItem(DIRTY) || busy || D.editing()) return;
+  document.addEventListener('visibilitychange', async () => { if (document.hidden || localStorage.getItem(DIRTY) || busy || D.editing() || D.hablando) return;
     const r = await sb.from(TABLE).select('updated_at').eq('deck_id', id).maybeSingle();
     if (!r.error && r.data && r.data.updated_at !== localStorage.getItem(STAMP)) { localStorage.removeItem(STAMP); sessionStorage.removeItem(STAMP); location.reload(); } });
 
