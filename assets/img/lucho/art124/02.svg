@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="454" height="42" rx="10" fill="#2a9d8f"/><text x="243" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 124 · FICHAS MÉDICAS</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(200 190) scale(1.1)"><path d="M-80 -50 h50 l12 14 h98 v100 h-160 z" fill="#c39531" stroke="#1a1917" stroke-width="5"/><rect x="-70" y="-30" width="140" height="80" rx="6" fill="#fff" stroke="#1a1917" stroke-width="4"/><text y="18" text-anchor="middle" font-size="15" font-weight="900" fill="#1a1917">ANTECEDENTES</text></g></g><g class="p" style="animation-delay:1.2s"><g><g transform="translate(420 150) scale(0.6)"><g ><rect x="-70" y="-40" width="130" height="52" rx="12" fill="#1a1917"/><rect x="-56" y="-68" width="56" height="30" rx="7" fill="#c39531"/>
+<rect x="58" y="-26" width="64" height="22" rx="5" fill="#8a8577"/><path d="M122 -26 l26 11 l-26 11 z" fill="#8a8577"/><rect x="-26" y="12" width="24" height="74" rx="7" fill="#5a554b"/>
+<circle cx="-46" cy="-14" r="6" fill="#e8731a" class="bl"/></g></g><g transform="translate(470 260) scale(0.5)"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -7;0 2;0 -4;0 0" dur=".6s" repeatCount="indefinite"/>
+<path d="M-150 -60 h170 l-20 70 h-150 z" fill="#f4c400" stroke="#1a1917" stroke-width="5"/><rect x="20" y="-50" width="80" height="60" rx="8" fill="#f4c400" stroke="#1a1917" stroke-width="5"/><rect x="40" y="-40" width="44" height="26" rx="4" fill="#bfe0f5" stroke="#1a1917" stroke-width="4"/></g>
+<g><circle cx="-100" cy="30" r="30" fill="#1a1917"/><circle cx="-100" cy="30" r="12" fill="#8a8577"/><circle cx="60" cy="30" r="30" fill="#1a1917"/><circle cx="60" cy="30" r="12" fill="#8a8577"/></g></g></g></g><text class="u" style="animation-delay:1.5s" x="450" y="330" text-anchor="middle" font-size="24" font-weight="800" fill="#1a1917">¿Dónde trabajaste?</text><g class="p" style="animation-delay:2.2s"><g transform="translate(760 190)"><path d="M-55 -70 h80 l30 30 v110 h-110 z" fill="#fff" stroke="#1a1917" stroke-width="5"/><path d="M25 -70 v30 h30" fill="#eee" stroke="#1a1917" stroke-width="5"/>
+<rect x="-40" y="-30" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="-12" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="6" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="24" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="42" width="70" height="8" rx="4" fill="#d8d0bd"/>
+<rect x="-70" y="44" width="140" height="40" rx="10" fill="#2a9d8f"/><text y="72" text-anchor="middle" font-size="21" font-weight="900" fill="#fff">ANEXO 16</text></g></g></svg>

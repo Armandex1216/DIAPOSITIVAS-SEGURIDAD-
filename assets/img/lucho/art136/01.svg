@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="588" height="42" rx="10" fill="#d4402b"/><text x="310" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 136 · MATERIALES RADIACTIVOS</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(220 180)"><circle r="108.0" fill="#f4c400" stroke="#1a1917" stroke-width="5"/><g class="sp"><path d="M0 0 L-45.0 -77.9 A90 90 0 0 1 45.0 -77.9 Z" fill="#1a1917"/><path d="M0 0 L90.0 0.0 A90 90 0 0 1 45.0 77.9 Z" fill="#1a1917"/><path d="M0 0 L-45.0 77.9 A90 90 0 0 1 -90.0 0.0 Z" fill="#1a1917"/></g>
+<circle r="27.0" fill="#f4c400"/><circle r="18.0" fill="#1a1917"/></g></g><g class="p" style="animation-delay:1.2s"><g transform="translate(520 190)"><path d="M-55 -70 h80 l30 30 v110 h-110 z" fill="#fff" stroke="#1a1917" stroke-width="5"/><path d="M25 -70 v30 h30" fill="#eee" stroke="#1a1917" stroke-width="5"/>
+<rect x="-40" y="-30" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="-12" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="6" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="24" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="42" width="70" height="8" rx="4" fill="#d8d0bd"/>
+<rect x="-103" y="44" width="206" height="40" rx="10" fill="#c09000"/><text y="72" text-anchor="middle" font-size="21" font-weight="900" fill="#fff">D.S. 009-97-EM</text></g></g><g class="p" style="animation-delay:1.8s"><g transform="translate(780 190)"><path d="M-55 -70 h80 l30 30 v110 h-110 z" fill="#fff" stroke="#1a1917" stroke-width="5"/><path d="M25 -70 v30 h30" fill="#eee" stroke="#1a1917" stroke-width="5"/>
+<rect x="-40" y="-30" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="-12" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="6" width="70" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="24" width="50" height="8" rx="4" fill="#d8d0bd"/><rect x="-40" y="42" width="70" height="8" rx="4" fill="#d8d0bd"/>
+<rect x="-116" y="44" width="232" height="40" rx="10" fill="#c09000"/><text y="72" text-anchor="middle" font-size="21" font-weight="900" fill="#fff">D.S. 039-2008-EM</text></g></g></svg>

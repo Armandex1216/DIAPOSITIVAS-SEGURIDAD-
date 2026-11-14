@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="420" height="42" rx="10" fill="#d4402b"/><text x="226" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 135 · ALTA TENSIÓN</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(200 200) scale(0.85)"><path d="M-40 110 L-10 -100 H10 L40 110 M-30 40 H30 M-22 -20 H22 M-60 -70 H60 M-50 -40 H50" fill="none" stroke="#5a554b" stroke-width="8"/>
+<path d="M-60 -70 q-80 30 -160 0 M60 -70 q80 30 160 0" fill="none" stroke="#1a1917" stroke-width="4"/><path d="M8 -60 l-26 50 h22 l-14 46 l40 -64 h-24 l16 -32 z" fill="#f4c400" stroke="#1a1917" stroke-width="4" class="bl"/></g></g><g class="p" style="animation-delay:1.2s"><g transform="translate(450 180) scale(1)"><rect x="-90" y="-56" width="180" height="112" rx="12" fill="#fff" stroke="#1a1917" stroke-width="5"/><circle cx="-50" cy="-8" r="22" fill="#f3c9a4"/><rect x="-74" y="18" width="48" height="22" rx="8" fill="#e8f000"/><rect x="-10" y="-30" width="80" height="10" rx="5" fill="#d8d0bd"/><rect x="-10" y="-12" width="60" height="10" rx="5" fill="#d8d0bd"/><rect x="-14" y="10" width="92" height="34" rx="8" fill="#3a8f5c"/><text x="32" y="32" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">AUTORIZADO</text></g></g><g class="p" style="animation-delay:2.0s"><g transform="translate(770 190) scale(0.9)"><rect x="-90" y="-110" width="180" height="220" rx="10" fill="#fff" stroke="#1a1917" stroke-width="6"/><rect x="-90" y="-110" width="180" height="40" rx="10" fill="#d4402b"/><text y="-82" text-anchor="middle" font-size="26" font-weight="900" fill="#fff">PETAR</text>
+<rect x="-70" y="-56" width="140" height="10" rx="5" fill="#d8d0bd"/><rect x="-70" y="-34" width="100" height="10" rx="5" fill="#d8d0bd"/><rect x="-70" y="-12" width="140" height="10" rx="5" fill="#d8d0bd"/><rect x="-70" y="10" width="100" height="10" rx="5" fill="#d8d0bd"/><line x1="-70" y1="70" x2="-10" y2="70" stroke="#1a1917" stroke-width="3"/><line x1="10" y1="70" x2="70" y2="70" stroke="#1a1917" stroke-width="3"/><path d="M-50 60 q10 -20 20 0 t20 0" fill="none" stroke="#2f7fc1" stroke-width="4" stroke-dasharray="80" stroke-dashoffset="80"><animate attributeName="stroke-dashoffset" from="80" to="0" dur=".6s" begin="2.4s" fill="freeze"/></path><path d="M14 60 q10 -20 20 0 t20 0" fill="none" stroke="#2f7fc1" stroke-width="4" stroke-dasharray="80" stroke-dashoffset="80"><animate attributeName="stroke-dashoffset" from="80" to="0" dur=".6s" begin="3.2s" fill="freeze"/></path>
+<text x="-40" y="92" text-anchor="middle" font-size="12" font-weight="800" fill="#1a1917">Supervisor</text><text x="40" y="92" text-anchor="middle" font-size="12" font-weight="800" fill="#1a1917">Jefe de área</text></g></g></svg>

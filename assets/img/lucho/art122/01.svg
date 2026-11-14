@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="a102" viewBox="0 0 960 340" width="960" height="340"><style>
+svg.a102 text{font-family:Montserrat,'Segoe UI','Arial Black',Arial,sans-serif}
+.a102 .p{animation:a102p .7s cubic-bezier(.2,1.4,.4,1) both;transform-box:fill-box;transform-origin:center}
+.a102 .u{animation:a102u .7s cubic-bezier(.2,.8,.2,1) both}
+.a102 .f{animation:a102f 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.a102 .sh{animation:a102sh .18s linear infinite}
+.a102 .sp{animation:a102sp 9s linear infinite;transform-box:fill-box;transform-origin:center}
+.a102 .bl{animation:a102bl 1.2s ease-in-out infinite}
+@keyframes a102p{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes a102u{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes a102f{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes a102sh{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes a102sp{to{transform:rotate(360deg)}}
+@keyframes a102bl{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<g class="u"><rect x="16" y="10" width="488" height="42" rx="10" fill="#2a9d8f"/><text x="260" y="40" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" letter-spacing="1.5">ART. 122 · CONFIDENCIALIDAD</text></g>
+<g class="p" style="animation-delay:0.3s"><g transform="translate(220 190) scale(1.2)"><path d="M-80 -50 h50 l12 14 h98 v100 h-160 z" fill="#c39531" stroke="#1a1917" stroke-width="5"/><rect x="-70" y="-30" width="140" height="80" rx="6" fill="#fff" stroke="#1a1917" stroke-width="4"/><text y="18" text-anchor="middle" font-size="19" font-weight="900" fill="#1a1917">RESULTADOS</text></g></g><g class="p" style="animation-delay:1.2s"><g transform="translate(220 118) scale(0.6)"><path d="M-30 -20 v-26 a30 30 0 0 1 60 0 v26" fill="none" stroke="#1a1917" stroke-width="10"/><rect x="-46" y="-22" width="92" height="76" rx="12" fill="#c39531" stroke="#1a1917" stroke-width="5"/><circle cy="10" r="10" fill="#1a1917"/><rect x="-4" y="12" width="8" height="22" fill="#1a1917"/></g></g><g class="p" style="animation-delay:1.8s"><rect x="563" y="106" width="114" height="54" rx="27" fill="#3a8f5c"/><text x="620" y="152" text-anchor="middle" font-size="34" font-weight="900" fill="#fff">APTO</text></g><g class="p" style="animation-delay:2.3s"><rect x="531" y="206" width="178" height="54" rx="27" fill="#d4402b"/><text x="620" y="252" text-anchor="middle" font-size="34" font-weight="900" fill="#fff">NO APTO</text></g></svg>
