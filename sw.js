@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 5580814022 */
-const VERSION = '5580814022';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: a775adc74c */
+const VERSION = 'a775adc74c';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -69,6 +69,38 @@ const FILES = [
 "assets/img/lucho/art102/06-iluminacion.svg",
 "assets/img/lucho/art102/07-radiacion.svg",
 "assets/img/lucho/art102/08-cierre.svg",
+"assets/img/lucho/art103/01.svg",
+"assets/img/lucho/art103/02.svg",
+"assets/img/lucho/art104/01.svg",
+"assets/img/lucho/art104/02.svg",
+"assets/img/lucho/art104/03.svg",
+"assets/img/lucho/art105/01.svg",
+"assets/img/lucho/art105/02.svg",
+"assets/img/lucho/art106/01.svg",
+"assets/img/lucho/art106/02.svg",
+"assets/img/lucho/art107/01.svg",
+"assets/img/lucho/art107/02.svg",
+"assets/img/lucho/art108/01.svg",
+"assets/img/lucho/art108/02.svg",
+"assets/img/lucho/art108/03.svg",
+"assets/img/lucho/art109/01.svg",
+"assets/img/lucho/art109/02.svg",
+"assets/img/lucho/art109/03.svg",
+"assets/img/lucho/art110/01.svg",
+"assets/img/lucho/art110/02.svg",
+"assets/img/lucho/art110/03.svg",
+"assets/img/lucho/art111/01.svg",
+"assets/img/lucho/art111/02.svg",
+"assets/img/lucho/art111/03.svg",
+"assets/img/lucho/art112/01.svg",
+"assets/img/lucho/art112/02.svg",
+"assets/img/lucho/art113/01.svg",
+"assets/img/lucho/art113/02.svg",
+"assets/img/lucho/art114/01.svg",
+"assets/img/lucho/art114/02.svg",
+"assets/img/lucho/art114/03.svg",
+"assets/img/lucho/art115/01.svg",
+"assets/img/lucho/art115/02.svg",
 "assets/img/riesgos/2026-11-14/dinamica.jpg",
 "assets/img/riesgos/2026-11-14/momento.jpg",
 "assets/img/riesgos/2026-11-14/portada.jpg",
