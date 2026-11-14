@@ -242,7 +242,7 @@ ul.cmb{margin:8px 0 0;padding-left:30px;font-size:25px;font-weight:600;line-heig
 .miner .mn-say span::after{content:"";display:inline-block;width:3px;height:1em;margin-left:3px;vertical-align:-3px;background:#c39531;animation:mnCaret .8s steps(1) infinite}
 @keyframes mnCaret{50%{opacity:0}}
 .miner .mn-name{position:absolute;left:392px;bottom:60px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;padding:7px 18px 6px;border-radius:14px;background:linear-gradient(135deg,#1f1d1a,#33302a);border:3px solid #c39531;box-shadow:0 14px 24px -16px rgba(0,0,0,.6);pointer-events:none;z-index:2}
-.miner .mn-name b{font:900 26px/1 Montserrat,sans-serif;letter-spacing:.22em;color:#f1d48a;padding-left:.22em}
+.miner .mn-name b{font:900 22px/1.1 Montserrat,sans-serif;letter-spacing:.1em;color:#f1d48a;padding-left:.22em}
 .miner .mn-name small{font:700 10.5px/1.3 Montserrat,sans-serif;letter-spacing:.12em;color:#d9d4c7;text-transform:uppercase}
 body.printing .miner .mn-say{display:none}
 @media print{.miner .mn-say{display:none!important}}
@@ -283,8 +283,9 @@ body.proyector .miner .mn-name small{color:#fff}
 .lv-img.on{opacity:1;transform:none}
 .lv-empty{position:absolute;inset:0;display:grid;place-items:center;font:800 34px/1.2 Montserrat,sans-serif;color:#b89a5a;text-align:center;padding:30px}
 .lv.has-img .lv-empty{display:none}
-.lv-sub{min-height:86px;font:600 25px/1.38 Montserrat,sans-serif;color:#2a2722;text-align:center;padding:0 10px}
-.lv-sub span{transition:color .15s}.lv-sub span.off{display:none}.lv.playing .lv-sub span{color:#b8b2a6}.lv.playing .lv-sub span.dicho{color:#1a1917}
+.lv-sub{min-height:100px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;column-gap:.28em;font:800 36px/1.3 Montserrat,sans-serif;color:#2a2722;text-align:center;padding:0 10px}
+.lv-sub span{transition:color .15s}.lv-sub span.off{display:none}.lv-sub span{border-radius:10px;padding:0 .08em}.lv.playing .lv-sub span.now{color:#fff;background:#c39531;box-shadow:0 6px 14px -8px rgba(160,110,20,.8);transform:scale(1.06);display:inline-block}
+.lv-vec{display:flex;align-items:center;justify-content:center}.lv-vec svg{width:100%;height:100%;display:block}.lv.playing .lv-sub span{color:#b8b2a6}.lv.playing .lv-sub span.dicho{color:#1a1917}
 .lv-sub i{color:#9a8d72;font-weight:600;font-size:24px}
 .lv-ctrl{display:flex;align-items:center;justify-content:center;gap:12px}
 .lv-ctrl button{border:0;cursor:pointer;border-radius:999px;font:800 20px Montserrat,sans-serif;padding:10px 18px;background:#efe6d2;color:#6b5420;transition:transform .15s,background .2s}

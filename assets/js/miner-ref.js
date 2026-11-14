@@ -103,11 +103,11 @@
     // portanombre y radio
     const zf = (x, y) => Math.sqrt(Math.max(0, rAt(PT, y) ** 2 - x * x)) * .68;
     const tc = document.createElement('canvas'); tc.width = 256; tc.height = 64; const tx = tc.getContext('2d'); tx.fillStyle = '#18191b'; tx.fillRect(0, 0, 256, 64);
-    tx.strokeStyle = '#c39531'; tx.lineWidth = 4; tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; tx.font = '900 40px Montserrat, Arial, sans-serif'; tx.textAlign = 'center'; tx.textBaseline = 'middle'; tx.fillText('LUCHO', 128, 34);
+    tx.strokeStyle = '#c39531'; tx.lineWidth = 4; tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; tx.font = '900 40px Montserrat, Arial, sans-serif'; tx.textAlign = 'center'; tx.textBaseline = 'middle'; const TAG = 'PALLANCÓN', fit = () => { let f = 40; do { tx.font = `900 ${f}px Montserrat, Arial, sans-serif`; f -= 2; } while (tx.measureText(TAG).width > 228 && f > 16); }; fit(); tx.fillText(TAG, 128, 34);
     const tagTex = new T.CanvasTexture(tc); tagTex.encoding = T.sRGBEncoding; tagTex.anisotropy = 4;
     const tag = new T.Mesh(new T.BoxGeometry(.34, .085, .02), [K.black, K.black, K.black, K.black, new T.MeshBasicMaterial({ map: tagTex }), K.black]);
     tag.position.set(-.32, 1.58, zf(.32, 1.58) + .014); tag.rotation.set(-.08, -.42, .1); torso.add(tag);
-    root.userData.redrawTag = () => { tx.fillStyle = '#18191b'; tx.fillRect(0, 0, 256, 64); tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; tx.fillText('LUCHO', 128, 34); tagTex.needsUpdate = true; };
+    root.userData.redrawTag = () => { tx.fillStyle = '#18191b'; tx.fillRect(0, 0, 256, 64); tx.strokeRect(4, 4, 248, 56); tx.fillStyle = '#fff'; fit(); tx.fillText(TAG, 128, 34); tagTex.needsUpdate = true; };
     const rd = new T.Group(); rd.position.set(.33, 1.5, zf(.33, 1.5) + .035); rd.rotation.y = .45; torso.add(rd);
     const rb = box(.15, .22, .06, K.radio); rd.add(rb); const sc = box(.1, .075, .01, K.screen); sc.position.set(0, .04, .032); rd.add(sc);
     const ant = cyl(.012, .012, .1, K.black, false, 8); ant.position.set(-.05, .15, 0); rd.add(ant);
@@ -206,6 +206,16 @@
     lookout: t => ({ L_shZ: 2.3, L_shX: -.35, L_elZ: 2.3, L_elX: -.2, L_wrY: 1.4, L_wrZ: -.2, L_curl: 0, L_idx: 0, L_th: .8, hdY: .15 + sn(t * 1.3) * .5, hdX: -.05, torY: sn(t * 1.3) * .12, brow: -.4 }),
     radio: t => ({ L_shX: -.58, L_shZ: -.12, L_elX: -1.95, L_elZ: -.25, L_wrX: .2, L_wrY: -.4, L_curl: .55, L_idx: .55, hdX: .32, hdY: .32, hdZ: .05, brow: -.2, mouth: t > .9 ? .4 + .4 * sn(t * 12) : 0 }),
     nod: t => ({ hdX: up(sn(t * 6.5)) * .22, torX: .02, R_shX: -.3, R_elX: -1.4, R_elZ: -.6, L_shX: -.3, L_elX: -1.4, L_elZ: -.6, R_curl: .6, L_curl: .6, R_idx: .6, L_idx: .6, brow: .4, mouth: .1 }),
+    // gestos al hablar (se van turnando solos mientras habla)
+    beat: t => ({ R_shX: -.42, R_shZ: .22, R_elX: -1.3 + up(sn(t * 5.2)) * -.28, R_elZ: -.35, R_wrY: .6, R_curl: .35, R_idx: .25, R_th: .6,
+      L_shX: -.42, L_shZ: .22, L_elX: -1.3 + up(sn(t * 5.2 + 1.6)) * -.28, L_elZ: -.35, L_wrY: .6, L_curl: .35, L_idx: .25, L_th: .6,
+      hdX: sn(t * 5.2) * .05, hdY: sn(t * 1.3) * .12, torY: sn(t * 1.3) * .05, torX: .02, brow: .3 + up(sn(t * 2.6)) * .5 }),
+    open: t => ({ R_shZ: .55 + sn(t * 2) * .08, R_shX: -.45, R_elZ: .55, R_elX: -.75, R_wrY: 1.3, R_curl: .05, R_idx: .05, R_th: .9,
+      L_shZ: .55 - sn(t * 2) * .08, L_shX: -.45, L_elZ: .55, L_elX: -.75, L_wrY: 1.3, L_curl: .05, L_idx: .05, L_th: .9,
+      hdX: -.06 + sn(t * 4) * .03, hdZ: sn(t * 1.6) * .07, torX: -.03, brow: .7, happy: 0 }),
+    count: t => ({ L_shX: -.5, L_shZ: .25, L_elX: -1.5, L_elZ: -.5, L_wrY: .9, L_curl: .9, L_idx: 0, L_th: .2,
+      R_shX: -.45, R_shZ: .2, R_elX: -1.45 + sn(t * 3) * .08, R_elZ: -.25, R_wrY: .5, R_curl: .8, R_idx: 0, R_th: .4,
+      hdY: .1 + sn(t * 1.5) * .06, hdX: .05, brow: .4 }),
     explain: t => ({ R_shZ: .35, R_shX: -.55, R_elX: -1.25 + sn(t * 2.6) * .2, R_elZ: .25, R_wrY: 1.2, R_curl: .1, R_idx: .1, R_th: .8,
       L_shZ: .35, L_shX: -.5, L_elX: -1.15 - sn(t * 2.6 + 1.2) * .2, L_elZ: .25, L_wrY: 1.2, L_curl: .1, L_idx: .1, L_th: .8,
       hdY: sn(t * 1.1) * .12, hdX: sn(t * 2.6) * .04, torY: sn(t * 1.1) * .05, brow: .3 + up(sn(t * 1.9)) * .4 }),
@@ -213,7 +223,7 @@
     salute: t => ({ R_shZ: 2.35, R_shX: -.3, R_elZ: 2.3, R_elX: -.1, R_wrY: 1.4, R_curl: 0, R_idx: 0, R_th: .9, hdZ: -.06, hdX: -.04, torX: -.02, brow: .5, mouth: .15 })
   };
   // [acción, segundos, frase]
-  const PLAN = [['wave', 3.4, '¡Hola, equipo! Soy Lucho 👋'], ['idle', 1.2], ['point', 4.4, 'Hoy aprendemos juntos: ¡atentos al reglamento! ☝️'], ['idle', 1.1],
+  const PLAN = [['wave', 3.4, '¡Hola, equipo! Soy el Ing. Pallancón Selenio 👋'], ['idle', 1.2], ['point', 4.4, 'Hoy aprendemos juntos: ¡atentos al reglamento! ☝️'], ['idle', 1.1],
     ['thumbs', 2.8, '¡La seguridad empieza por ti! 👍'], ['idle', 1], ['lookout', 3.4, 'Antes de empezar, identifica los peligros 👀'],
     ['radio', 3.4, 'Reporta todo acto y condición subestándar 📻'], ['idle', 1], ['celebrate', 2.8, '¡Vamos por cero accidentes! 🎉'], ['idle', 1.1],
     ['salute', 2.8, 'Casco, lentes y EPP siempre puestos ⛑️'], ['laugh', 2.4, '¡Trabajar seguro es trabajar feliz! 😄'], ['nod', 2.6, 'Cuídate tú y cuida a tu compañero 🤝'], ['idle', 1.6]];
@@ -252,14 +262,15 @@
     const cv = renderer.domElement;
     cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, r: miner.rotation.y, t: performance.now() }; cv.setPointerCapture(e.pointerId); e.stopPropagation(); });
     cv.addEventListener('pointermove', e => { if (drag) miner.rotation.y = drag.r + (e.clientX - drag.x) * .012; });
-    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; say('¡Hola! Soy Lucho 👋'); } drag = null; e.stopPropagation(); });
+    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; say('¡Hola! Soy el Ing. Pallancón Selenio 👋'); } drag = null; e.stopPropagation(); });
     cv.addEventListener('click', e => e.stopPropagation());
     addEventListener('mousemove', e => { const r = el.getBoundingClientRect(); look.x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2))); look.y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height * .25)) / (innerHeight / 2))); });
     const sayB = document.createElement('div'); sayB.className = 'mn-say'; sayB.innerHTML = '<span></span>'; el.appendChild(sayB); const sayT = sayB.firstChild;
-    const nm = document.createElement('div'); nm.className = 'mn-name'; nm.innerHTML = '<b>LUCHO</b><small>Tu compañero de seguridad</small>'; el.appendChild(nm);
+    const nm = document.createElement('div'); nm.className = 'mn-name'; nm.innerHTML = '<small>Ing.</small><b>PALLANCÓN SELENIO</b><small>Tu ingeniero de seguridad</small>'; el.appendChild(nm);
     const frases = (el.dataset.frases || '').split('|').map(x => x.trim()).filter(Boolean); let fi = 0, typing = null;
     const say = txt => { if (!txt) { sayB.classList.remove('on'); return; } if (frases.length) txt = frases[fi++ % frases.length]; typing = { s: txt, n: 0 }; sayT.textContent = ''; sayB.classList.remove('on'); void sayB.offsetWidth; sayB.classList.add('on'); };
-    let talking = false, talkPause = false, talkG = 'point', mouthK = 0;
+    let talking = false, talkPause = false, talkG = 'point', mouthK = 0, talkT = 0, bob = 0;
+    const TALKSEQ = { point: ['point', 'beat', 'explain', 'open', 'count', 'beat'], explain: ['explain', 'beat', 'open', 'point', 'beat', 'count'], listen: ['open', 'beat', 'explain', 'nod'] };
     const clock = new T.Clock(); let blinkT = 2.4;
     const ap = (a, side) => { const s = a.s, g = k => P[side + '_' + k];
       a.sh.rotation.set(g('shX'), g('shY') * s, g('shZ') * s);
@@ -270,7 +281,7 @@
       const th = g('th'); a.th.rotation.set(-.55 + th * .1 - g('thUp') * 1.05, 0, -s * (1 - th) * 1.1 + s * th * .25); a.tk.rotation.z = -s * (1 - th) * .9; };
     function frame() {
       const dt = Math.min(.05, clock.getDelta()), t = clock.elapsedTime; size();
-      at += dt; let name = talking ? talkG : (forced || PLAN[step][0]); const dur = talking ? 1e9 : forced ? 3 : PLAN[step][1];
+      at += dt; if (talking && !talkPause) talkT += dt; const seq = TALKSEQ[talkG] || TALKSEQ.point; let name = talking ? seq[Math.floor(talkT / 3.6) % seq.length] : (forced || PLAN[step][0]); const dur = talking ? 1e9 : forced ? 3 : PLAN[step][1];
       if (at > dur) { at = 0; if (forced) forced = null; else step = (step + 1) % PLAN.length; name = forced || PLAN[step][0]; say(forced ? null : PLAN[step][2]); }
       if (typing) { typing.n += dt * 34; const n = Math.floor(typing.n); sayT.textContent = typing.s.slice(0, n); if (n >= typing.s.length) typing = null; }
       const talk = talking && !talkPause ? Math.max(.12, mouthK) * (.55 + .45 * Math.sin(t * 17)) + .1 : typing ? .35 + .35 * Math.sin(t * 15) : 0; mouthK *= Math.pow(.04, dt);
@@ -278,9 +289,10 @@
       const k = 1 - Math.exp(-dt * 5.5); for (const key in target) P[key] += (target[key] - P[key]) * k;
       const { hips, torso, head, legs, arms, eyes, mouth, smile, brows, happy } = U;
       // respiración y cambio de peso
-      hips.position.y = Math.sin(t * 2.1) * .018 + P.hop; hips.position.x = Math.sin(t * .7) * .025; hips.rotation.z = Math.sin(t * .7) * .012;
+      bob += ((talking && !talkPause ? mouthK : 0) - bob) * Math.min(1, dt * 12);
+      hips.position.y = Math.sin(t * 2.1) * .018 + P.hop + bob * .012; hips.position.x = Math.sin(t * .7) * .025; hips.rotation.z = Math.sin(t * .7) * .012;
       torso.rotation.set(P.torX + Math.sin(t * 2.1) * .008, P.torY, P.torZ - Math.sin(t * .7) * .015);
-      head.rotation.set(P.hdX + look.y * .12, P.hdY + look.x * .3, P.hdZ);
+      head.rotation.set(P.hdX + look.y * .12 + bob * .07, P.hdY + look.x * .3, P.hdZ + (talking ? Math.sin(t * 2.3) * .03 : 0));
       legs.forEach(l => l.rotation.z = .035 * l.userData.s - Math.sin(t * .7) * .012);
       ap(arms.R, 'R'); ap(arms.L, 'L');
       if (!drag) miner.rotation.y += (face0 + look.x * .12 - miner.rotation.y) * .02;
@@ -295,7 +307,7 @@
     const visible = () => { const sl = el.closest('.slide'); return !document.hidden && (!sl || sl.classList.contains('active')); };
     const tick = () => { const v = visible(); if (v && !running) { running = true; clock.getDelta(); step = 0; at = 0; say(PLAN[0][2]); loop(); } else if (!v && running) { running = false; cancelAnimationFrame(raf); } };
     setInterval(tick, 300); document.addEventListener('visibilitychange', tick); tick(); frame();
-    el._miner = { wave() { forced = 'wave'; at = 0; }, renderer, snap() { W = 0; size(); frame(); return renderer.domElement.toDataURL('image/png'); }, talk(on, g) { talking = !!on; talkPause = false; if (g) talkG = g; at = 0; if (on) say(null); else { step = 1; at = 0; } }, pause(p) { talkPause = !!p; }, word() { mouthK = 1; }, gesture(g) { talkG = g; }, act(n) { if (typeof n === 'object') { const o = n; ACT._c = () => o; n = '_c'; } forced = n; at = 0; const e = PLAN.find(x => x[0] === n); if (e && e[2]) say(e[2]); }, say };
+    el._miner = { wave() { forced = 'wave'; at = 0; }, renderer, snap() { W = 0; size(); frame(); return renderer.domElement.toDataURL('image/png'); }, talk(on, g) { talking = !!on; talkPause = false; if (g) talkG = g; at = 0; talkT = 0; if (on) say(null); else { step = 1; at = 0; } }, pause(p) { talkPause = !!p; }, word() { mouthK = 1; }, gesture(g) { if (TALKSEQ[g]) { talkG = g; talkT = 0; } }, act(n) { if (typeof n === 'object') { const o = n; ACT._c = () => o; n = '_c'; } forced = n; at = 0; const e = PLAN.find(x => x[0] === n); if (e && e[2]) say(e[2]); }, say };
     return el._miner;
   }
   window.MinerRef = { mount };
