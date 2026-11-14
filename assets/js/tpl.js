@@ -232,8 +232,8 @@
   function pintar(sl, desde0) {
     $$('td.pc', sl).forEach(td => {
       const v = Math.max(0, Math.min(100, parseFloat((td.textContent || '').replace(',', '.')) || 0));
-      td.classList.add('rp-bar'); if (!/\d/.test(td.textContent || '')) { td.dataset.lv = 'na'; td.style.setProperty('--p', 0); return; } td.dataset.lv = v >= 100 ? 2 : v >= 50 ? 1 : 0;
-      td.style.setProperty('--pc', v >= 100 ? '#1f9d5c' : v >= 50 ? '#e6a316' : '#d23c3c');
+      td.classList.add('rp-bar'); if (!/\d/.test(td.textContent || '')) { td.dataset.lv = 'na'; td.style.setProperty('--p', 0); return; } td.dataset.lv = v >= 100 ? 2 : v > 0 ? 1 : 0;
+      td.style.setProperty('--pc', v >= 100 ? '#1f9d5c' : '#e6a316');
       if (desde0) { td.style.setProperty('--p', 0); requestAnimationFrame(() => requestAnimationFrame(() => td.style.setProperty('--p', v / 100))); }
       else td.style.setProperty('--p', v / 100);
     });
