@@ -37,23 +37,27 @@
     /* ---------- audio natural: pedir, guardar y reutilizar ---------- */
     const MEM = window.LUCHO_AUDIO = window.LUCHO_AUDIO || {}; // en el archivo descargado ya viene lleno
     const API = []; if (/^https?:$/.test(location.protocol) && !/github\.io$/.test(location.hostname)) API.push((D.root || '') + 'api/tts'); API.push('https://diapositivas-seguridad.vercel.app/api/tts');
-    let idb = null; const db = () => idb || (idb = new Promise(ok => { try { const r = indexedDB.open('lucho-voz', 1); r.onupgradeneeded = () => r.result.createObjectStore('a'); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } }));
+    let idb = null; const db = () => idb || (idb = new Promise(ok => { try { const r = indexedDB.open('voz-ingeniero', 1); r.onupgradeneeded = () => r.result.createObjectStore('a'); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } }));
     const idbGet = async k => { const d = await db(); if (!d) return null; return new Promise(ok => { try { const q = d.transaction('a').objectStore('a').get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); } catch (e) { ok(null); } }); };
     const idbPut = async (k, v) => { const d = await db(); if (!d) return; try { d.transaction('a', 'readwrite').objectStore('a').put(v, k); } catch (e) { } };
     let downUntil = 0; const pend = {};
+    // el audio debe ser de ESTE texto (antes una copia guardada equivocada hacía que repitiera otra parte)
+    const nw = x => String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ]+/g, ' ').trim().split(' ').filter(Boolean);
+    const fits = (o, t) => { if (!o || !o.a) return false; if (!o.w || !o.w.length) return true; const a = nw(o.w.slice(0, 4).map(x => x[2]).join(' ')), b = nw(t).slice(0, 6).join(' ');
+      return a.slice(0, 3).every(x => b.includes(x)) && nw(o.w[o.w.length - 1][2]).every(x => nw(t).slice(-6).join(' ').includes(x)); };
     const pct = x => (x >= 0 ? '+' : '') + Math.round(x) + '%', hz = x => (x >= 0 ? '+' : '') + Math.round(x) + 'Hz';
     const nParams = c => ({ v: nVoice(), r: pct(Math.max(-30, Math.min(45, ((1 + c.nr / 100) * (+cfg().vel || 1) - 1) * 100))), p: hz(c.np), t: c.t });
     const keyOf = q => q.v + '|' + q.r + '|' + q.p + '|' + q.t;
     function getAudio(c) {
       const q = nParams(c), k = keyOf(q); if (MEM[k]) return Promise.resolve(MEM[k]); if (pend[k]) return pend[k];
       return pend[k] = (async () => {
-        const hit = await idbGet(k); if (hit) return MEM[k] = hit;
+        const hit = await idbGet(k); if (hit && fits(hit, q.t)) return MEM[k] = hit;
         if (navigator.onLine === false || Date.now() < downUntil) throw new Error('sin internet');
         let err; for (let n = 0; n < 4; n++) { if (n) await new Promise(r => setTimeout(r, 700 * n));
           for (const base of API) { try { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 30000);
             const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`, { signal: ac.signal }).finally(() => clearTimeout(to));
             if (r.status === 404) continue; if (!r.ok) throw new Error('voz ' + r.status); const j = await r.json(); if (!j.a) throw new Error('sin audio');
-            const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } } }
+            const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; if (!fits(o, q.t)) throw new Error('audio de otro texto'); MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } } }
         if (navigator.onLine === false) downUntil = Date.now() + 20000; throw err || new Error('voz no disponible');
       })().finally(() => { delete pend[k]; });
     }
