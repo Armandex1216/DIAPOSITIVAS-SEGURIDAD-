@@ -45,11 +45,16 @@ class handler(BaseHTTPRequestHandler):
         voz, rate, pitch = g("v", "es-PE-AlexNeural"), g("r", "+0%"), g("p", "+0Hz")
         if not texto or not VOZ.match(voz) or not RATE.match(rate) or not PITCH.match(pitch):
             return self._send(400, b'{"error":"parametros"}')
-        try:
-            audio, words = asyncio.run(sintetizar(texto, voz, rate, pitch))
-            if not audio:
+        err = None
+        for intento in range(3):  # Microsoft a veces corta la conexión: se reintenta
+            try:
+                audio, words = asyncio.run(sintetizar(texto, voz, rate, pitch))
+                if audio:
+                    break
                 raise RuntimeError("sin audio")
-        except Exception as e:  # el navegador usa su propia voz si esto falla
-            return self._send(502, json.dumps({"error": str(e)[:200]}).encode())
+            except Exception as e:
+                err = e
+        else:  # el navegador reintenta y, si nada funciona, usa su propia voz
+            return self._send(502, json.dumps({"error": str(err)[:200]}).encode())
         body = json.dumps({"a": base64.b64encode(audio).decode(), "w": words}, ensure_ascii=False).encode()
         self._send(200, body, cache=True)

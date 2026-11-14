@@ -48,18 +48,19 @@
       const q = nParams(c), k = keyOf(q); if (MEM[k]) return Promise.resolve(MEM[k]); if (pend[k]) return pend[k];
       return pend[k] = (async () => {
         const hit = await idbGet(k); if (hit) return MEM[k] = hit;
-        if (Date.now() < downUntil || navigator.onLine === false) throw new Error('sin internet');
-        let err; for (const base of API) for (let n = 0; n < 2; n++) {
-          try { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000); const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`, { signal: ac.signal }).finally(() => clearTimeout(to)); if (r.status === 404) break;
-            if (!r.ok) throw new Error('voz ' + r.status); const j = await r.json(); if (!j.a) throw new Error('sin audio');
-            const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } }
-        downUntil = Date.now() + 45000; throw err || new Error('voz no disponible');
+        if (navigator.onLine === false || Date.now() < downUntil) throw new Error('sin internet');
+        let err; for (let n = 0; n < 4; n++) { if (n) await new Promise(r => setTimeout(r, 700 * n));
+          for (const base of API) { try { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 30000);
+            const r = await fetch(`${base}?t=${encodeURIComponent(q.t)}&v=${q.v}&r=${encodeURIComponent(q.r)}&p=${encodeURIComponent(q.p)}`, { signal: ac.signal }).finally(() => clearTimeout(to));
+            if (r.status === 404) continue; if (!r.ok) throw new Error('voz ' + r.status); const j = await r.json(); if (!j.a) throw new Error('sin audio');
+            const o = { a: 'data:audio/mpeg;base64,' + j.a, w: j.w || [] }; MEM[k] = o; idbPut(k, o); return o; } catch (e) { err = e; } } }
+        if (navigator.onLine === false) downUntil = Date.now() + 20000; throw err || new Error('voz no disponible');
       })().finally(() => { delete pend[k]; });
     }
     // deja listo todo el guion (al entrar a la lámina, al cerrar el panel y antes de descargar)
     const allChunks = () => cfg().esc.flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
     async function prefetch(list = allChunks()) { if (!useNeural()) return 0; let ok = 0, i = 0;
-      await Promise.all([0, 1, 2, 3].map(async () => { while (i < list.length) { const c = list[i++]; try { await getAudio(c); ok++; } catch (e) { } } })); return ok; }
+      await Promise.all([0, 1, 2].map(async () => { while (i < list.length) { const c = list[i++]; try { await getAudio(c); ok++; } catch (e) { } } })); return ok; }
 
     /* ---------- reproducción ---------- */
     const miner = sl => { const m = sl.querySelector('.miner'); return m && m._miner; };
@@ -104,7 +105,7 @@
     const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
     function stop(keepUI) {
-      if (!run) return; const { sl } = run; run = null; if (tapBtn) { tapBtn.remove(); tapBtn = null; } try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
+      if (!run) return; const { sl } = run; run = null; D.hablando = false; if (tapBtn) { tapBtn.remove(); tapBtn = null; } try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
       const m = miner(sl); m && m.talk && m.talk(false);
       const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar al Ingeniero'; }
       if (!keepUI) setSub(sl, '');
@@ -112,7 +113,7 @@
     const voicesReady = () => new Promise(ok => { if (!SS) return ok(); loadVoices(); if (voices.length) return ok(); let n = 0; const iv = setInterval(() => { loadVoices(); if (voices.length || ++n > 30) { clearInterval(iv); ok(); } }, 100); });
     async function play(sl, from = 0) {
       stop(true); const list = cfg().esc.filter(e => (e.t || '').trim()); if (!list.length) { D.toast && D.toast('Primero escriba el guion del Ingeniero (✎ Editar → 🎙 Escribir el guion)'); return; }
-      const token = {}; run = { sl, i: from, token };
+      const token = {}; run = { sl, i: from, token }; D.hablando = true;
       const lv = sl.querySelector('.lv'); lv.classList.add('playing'); lv.classList.remove('paused'); lv.querySelector('.lv-play').textContent = '⏸ Pausa';
       const m = miner(sl); m && m.talk && m.talk(true, 'point');
       const rest = cfg().esc.slice(from).flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
