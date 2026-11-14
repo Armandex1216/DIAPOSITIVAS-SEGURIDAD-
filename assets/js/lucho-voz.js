@@ -77,13 +77,28 @@
         ps.forEach((x, k) => out.push({ t: x.trim(), nr: T.nr, np: T.np, r: T.r * (ex > 1 ? 1.03 : 1), p: T.p * ex, pause: k === ps.length - 1 && bi < arr.length - 1 ? 220 : 0 })); });
       return out; };
 
-    async function showScene(sl, i) {
+    // las ilustraciones .svg se ponen DENTRO de la página: así la animación arranca justo cuando empieza esa parte
+    const svgCache = {};
+    async function svgText(src) {
+      if (src in svgCache) return svgCache[src]; let t = '';
+      try { if (/^data:image\/svg/i.test(src)) { const [h, b] = [src.slice(0, src.indexOf(',')), src.slice(src.indexOf(',') + 1)]; t = /;base64/i.test(h) ? new TextDecoder().decode(Uint8Array.from(atob(b), c => c.charCodeAt(0))) : decodeURIComponent(b); }
+        else if (/\.svg(\?|#|$)/i.test(src)) { const r = await fetch(src); if (r.ok) t = await r.text(); } } catch (e) { }
+      return svgCache[src] = /<svg[\s>]/i.test(t) ? t.replace(/<\?xml[^>]*>/, '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/\son\w+="[^"]*"/gi, '') : '';
+    }
+    async function showScene(sl, i, restart) {
       const lv = sl.querySelector('.lv'), esc = cfg().esc[i]; if (!lv) return;
       lv.querySelector('.lv-n').textContent = cfg().esc.length ? `${i + 1} / ${cfg().esc.length}` : '';
+      const stage = lv.querySelector('.lv-stage'), cur = stage.querySelector('.lv-img.on');
       const src = esc ? await resolve(imgSrc(esc.id)) : '';
-      const imgs = lv.querySelectorAll('.lv-img'), cur = lv.querySelector('.lv-img.on'), nxt = imgs[0] === cur ? imgs[1] : imgs[0];
-      if (src) { if (!cur || cur.getAttribute('src') !== src) { nxt.src = src; await (nxt.decode ? nxt.decode().catch(() => { }) : 0); nxt.classList.add('on'); cur && cur.classList.remove('on'); } lv.classList.add('has-img'); }
-      else if (!cur) lv.classList.remove('has-img');
+      if (!src) { if (!cur) lv.classList.remove('has-img'); return; }
+      if (cur && cur.dataset.src === src && !restart) return;
+      const sv = await svgText(src); let el;
+      if (sv) { el = document.createElement('div'); el.className = 'lv-img lv-vec'; el.innerHTML = sv; }
+      else { el = new Image(); el.className = 'lv-img'; el.alt = ''; el.src = src; await (el.decode ? el.decode().catch(() => { }) : 0); }
+      el.dataset.src = src; stage.insertBefore(el, stage.querySelector('.lv-empty'));
+      const g = el.querySelector && el.querySelector('svg'); if (g && g.setCurrentTime) { try { g.setCurrentTime(0); g.unpauseAnimations(); } catch (e) { } }
+      void el.offsetWidth; el.classList.add('on'); lv.classList.add('has-img');
+      stage.querySelectorAll('.lv-img').forEach(x => { if (x !== el) { x.classList.remove('on'); setTimeout(() => x.remove(), 900); } });
     }
     function setSub(sl, html) { const s = sl.querySelector('.lv-sub'); if (s) s.innerHTML = html; }
     const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -91,22 +106,22 @@
     function stop(keepUI) {
       if (!run) return; const { sl } = run; run = null; try { SS && SS.cancel(); } catch (e) { } try { au.pause(); au.onended && au.onended(); } catch (e) { }
       const m = miner(sl); m && m.talk && m.talk(false);
-      const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar a Lucho'; }
+      const lv = sl.querySelector('.lv'); if (lv) { lv.classList.remove('playing', 'paused'); lv.querySelector('.lv-play').textContent = '▶ Escuchar al Ingeniero'; }
       if (!keepUI) setSub(sl, '');
     }
     const voicesReady = () => new Promise(ok => { if (!SS) return ok(); loadVoices(); if (voices.length) return ok(); let n = 0; const iv = setInterval(() => { loadVoices(); if (voices.length || ++n > 30) { clearInterval(iv); ok(); } }, 100); });
     async function play(sl, from = 0) {
-      stop(true); const list = cfg().esc.filter(e => (e.t || '').trim()); if (!list.length) { D.toast && D.toast('Primero escriba el guion de Lucho (✎ Editar → 🎙 Escribir el guion)'); return; }
+      stop(true); const list = cfg().esc.filter(e => (e.t || '').trim()); if (!list.length) { D.toast && D.toast('Primero escriba el guion del Ingeniero (✎ Editar → 🎙 Escribir el guion)'); return; }
       const token = {}; run = { sl, i: from, token };
       const lv = sl.querySelector('.lv'); lv.classList.add('playing'); lv.classList.remove('paused'); lv.querySelector('.lv-play').textContent = '⏸ Pausa';
       const m = miner(sl); m && m.talk && m.talk(true, 'point');
       const rest = cfg().esc.slice(from).flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
-      if (useNeural()) { const first = rest[0] && getAudio(rest[0]).catch(() => null); setSub(sl, '<i>Lucho se está preparando…</i>'); prefetch(rest); await first; }
+      if (useNeural()) { const first = rest[0] && getAudio(rest[0]).catch(() => null); setSub(sl, '<i>El Ing. Pallancón se está preparando…</i>'); prefetch(rest); await first; }
       else await voicesReady();
       for (let i = from; i < cfg().esc.length; i++) {
         if (!run || run.token !== token) return; run.i = i;
         const e = cfg().esc[i]; if (!(e.t || '').trim()) continue;
-        await showScene(sl, i); m && m.gesture && m.gesture((TONOS[e.tono] || TONOS.normal).g || (i % 2 ? 'explain' : 'point'));
+        await showScene(sl, i, true); m && m.gesture && m.gesture((TONOS[e.tono] || TONOS.normal).g || (i % 2 ? 'explain' : 'point'));
         for (const c of chunks(e.t, e.tono)) { if (!run || run.token !== token) return; await say(sl, c, token); if (c.pause) await wait(c.pause); }
         await wait(80);
       }
@@ -117,9 +132,9 @@
     async function say(sl, c, token) {
       const frase = c.t, words = frase.split(' ');
       // subtítulos por renglones (~13 palabras o fin de frase): se ve solo el renglón que Lucho está diciendo
-      const grp = []; { let g = 0, n = 0; words.forEach(w => { grp.push(g); n++; if (n >= 13 || (n >= 5 && /[.!?…]$/.test(w))) { g++; n = 0; } }); }
+      const grp = []; { let g = 0, n = 0; words.forEach(w => { grp.push(g); n++; if (n >= 11 || (n >= 4 && /[.!?…]$/.test(w))) { g++; n = 0; } }); }
       const paint = () => setSub(sl, words.map((w, k) => `<span data-w="${k}" class="${grp[k] ? 'off' : ''}">${esc(w)}</span>`).join(' '));
-      const mark = k => { const g = grp[Math.max(0, Math.min(words.length - 1, k))]; sl.querySelectorAll('.lv-sub span').forEach((x, j) => { x.classList.toggle('dicho', j <= k); x.classList.toggle('off', grp[j] !== g); }); };
+      const mark = k => { const g = grp[Math.max(0, Math.min(words.length - 1, k))]; sl.querySelectorAll('.lv-sub span').forEach((x, j) => { x.classList.toggle('dicho', j <= k); x.classList.toggle('now', j === k && k < words.length); x.classList.toggle('off', grp[j] !== g); }); };
       const m = miner(sl);
       if (useNeural()) { let o = null; try { o = await getAudio(c); } catch (e) { }
         if (o && run && run.token === token) { paint(); return sayAudio(o, words, mark, m, token); } }
@@ -135,7 +150,7 @@
         const end = () => { if (fin) return; fin = true; cancelAnimationFrame(raf); au.onended = au.onerror = null; mark(words.length); done(); };
         au.onended = end; au.onerror = end; au.src = o.a; au.playbackRate = 1;
         if (!run || run.token !== token) return end();
-        const p = au.play(); p && p.catch(() => { D.toast && D.toast('Toque ▶ para que Lucho hable (el navegador pide un clic primero)'); end(); });
+        const p = au.play(); p && p.catch(() => { D.toast && D.toast('Toque ▶ para que el Ingeniero hable (el navegador pide un clic primero)'); end(); });
         raf = requestAnimationFrame(tick);
       });
     }
@@ -174,7 +189,7 @@
       lv.addEventListener('keydown', e => e.stopPropagation());
     });
     const refresh = () => slides.forEach(sl => { const lv = sl.querySelector('.lv'); if (!lv) return; const n = cfg().esc.filter(e => (e.t || '').trim()).length;
-      lv.classList.toggle('vacio', !n); if (!run || run.sl !== sl) { showScene(sl, 0); setSub(sl, n ? '<i>Presione ▶ y Lucho explicará el decreto</i>' : ''); } });
+      lv.classList.toggle('vacio', !n); if (!run || run.sl !== sl) { showScene(sl, 0); setSub(sl, n ? '<i>Presione ▶ y el Ing. Pallancón Selenio explicará el decreto</i>' : ''); } });
     refresh();
     // al entrar a la lámina Lucho empieza a hablar solo; al salir se calla
     let last = -1, autoT = 0;
@@ -192,10 +207,10 @@
     function openPanel(sl) {
       if (panel) panel.remove(); stop();
       panel = document.createElement('div'); panel.className = 'lp'; panel.setAttribute('data-noedit', '');
-      panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion de Lucho</b><span>Escriba lo que Lucho dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras Lucho la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
+      panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion del Ing. Pallancón Selenio</b><span>Escriba lo que el Ingeniero dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras el Ingeniero la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
         <div class="lp-cfg"><label>Voz <select class="lp-voz"></select></label><label>Velocidad <input class="lp-vel" type="range" min=".7" max="1.3" step=".05"><em class="lp-velv"></em></label><button class="lp-test">🔊 Probar voz</button></div>
         <div class="lp-warn"></div><div class="lp-list"></div><div class="lp-ft"><button class="lp-add">＋ Agregar parte</button><button class="lp-play">▶ Escuchar todo</button><button class="lp-ok">Listo</button></div>
-        <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). La <b>voz natural</b> se descarga una vez y queda guardada: luego Lucho habla aunque no haya señal (también en el archivo descargado).</p></div>`;
+        <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). La <b>voz natural</b> se descarga una vez y queda guardada: luego el Ingeniero habla aunque no haya señal (también en el archivo descargado).</p></div>`;
       document.body.appendChild(panel);
       const C = cfg(), list = panel.querySelector('.lp-list');
       if (!C.esc.length) C.esc.push({ id: uid(), t: '' });
@@ -204,12 +219,12 @@
       const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; w.style.display = 'none'; };
       voicesReady().then(() => { paintVoices(); warn(); });
       paintVoices(); panel.querySelector('.lp-voz').onchange = e => { C.voz = e.target.value; save(); };
-      panel.querySelector('.lp-test').onclick = async () => { const t = '¡Hola, equipo! Soy Lucho, su compañero de seguridad. Hoy les explico el reglamento, al toque y bien clarito.';
+      panel.querySelector('.lp-test').onclick = async () => { const t = '¡Hola, equipo! Soy el ingeniero Pallancón Selenio, su compañero de seguridad. Hoy les explico el reglamento, al toque y bien clarito.';
         try { SS && SS.cancel(); au.pause(); } catch (e) { }
         if (useNeural()) { const b = panel.querySelector('.lp-test'); b.textContent = '⏳ Cargando voz…'; try { const o = await getAudio(chunks(t, 'charla')[0]); au.onended = null; au.src = o.a; au.play(); }
           catch (e) { D.toast('No se pudo cargar la voz natural (¿sin internet?). Se usará la voz del equipo.', 5000); } b.textContent = '🔊 Probar voz'; return; }
         if (!SS) return D.toast('Este navegador no tiene voz'); const u = new SpeechSynthesisUtterance(t); const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } u.rate = (+C.vel || 1) * 1.1; u.pitch = 1; SS.speak(u); };
-      const draw = () => { list.innerHTML = C.esc.map((e, i) => `<div class="lp-row" data-i="${i}"><div class="lp-num">${i + 1}</div><div class="lp-tx"><select class="lp-tono" title="Cómo lo dice Lucho">${Object.entries(TONOS).map(([k, t]) => `<option value="${k}" ${(e.tono || 'normal') === k ? 'selected' : ''}>${t.n}</option>`).join('')}</select><textarea placeholder="Lo que Lucho dirá en esta parte… (use *palabra* para resaltar, [pausa] para una pausa)">${esc(e.t || '')}</textarea></div>
+      const draw = () => { list.innerHTML = C.esc.map((e, i) => `<div class="lp-row" data-i="${i}"><div class="lp-num">${i + 1}</div><div class="lp-tx"><select class="lp-tono" title="Cómo lo dice el Ingeniero">${Object.entries(TONOS).map(([k, t]) => `<option value="${k}" ${(e.tono || 'normal') === k ? 'selected' : ''}>${t.n}</option>`).join('')}</select><textarea placeholder="Lo que el Ingeniero dirá en esta parte… (use *palabra* para resaltar, [pausa] para una pausa)">${esc(e.t || '')}</textarea></div>
           <div class="lp-img" tabindex="0" title="Clic para elegir, Ctrl+V para pegar o arrastre una imagen">${imgSrc(e.id) ? '<img>' : '<span>🖼 Imagen<br><small>clic · Ctrl+V · arrastrar</small></span>'}</div>
           <div class="lp-acts"><button data-a="up" title="Subir">↑</button><button data-a="down" title="Bajar">↓</button><button data-a="noimg" title="Quitar imagen">🚫🖼</button><button data-a="play" title="Escuchar desde aquí">▶</button><button data-a="del" title="Borrar parte">✕</button></div></div>`).join('');
         list.querySelectorAll('.lp-row').forEach(row => { const i = +row.dataset.i, e = C.esc[i], im = row.querySelector('.lp-img img'); if (im) resolve(imgSrc(e.id)).then(u => { if (u) im.src = u; }); }); };

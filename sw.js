@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 0ff6e4ffad */
-const VERSION = '0ff6e4ffad';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 727f2ef5b6 */
+const VERSION = '727f2ef5b6';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -15,7 +15,6 @@ const FILES = [
 "riesgos-corp.html",
 "riesgos-opt.html",
 "api/tts.py",
-"api/__pycache__/tts.cpython-313.pyc",
 "assets/css/deck.css",
 "assets/css/tpl.css",
 "assets/fonts/montserrat-latin-400-normal.woff2",
