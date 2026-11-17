@@ -28,6 +28,16 @@
   const counter = (tl, el, to, dec, at, dur = 1.4) => { const o = { v: 0 }; tl.to(o, { v: to, duration: dur, ease: 'power2.out', onUpdate: () => { el.textContent = nf(o.v, dec); } }, at); };
   const counters = (tl, root, at, step = .1) => [...root.querySelectorAll('[data-to]')].forEach((el, i) => counter(tl, el, +el.dataset.to, +(el.dataset.dec || 0), at + i * step));
 
+
+  // brillo que recorre cada barra al terminar de crecer
+  const shine = (tl, host, sel, ax, at) => { const sv = host.querySelector('svg'); if (!sv) return; let defs = sv.querySelector('defs'); if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs'); sv.prepend(defs); }
+    const gid = 'vzsh-' + host.id; defs.insertAdjacentHTML('beforeend', `<linearGradient id="${gid}" x1="0" y1="0" x2="${ax === 'x' ? 1 : 0}" y2="${ax === 'x' ? 0 : 1}"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>`);
+    host.querySelectorAll(sel).forEach((r, i) => { const x = +r.getAttribute('x'), y = +r.getAttribute('y'), w = +r.getAttribute('width'), hh = +r.getAttribute('height'); if (w < 6 || hh < 6) return;
+      const cid = `${gid}-c${i}`; defs.insertAdjacentHTML('beforeend', `<clipPath id="${cid}"><rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${r.getAttribute('rx') || 0}"/></clipPath>`);
+      const sh = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); const sw = ax === 'x' ? Math.max(60, w * .35) : w, shh = ax === 'x' ? hh : Math.max(60, hh * .35);
+      sh.setAttribute('x', ax === 'x' ? x - sw : x); sh.setAttribute('y', ax === 'x' ? y : y + hh); sh.setAttribute('width', sw); sh.setAttribute('height', shh); sh.setAttribute('fill', `url(#${gid})`); sh.setAttribute('clip-path', `url(#${cid})`); sh.setAttribute('pointer-events', 'none');
+      r.parentNode.appendChild(sh);
+      tl.fromTo(sh, { attr: ax === 'x' ? { x: x - sw } : { y: y + hh } }, { attr: ax === 'x' ? { x: x + w } : { y: y - shh }, duration: .9, ease: 'power2.inOut' }, at + i * .07); }); };
   const K = {};
   /* ---------- tarjetas con cifra grande ---------- */
   K.kpis = (host, d) => {
@@ -332,13 +342,17 @@
   /* ---------- columnas (simples o apiladas) con línea de promedio ---------- */
   K.cols = (host, d, W, H) => {
     const L = d.l || 56, R = d.r || 20, Tp = d.legend ? 70 : 40, B = d.xlab ? 70 : 46, w = W - L - R, h = H - Tp - B, n = d.labels.length, ser = d.series;
-    const tots = d.labels.map((_, i) => ser.reduce((a, s) => a + (s.values[i] || 0), 0)), max = d.max || Math.max(...tots, ...(d.avg || []).map(a => a.v)) * 1.15;
+    const tots = d.labels.map((_, i) => d.grouped ? Math.max(...ser.map(s => s.values[i] || 0)) : ser.reduce((a, s) => a + (s.values[i] || 0), 0)), max = d.max || Math.max(...tots, ...(d.avg || []).map(a => a.v)) * 1.15;
     const bw = w / n, gw = Math.min(bw * .72, d.bmax || 90), Y = v => Tp + h - v / max * h;
     let g = '';
     if (d.legend) { let lx = L; ser.forEach(s => { g += `<rect x="${lx}" y="12" width="22" height="22" rx="6" fill="${s.c}"/>` + T(lx + 30, 30, s.name, { fs: 19, fw: 800 }); lx += 60 + s.name.length * 11; }); }
     const step = d.ystep || Math.max(1, Math.ceil(max / 5));
     for (let v = 0; v <= max; v += step) g += `<line x1="${L}" x2="${L + w}" y1="${Y(v)}" y2="${Y(v)}" stroke="${C.line}" stroke-width="1.4"/>` + T(L - 10, Y(v) + 6, v, { a: 'end', fs: 16, fw: 600, c: C.mute });
-    d.labels.forEach((lb, i) => { const cx = L + bw * i + bw / 2; let acc = 0;
+    if (d.grouped) d.labels.forEach((lb, i) => { const cx = L + bw * i + bw / 2, gw2 = Math.min(bw * .8 / ser.length, d.bmax || 90);
+      ser.forEach((s, k) => { const v = s.values[i] || 0, x = cx - gw2 * ser.length / 2 + gw2 * k + 4, y1 = Y(v);
+        g += `<g class="vz-col" data-i="${i}"><rect x="${x}" y="${y1}" width="${gw2 - 8}" height="${Tp + h - y1}" rx="8" fill="${s.c}"/></g><g class="vz-ctop" data-i="${i}">${T(x + (gw2 - 8) / 2, y1 - 10, v, { a: 'middle', fs: 24, fw: 900, c: s.c })}</g>`; });
+      g += T(cx, Tp + h + 30, lb, { a: 'middle', fs: d.fsx || 20, fw: 800, c: C.ink }); });
+    if (!d.grouped) d.labels.forEach((lb, i) => { const cx = L + bw * i + bw / 2; let acc = 0;
       ser.forEach((s, k) => { const v = s.values[i] || 0; if (!v) return; const col = (s.colors && s.colors[i]) || s.c, y1 = Y(acc + v), hh = Y(acc) - y1;
         g += `<g class="vz-col" data-i="${i}"><rect x="${cx - gw / 2}" y="${y1}" width="${gw}" height="${hh}" rx="${ser.length > 1 ? 3 : 8}" fill="${col}"/>${ser.length > 1 && hh > 26 ? T(cx, y1 + hh / 2 + 1, v, { a: 'middle', db: 'middle', fs: Math.min(18, gw * .45), fw: 900, c: '#fff' }) : ''}</g>`; acc += v; });
       g += `<g class="vz-ctop" data-i="${i}">${T(cx, Y(tots[i]) - 10, tots[i], { a: 'middle', fs: d.fsv || Math.min(22, gw * .5 + 6), fw: 900, c: (d.topC && d.topC[i]) || C.ink })}</g>`;
@@ -354,6 +368,7 @@
     host.querySelectorAll('.vz-col text').forEach(t => tl.from(t, { opacity: 0, duration: .3 }, 1.4));
     host.querySelectorAll('.vz-ctop').forEach(t => tl.from(t, { opacity: 0, y: 14, duration: .4 }, .5 + +t.dataset.i * (1.2 / n)));
     tl.from(host.querySelectorAll('.vz-avg'), { opacity: 0, duration: .6 }, 1.6);
+    shine(tl, host, '.vz-col rect', 'y', 1.9);
     tl.from(host.querySelectorAll('.vz-cm'), { opacity: 0, y: -10, duration: .5, ease: 'back.out(3)' }, 1.8);
     return tl;
   };
@@ -374,15 +389,17 @@
     host.querySelectorAll('.vz-hb rect').forEach((r, k) => { const i = +r.parentNode.dataset.i; tl.from(r, { attr: { width: 0 }, duration: .7, ease: 'power3.out' }, .25 + i * .1 + k * .02); });
     tl.from(host.querySelectorAll('.vz-hb text'), { opacity: 0, duration: .3 }, 1.1);
     tl.from(host.querySelectorAll('.vz-hv'), { opacity: 0, x: -10, duration: .4, stagger: .08 }, .6);
+    shine(tl, host, '.vz-hb rect', 'x', 1.5);
+    if (d.hot != null) host.querySelectorAll(`.vz-hb[data-i="${d.hot}"] rect`).forEach(r => r.classList.add('vz-pulse'));
     counters(tl, host, .6, .08);
     return tl;
   };
   /* ---------- dona con leyenda ---------- */
   K.donut = (host, d, W, H) => {
     const side = d.legend === 'bottom', R = side ? Math.min(W * .3, (H - 40 - d.items.length * 40) / 2.4) : Math.min(H * .38, W * .22), cx = side ? W / 2 : R + 30, cy = side ? R + 24 : H / 2, CC = 2 * Math.PI * R, sw = R * .38, tot = d.items.reduce((a, b) => a + b.v, 0);
-    let g = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.soft}" stroke-width="${sw}"/>`, acc = 0;
+    let g = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.soft}" stroke-width="${sw}"/><g class="vz-dg">`, acc = 0;
     d.items.forEach(it => { const len = it.v / tot * CC; g += `<circle class="vz-don" data-len="${len}" cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${it.c}" stroke-width="${sw}" stroke-dasharray="0 ${CC}" stroke-dashoffset="${-acc}" transform="rotate(-90 ${cx} ${cy})"/>`; acc += len; });
-    g += T(cx, cy + 6, '', { a: 'middle', fs: R * .42, fw: 900, at: `data-to="${d.center != null ? d.center : tot}"` }) + T(cx, cy + R * .3, d.centerSub || '', { a: 'middle', fs: Math.max(14, R * .14), fw: 700, c: C.mute });
+    g += '</g>' + T(cx, cy + 6, '', { a: 'middle', fs: R * .42, fw: 900, at: `data-to="${d.center != null ? d.center : tot}" class="vz-dc"` }) + T(cx, cy + R * .3, d.centerSub || '', { a: 'middle', fs: Math.max(14, R * .14), fw: 700, c: C.mute });
     let lx = side ? 20 : cx + R + sw / 2 + 36, ly = side ? cy + R + sw / 2 + 40 : cy - (d.items.length - 1) * 26;
     if (!side) ly = cy - (d.items.length - 1) * 38;
     d.items.forEach(it => { g += `<g class="vz-dl"><rect x="${lx}" y="${ly - 18}" width="24" height="24" rx="6" fill="${it.c}"/>${T(lx + 34, ly, it.label, { fs: 20, fw: 800 })}${side ? T(W - 20, ly, `${it.v} · ${Math.round(it.v / tot * 100)} %`, { a: 'end', fs: 20, fw: 900, c: it.c === '#b3ada2' ? C.mute : it.c }) : T(lx + 34, ly + 28, `${it.v} · ${Math.round(it.v / tot * 100)} %`, { fs: 22, fw: 900, c: it.c === '#b3ada2' ? C.mute : it.c })}</g>`; ly += side ? 38 : 76; });
@@ -391,6 +408,51 @@
     host.querySelectorAll('.vz-don').forEach((c, i) => tl.to(c, { attr: { 'stroke-dasharray': `${c.dataset.len} ${CC}` }, duration: .8, ease: 'power2.out' }, .2 + i * .5));
     counters(tl, host, .2, .1);
     tl.from(host.querySelectorAll('.vz-dl'), { opacity: 0, x: 20, duration: .4, stagger: .12 }, .5);
+    const dg = host.querySelector('.vz-dg'); dg.style.transformBox = 'view-box'; dg.style.transformOrigin = `${cx}px ${cy}px`; tl.from(dg, { rotation: -150, scale: .7, duration: 1.8, ease: 'power3.out' }, .1);
+    const dc = host.querySelector('.vz-dc'); dc.style.transformBox = 'fill-box'; dc.style.transformOrigin = 'center'; tl.from(dc, { scale: .3, opacity: 0, duration: .7, ease: 'back.out(2.5)' }, .3);
+    return tl;
+  };
+
+
+  /* ---------- «de cada 10»: fila de 10 íconos por grupo ---------- */
+  const DOC = 'M-14,-20 h20 l10,10 v30 h-30 Z M6,-20 v10 h10';
+  K.tenths = (host, d, W, H) => {
+    const n = d.rows.length, rh = H / n, LW = 28, RW = d.rw || 250, cell = Math.min((W - LW - RW) / 10, rh * .42), sc = cell / 42;
+    let g = '';
+    d.rows.forEach((r, i) => { const cy = i * rh + rh / 2, k = Math.round(r.p / 10);
+      if (r.hot) g += `<rect class="vz-glow" x="0" y="${i * rh + 6}" width="${W}" height="${rh - 12}" rx="20" fill="${C.red}" fill-opacity=".07" stroke="${C.red}" stroke-width="3"/>`;
+      g += T(28, cy - rh * .22, r.name, { fs: 26, fw: 900, c: r.c || C.ink }) + T(28 + r.name.length * 15.5 + 14, cy - rh * .22, r.sub || '', { fs: 18, fw: 700, c: C.mute });
+      for (let j = 0; j < 10; j++) { const x = LW + j * cell + cell / 2, on = j < k;
+        g += `<g class="vz-ten" data-i="${i}" data-j="${j}" transform="translate(${x} ${cy + rh * .14}) scale(${sc})"><path d="${DOC}" fill="${on ? (r.c || C.green) : '#fff'}" stroke="${on ? (r.c || C.green) : '#d9a0a0'}" stroke-width="3" stroke-linejoin="round" ${on ? '' : 'stroke-dasharray="5 4"'}/>${on ? '<path d="M-8,2 l5,6 l10,-12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' : ''}</g>`; }
+      g += `<g class="vz-tp">${T(W - RW + 26, cy - 4, '', { fs: 46, fw: 900, c: r.hot ? C.red : (r.c || C.ink), at: `data-to="${k}"` })}${T(W - RW + 26 + 40, cy - 4, 'de cada 10', { fs: 21, fw: 800, c: C.ink })}${T(W - RW + 26, cy + 28, r.note || '', { fs: 18, fw: 700, c: C.mute })}</g>`; });
+    host.innerHTML = svg(W, H, g);
+    const tl = gsap.timeline({ paused: true });
+    tl.from(host.querySelectorAll('svg > text, svg > rect'), { opacity: 0, x: -20, duration: .5, stagger: .05 }, 0);
+    host.querySelectorAll('.vz-ten').forEach(t => { const tr = t.getAttribute('transform'); tl.fromTo(t, { opacity: 0, attr: { transform: tr.replace(/scale\([^)]*\)/, 'scale(0.01)') } }, { opacity: 1, attr: { transform: tr }, duration: .35, ease: 'back.out(3)' }, .4 + +t.dataset.i * .45 + +t.dataset.j * .06); });
+    tl.from(host.querySelectorAll('.vz-tp'), { opacity: 0, x: 20, duration: .4, stagger: .45 }, 1);
+    counters(tl, host, 1, .45);
+    return tl;
+  };
+  /* ---------- ranking con puntaje (mejores arriba, por mejorar abajo) ---------- */
+  K.rank = (host, d, W, H) => {
+    const n = d.rows.length, top = 46, rh = (H - top) / n, LW = d.lw || 330, RW = d.rw || 330, bw = W - LW - RW - 70, TC = { top: C.green, mid: '#b3ada2', low: C.red };
+    let g = T(LW, 26, d.barLab || 'Puntaje de calidad (0 a 100)', { fs: 17, fw: 800, c: C.mute }) + T(W - RW + 10, 26, d.noteLab || 'Por qué', { fs: 17, fw: 800, c: C.mute });
+    d.rows.forEach((r, i) => { const cy = top + i * rh + rh / 2, col = TC[r.tier] || C.mute, bh = Math.min(30, rh * .6);
+      if (r.tier !== 'mid') g += `<rect class="vz-rbg" x="0" y="${cy - rh / 2 + 2}" width="${W}" height="${rh - 4}" rx="12" fill="${col}" fill-opacity=".07"/>`;
+      g += `<g class="vz-rk" data-i="${i}">`;
+      g += `<circle cx="22" cy="${cy}" r="17" fill="${col}"/>${T(22, cy + 1, i + 1, { a: 'middle', db: 'middle', fs: 17, fw: 900, c: '#fff' })}`;
+      g += T(50, cy - 6, r.name, { db: 'middle', fs: 20, fw: 800 }) + T(50, cy + 15, r.sub || '', { db: 'middle', fs: 14, fw: 700, c: C.mute });
+      g += `<rect x="${LW}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="${bh / 2}" fill="${C.soft}"/><rect class="vz-rb" x="${LW}" y="${cy - bh / 2}" width="${Math.max(bh, r.score / 100 * bw)}" height="${bh}" rx="${bh / 2}" fill="${col}"/>`;
+      g += T(LW + bw + 12, cy + 1, '', { db: 'middle', fs: 24, fw: 900, c: col, at: `data-to="${r.score}"` });
+      g += T(W - RW + 10, cy + 1, r.note || '', { db: 'middle', fs: 16, fw: 700, c: r.tier === 'low' ? C.red : r.tier === 'top' ? '#16733f' : C.mute });
+      g += '</g>'; });
+    host.innerHTML = svg(W, H, g);
+    const tl = gsap.timeline({ paused: true });
+    tl.from(host.querySelectorAll('.vz-rbg'), { opacity: 0, duration: .5, stagger: .05 }, .1);
+    tl.from(host.querySelectorAll('.vz-rk'), { opacity: 0, x: -40, duration: .45, stagger: .07, ease: 'power3.out' }, .1);
+    host.querySelectorAll('.vz-rb').forEach((b, i) => tl.from(b, { attr: { width: 0 }, duration: .8, ease: 'power3.out' }, .4 + i * .07));
+    counters(tl, host, .4, .07);
+    shine(tl, host, '.vz-rb', 'x', 1.6);
     return tl;
   };
 
