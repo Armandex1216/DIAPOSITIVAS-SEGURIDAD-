@@ -441,3 +441,5 @@ body.proyector .slide.light{--ink:#0d0c0b}
 body.proyector .ui [data-k=proy].on{background:#f1d48a;color:#1a1917}
 @media print{body.proyector .viewport{filter:none}body.proyector .slide *{-webkit-text-stroke:0!important}}
 .offline-pkg .ui [data-k=dl]{display:none}
+/* enlace público de solo lectura */
+.solo-ver .ui > *:not([data-k=prev]):not(.num):not([data-k=next]):not([data-k=fs]){display:none!important}

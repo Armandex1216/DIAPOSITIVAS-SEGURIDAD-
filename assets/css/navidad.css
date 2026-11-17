@@ -1,0 +1,175 @@
+/* ===== Plan de Seguridad de Fin de Año 2026 · Navidad ===== */
+.nv{--g:#1f6b45;--gd:#14462d;--r:#c8102e;--y:#e0a526;--cream:#fbf7ef;font-family:Montserrat,sans-serif;overflow:hidden}
+.nv.light{background:radial-gradient(120% 90% at 85% 0%,#ffffff 0%,#fbf7ef 55%,#f4eee2 100%)}
+.nv .ic{width:1em;height:1em;display:block}
+/* nieve */
+.nv .nv-snow{position:absolute;inset:-200px 0 0;pointer-events:none;z-index:1;background-image:radial-gradient(circle,rgba(255,255,255,.95) 2.5px,transparent 3.5px),radial-gradient(circle,rgba(255,255,255,.75) 1.6px,transparent 2.6px);background-size:150px 150px,95px 95px;background-position:0 0,40px 60px;animation:nvSnow 14s linear infinite}
+.nv .nv-snow.s2{background-image:radial-gradient(circle,rgba(255,255,255,.9) 3.5px,transparent 4.5px);background-size:260px 230px;animation-duration:22s;opacity:.8}
+.nv.light .nv-snow{filter:drop-shadow(0 0 1px rgba(31,107,69,.45));opacity:.55}
+.nv.light .nv-snow.s2{opacity:.4}
+@keyframes nvSnow{from{transform:translateY(0)}to{transform:translateY(200px)}}
+.nv .nv-snow{background-repeat:repeat}
+/* adornos colgantes */
+.nv .nv-orn{position:absolute;right:250px;top:0;width:420px;height:200px;z-index:3;pointer-events:none}
+.nv .nv-orn .o{position:absolute;left:var(--l);top:0;width:2px;height:var(--h);background:#b7a37a;transform-origin:50% 0;animation:nvSwing 3.2s ease-in-out var(--d) infinite alternate}
+.nv .nv-orn .o b{position:absolute;left:50%;bottom:-36px;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.75),transparent 35%),var(--c);box-shadow:0 8px 14px -6px rgba(0,0,0,.4)}
+.nv .nv-orn .o b::before{content:"";position:absolute;left:50%;top:-8px;width:14px;height:10px;margin-left:-7px;border-radius:3px;background:#c9a24a}
+.nv .nv-orn .o:nth-child(even) b{width:30px;height:30px;margin-left:-15px;bottom:-28px}
+.nv .nv-orn .o:nth-child(3n) b{border-radius:0;background:none;box-shadow:none;width:40px;height:40px;margin-left:-20px}
+.nv .nv-orn .o:nth-child(3n) b::before{display:none}
+.nv .nv-orn .o:nth-child(3n) b::after{content:"★";position:absolute;inset:0;font-size:46px;line-height:40px;text-align:center;color:var(--c);text-shadow:0 4px 8px rgba(0,0,0,.25)}
+@keyframes nvSwing{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+/* cabecera y pie */
+.nv .nv-kick{position:absolute;left:90px;top:70px;margin:0;font:600 22px/1 Montserrat,sans-serif;color:#7a6f5c;letter-spacing:.02em;z-index:2}
+.nv .nv-kick b{color:var(--r);font-weight:900}
+.nv .nv-ttl{position:absolute;left:90px;top:120px;margin:0;font:900 76px/1.05 Montserrat,sans-serif;color:var(--gd);z-index:2}
+.nv .nv-ttl::after{content:"";display:block;height:7px;width:0;margin-top:16px;border-radius:7px;background:linear-gradient(90deg,var(--r),var(--y))}
+.slide.active.nv .nv-ttl::after{animation:nvBar 1s cubic-bezier(.2,.8,.2,1) .4s forwards}
+@keyframes nvBar{to{width:260px}}
+.nv .nv-foot{position:absolute;left:90px;right:90px;bottom:34px;display:flex;align-items:center;gap:18px;font:600 18px Montserrat,sans-serif;color:#9a8f7a;z-index:2}
+.nv .nv-foot .pn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--g);color:#fff;font-weight:900}
+.nv .nv-foot img{margin-left:auto;height:46px}
+.nv .nv-ares{position:absolute;right:90px;top:60px;height:58px;z-index:3}
+/* tarjetas */
+.nv .nv-card{position:absolute;box-sizing:border-box;padding:44px 48px;border-radius:30px;background:#fff;box-shadow:0 30px 60px -36px rgba(20,70,45,.55);z-index:2;overflow:hidden}
+.nv .nv-card.g{background:linear-gradient(160deg,#f3f8f4,#e6f0e9)}
+.nv .nv-card.r{background:linear-gradient(160deg,#fdf3f4,#f8e3e6)}
+.nv .nv-card.y{background:linear-gradient(160deg,#fffaf0,#fbefd6)}
+.nv .nv-card.gf{background:linear-gradient(150deg,#1f6b45,#14462d);color:#fff}
+.nv .nv-card h3{margin:22px 0 18px;font:900 40px/1.15 Montserrat,sans-serif;color:var(--gd)}
+.nv .nv-card h3.red{color:var(--r)}
+.nv .nv-card.gf h3{color:#fff;font-size:44px}
+.nv .nv-card p{margin:0;font:500 27px/1.5 Montserrat,sans-serif;color:#3f3a33}
+.nv .nv-card.gf p{color:#e3efe7}
+.nv .nv-card::after{content:"❄";position:absolute;right:-20px;bottom:-56px;font-size:220px;line-height:1;color:rgba(31,107,69,.06);pointer-events:none}
+.nv .nv-card.r::after{color:rgba(200,16,46,.06)}.nv .nv-card.gf::after{color:rgba(255,255,255,.08)}
+.nv .nv-icn{display:grid;place-items:center;width:96px;height:96px;border-radius:50%;font-size:48px;color:#fff;background:var(--g);box-shadow:0 12px 24px -12px rgba(0,0,0,.45);flex:none}
+.nv .nv-icn.r{background:var(--r)}.nv .nv-icn.y{background:var(--y)}.nv .nv-icn.w{background:#fff;color:var(--r)}.nv .nv-icn.gf{background:var(--gd)}
+.nv .nv-icn.sm{width:72px;height:72px;font-size:36px}
+.nv .nv-icn.tr{position:absolute;right:44px;top:44px}
+.slide.active.nv .nv-icn{animation:nvBob 3.4s ease-in-out 1.2s infinite}
+@keyframes nvBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.nv .nv-num{position:absolute;right:48px;top:36px;margin:0!important;font:900 96px/1 Montserrat,sans-serif!important;color:rgba(31,107,69,.25)!important}
+.nv .nv-card.r .nv-num{color:rgba(200,16,46,.22)!important}
+.nv .obj p:not(.nv-num){font-size:29px}
+.nv .nv-big{margin:22px 0 4px!important;font:900 66px/1 Montserrat,sans-serif!important;color:var(--gd)!important}
+.nv .nv-small{font:600 24px Montserrat,sans-serif!important;color:#8a7f6a!important}
+.nv .nv-head{display:flex;align-items:center;gap:20px;margin-bottom:22px}
+.nv .nv-head h3{margin:0}
+.nv .nv-ol{margin:0;padding:0;list-style:none;counter-reset:n}
+.nv .nv-ol li{position:relative;padding:0 0 0 58px;margin:0 0 18px;font:500 25px/1.42 Montserrat,sans-serif;color:#3f3a33;counter-increment:n}
+.nv .nv-ol li::before{content:counter(n);position:absolute;left:0;top:-2px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--g);color:#fff;font-weight:900;font-size:21px}
+.nv .nv-card.r .nv-ol li::before{background:var(--r)}
+.nv .nv-cup{position:absolute;right:46px;bottom:40px;width:130px;height:150px}
+.nv .nv-cup svg{position:absolute;bottom:0;width:130px}
+.nv .nv-cup i{position:absolute;bottom:96px;width:8px;height:40px;border-radius:8px;background:rgba(122,75,42,.35);animation:nvSteam 2.4s ease-in-out infinite}
+.nv .nv-cup i:nth-child(1){left:38px}.nv .nv-cup i:nth-child(2){left:60px;animation-delay:.6s}.nv .nv-cup i:nth-child(3){left:82px;animation-delay:1.2s}
+@keyframes nvSteam{0%{transform:translateY(10px) scaleY(.6);opacity:0}40%{opacity:1}100%{transform:translateY(-26px) scaleY(1.2);opacity:0}}
+/* tabla agenda */
+.nv .nv-tbx{position:absolute;z-index:2}
+.nv table.nv-tt{width:100%;border-collapse:separate;border-spacing:0;border-radius:24px;overflow:hidden;box-shadow:0 30px 60px -34px rgba(20,70,45,.6);font-family:Montserrat,sans-serif}
+.nv table.nv-tt th{background:linear-gradient(180deg,#24774d,#14462d);color:#fff;font:900 22px/1 Montserrat,sans-serif;letter-spacing:.06em;padding:20px 18px;border-bottom:5px solid var(--y)}
+.nv table.nv-tt td{background:#fff;padding:15px 20px;font:500 22px/1.3 Montserrat,sans-serif;color:#3f3a33;border-bottom:1px solid #eee6d6;text-align:center}
+.nv table.nv-tt tbody tr:nth-child(even) td{background:#f7f3ea}
+.nv table.nv-tt td:first-child{font-weight:900;color:var(--gd)}
+.nv table.nv-tt td:nth-child(2){text-align:left}
+.nv table.nv-tt td.nv-date{color:var(--r);font-weight:900}
+.nv table.nv-tt th:nth-child(2){text-align:left}
+/* mensaje dominical */
+.nv .nv-day{position:absolute;z-index:2;box-sizing:border-box;width:480px;height:175px;padding:0 30px;border-radius:26px;display:flex;align-items:center;gap:26px;background:linear-gradient(160deg,#f3f8f4,#e6f0e9);box-shadow:0 24px 50px -32px rgba(20,70,45,.6)}
+.nv .nv-day.r{background:linear-gradient(160deg,#fdf3f4,#f8e3e6)}
+.nv .nv-day .dd{flex:none;width:112px;height:112px;border-radius:50%;background:var(--g);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 20px -10px rgba(0,0,0,.5)}
+.nv .nv-day.r .dd{background:var(--r)}
+.nv .nv-day .d1{margin:0;font:900 46px/1 Montserrat,sans-serif}.nv .nv-day .d2{margin:2px 0 0;font:800 18px/1 Montserrat,sans-serif;letter-spacing:.1em}
+.nv .nv-day .nm{margin:0;font:800 27px/1.3 Montserrat,sans-serif;color:var(--gd)}
+/* liderazgo */
+.nv .nv-huge{margin:0!important;font:900 150px/1 Montserrat,sans-serif!important;color:var(--g)!important}
+.nv .nv-huge.red{color:var(--r)!important}
+.nv .nv-lbl{position:absolute;left:260px;top:62px;margin:0;width:380px;font:900 32px/1.2 Montserrat,sans-serif;color:var(--g)}
+.nv .nv-lbl.r{color:var(--r)}
+.nv .nv-chip{position:absolute;z-index:2;box-sizing:border-box;min-height:120px;padding:20px 26px;border-radius:24px;display:flex;align-items:center;gap:22px;background:linear-gradient(160deg,#fffaf0,#fbefd6);box-shadow:0 20px 44px -30px rgba(120,80,10,.7)}
+.nv .nv-chip.r{background:linear-gradient(160deg,#fdf3f4,#f8e3e6)}.nv .nv-chip.w{background:#fff}
+.nv .nv-chip .k{margin:0;font:900 18px/1 Montserrat,sans-serif;letter-spacing:.12em;color:var(--y)}
+.nv .nv-chip.r .k{color:var(--r)}
+.nv .nv-chip .v{margin:6px 0 0;font:800 30px/1.2 Montserrat,sans-serif;color:var(--gd)}
+/* ADN */
+.nv .adn{padding:40px 36px}
+.nv .adn h3{font-size:34px}.nv .adn p{font-size:24px}
+.nv .nv-bar{position:absolute;z-index:2;box-sizing:border-box;padding:0 40px;border-radius:28px;display:flex;align-items:center;gap:30px;background:linear-gradient(110deg,#1f6b45,#14462d);box-shadow:0 30px 60px -34px rgba(20,70,45,.8)}
+.nv .nv-bar h3{margin:0;flex:none;font:900 38px Montserrat,sans-serif;color:#ffd36b}
+.nv .nv-bar p{margin:0;font:600 26px/1.4 Montserrat,sans-serif;color:#fff}
+.nv .nv-dna{position:absolute;right:30px;top:280px;width:60px;height:460px;z-index:1;opacity:.5}
+.nv .nv-dna .rung{stroke:var(--g);stroke-width:6;stroke-linecap:round;transform-origin:40px 50%;transform-box:fill-box;animation:nvDna 2.4s ease-in-out var(--d) infinite}
+.nv .nv-dna .rung:nth-child(odd){stroke:var(--r)}
+@keyframes nvDna{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.15)}}
+/* sensibilización */
+.nv .nv-item{display:flex;gap:26px;margin:26px 0 0}
+.nv .nv-item h4{margin:4px 0 8px;font:900 31px Montserrat,sans-serif;color:var(--gd)}
+.nv .nv-item p{font-size:24px}
+.nv .tags{display:flex;gap:12px;margin-top:14px!important}
+.nv .tags.col{flex-direction:column;align-items:flex-start;margin-top:30px!important}
+.nv .tags span{display:inline-block;padding:9px 22px;border-radius:40px;font:800 21px Montserrat,sans-serif;color:#fff;background:var(--g)}
+.nv .tags span.y{background:var(--y);color:#3a2a00}.nv .tags span.r{background:var(--r)}
+.nv .nv-ul{margin:0;padding-left:30px}.nv .nv-ul li{font:600 28px/1.45 Montserrat,sans-serif;color:#3f3a33}
+.nv .nv-medal{position:absolute;right:40px;bottom:40px;width:120px;transform-origin:50% 0;animation:nvSwing 2.6s ease-in-out infinite alternate}
+/* descanso */
+.nv .nv-sleep{position:absolute;z-index:3;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#24774d,#14462d);display:grid;place-items:center;box-shadow:0 34px 70px -30px rgba(20,70,45,.8)}
+.nv .nv-sleep .bed{width:260px;height:260px;color:#fff}
+.nv .nv-sleep .moon{position:absolute;left:70px;top:60px;font-size:120px;color:#ffd36b;transform:rotate(-20deg)}
+.nv .nv-sleep .z{position:absolute;right:110px;top:120px;font:900 52px Montserrat,sans-serif;color:#fff;opacity:0;animation:nvZ 3s ease-in-out infinite}
+.nv .nv-sleep .z2{animation-delay:1s;font-size:64px}.nv .nv-sleep .z3{animation-delay:2s;font-size:80px}
+@keyframes nvZ{0%{transform:translate(0,20px) scale(.6);opacity:0}30%{opacity:1}100%{transform:translate(50px,-90px) scale(1.1);opacity:0}}
+.nv .nv-rest{position:absolute;z-index:3;margin:0;font:900 52px/1.15 Montserrat,sans-serif;color:var(--gd)}
+.nv .nv-rest-p{position:absolute;z-index:3;margin:0;font:500 30px/1.5 Montserrat,sans-serif;color:#3f3a33}
+/* portada y cierre */
+.nv-cover{background:#14462d}
+.nv-cover .nv-bg{position:absolute;inset:0;overflow:hidden}
+.nv-cover .nv-bg img{width:100%;height:100%;object-fit:cover;animation:nvKB 26s ease-in-out infinite alternate;transform-origin:30% 60%}
+@keyframes nvKB{from{transform:scale(1)}to{transform:scale(1.13) translate(-1.5%,-1%)}}
+.nv-cover .nv-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,58,36,.94) 0%,rgba(20,70,45,.78) 45%,rgba(20,70,45,.25) 75%,rgba(20,70,45,.1) 100%)}
+.nv-end .nv-endbg{position:absolute;inset:0;background:radial-gradient(90% 80% at 75% 45%,#24774d 0%,#14462d 55%,#0d321f 100%)}
+.nv-cover .nv-lights{position:absolute;left:-20px;right:-20px;top:-6px;height:90px;z-index:4;display:flex;justify-content:space-between;padding:0 30px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 60' preserveAspectRatio='none'%3E%3Cpath d='M0 6 Q40 50 80 6 T160 6' fill='none' stroke='%232b2b2b' stroke-width='2.5'/%3E%3C/svg%3E") repeat-x;background-size:150px 60px}
+.nv-cover .nv-lights i{position:relative;top:calc(14px + (var(--d) * 40px));width:16px;height:26px;border-radius:50% 50% 45% 45%;background:var(--c);box-shadow:0 0 18px 4px var(--c);animation:nvTw 1.4s ease-in-out var(--d) infinite alternate}
+.nv-cover .nv-lights i::before{content:"";position:absolute;left:3px;top:-7px;width:10px;height:8px;border-radius:2px;background:#3a3a3a}
+@keyframes nvTw{from{opacity:.35;box-shadow:0 0 4px 0 var(--c)}to{opacity:1;box-shadow:0 0 22px 6px var(--c)}}
+.nv-cover .nv-ares.on-dark{right:auto;left:90px;top:110px;height:70px;filter:brightness(0) invert(1);opacity:.95}
+.nv-cover .nv-ctext{position:absolute;left:90px;top:300px;width:920px;z-index:3}
+.nv-cover .nv-season{margin:0;font:800 28px Montserrat,sans-serif;letter-spacing:.32em;color:#ffd36b}
+.nv-cover h1{margin:18px 0 0;font:900 104px/1.02 Montserrat,sans-serif;color:#fff;text-shadow:0 12px 34px rgba(0,0,0,.45)}
+.nv-cover .nv-place{margin:22px 0 0;font:600 italic 40px Montserrat,sans-serif;color:#ffd36b}
+.nv-cover .nv-place.it{color:#e6efe9;font-size:36px;line-height:1.35}
+.nv-cover .nv-pill{display:inline-block;margin-top:44px;padding:22px 40px;border-radius:60px;background:linear-gradient(90deg,#c8102e,#e0263f);box-shadow:0 20px 40px -16px rgba(200,16,46,.8);position:relative;overflow:hidden}
+.nv-cover .nv-pill::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);animation:rpShine 4s ease-in-out 1.5s infinite}
+.nv-cover .nv-pill p{margin:0;color:#fff;font:600 26px/1.3 Montserrat,sans-serif}
+.nv-cover .nv-pill p.big{font:900 36px/1.25 Montserrat,sans-serif}
+.nv-cover .nv-treewrap{position:absolute;right:640px;bottom:90px;width:250px;z-index:3}
+.nv-cover .nv-treewrap.end{right:650px}
+.nv-cover .nv-tree{width:100%;display:block;filter:drop-shadow(0 16px 20px rgba(0,0,0,.4))}
+.nv .nv-tree .tl{animation:nvTw2 1.2s ease-in-out var(--d) infinite alternate}
+@keyframes nvTw2{from{opacity:.35}to{opacity:1}}
+.nv .nv-tree .star{transform-origin:100px 18px;transform-box:view-box;animation:nvStar 2.4s ease-in-out infinite}
+@keyframes nvStar{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.2) rotate(12deg)}}
+.nv-cover .nv-santa{z-index:3}
+.nv-cover .nv-gifwrap{position:absolute;right:430px;bottom:70px;width:260px;z-index:4}
+.nv-cover .nv-gifwrap svg{width:100%;display:block}
+.nv-cover .nv-gifts .g1{animation:nvHop 2.2s ease-in-out infinite}.nv-cover .nv-gifts .g2{animation:nvHop 2.2s ease-in-out .4s infinite}.nv-cover .nv-gifts .g3{animation:nvHop 2.2s ease-in-out .8s infinite}
+@keyframes nvHop{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(-8px)}}
+.nv-cover .nv-hill{position:absolute;left:0;right:0;bottom:-2px;width:100%;height:160px;z-index:2}
+.nv-cover .nv-hoch{position:absolute;left:90px;bottom:40px;height:70px;z-index:3;filter:brightness(0) invert(1);opacity:.85}
+.nv-cover .mn-say{z-index:6}
+.nv .lz{padding:36px 40px}.nv .lz h3{font-size:34px}.nv .lz .nv-ol li{font-size:23px;margin-bottom:13px}
+.nv table.nv-tt td.nv-date{white-space:nowrap}
+.nv .mn-name{display:none!important}
+.nv .nv-big{font-size:58px!important}
+.nv .nv-snow{background-image:radial-gradient(circle at 318px 130px,rgba(255,255,255,0.95) 2.8px,transparent 4.0px),radial-gradient(circle at 271px 14px,rgba(255,255,255,0.95) 2.9px,transparent 4.1px),radial-gradient(circle at 127px 26px,rgba(255,255,255,0.95) 3.0px,transparent 4.2px),radial-gradient(circle at 57px 190px,rgba(255,255,255,0.95) 2.3px,transparent 3.5px),radial-gradient(circle at 126px 194px,rgba(255,255,255,0.95) 2.4px,transparent 3.6px),radial-gradient(circle at 293px 127px,rgba(255,255,255,0.95) 1.5px,transparent 2.7px),radial-gradient(circle at 110px 208px,rgba(255,255,255,0.95) 2.0px,transparent 3.2px),radial-gradient(circle at 199px 81px,rgba(255,255,255,0.95) 2.8px,transparent 4.0px),radial-gradient(circle at 36px 71px,rgba(255,255,255,0.95) 2.6px,transparent 3.8px);background-size:320px 320px;background-position:0 0}
+.nv .nv-snow.s2{background-image:radial-gradient(circle at 227px 64px,rgba(255,255,255,0.85) 3.2px,transparent 4.4px),radial-gradient(circle at 2px 107px,rgba(255,255,255,0.85) 4.2px,transparent 5.4px),radial-gradient(circle at 84px 85px,rgba(255,255,255,0.85) 3.5px,transparent 4.7px),radial-gradient(circle at 101px 276px,rgba(255,255,255,0.85) 4.4px,transparent 5.6px),radial-gradient(circle at 320px 104px,rgba(255,255,255,0.85) 3.3px,transparent 4.5px);background-size:420px 420px}
+.nv .nv-snow{animation:nvSnow1 16s linear infinite}.nv .nv-snow.s2{animation:nvSnow2 24s linear infinite}
+@keyframes nvSnow1{from{transform:translate(0,0)}to{transform:translate(40px,320px)}}
+@keyframes nvSnow2{from{transform:translate(0,0)}to{transform:translate(-60px,420px)}}
+.nv .nv-snow{inset:-440px -100px 0}
+.nv .nv-orn{right:190px;width:380px}
+.nv .nv-ttl{font-size:68px;max-width:1200px}
+.nv .nv-foot img{height:64px}
+.nv .nv-orn{right:240px;width:360px}
+.nv .nv-ttl{font-size:64px;max-width:none;white-space:nowrap}
+.nv-cover .nv-hoch{bottom:auto;top:44px;left:90px;height:60px}

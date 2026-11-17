@@ -27,5 +27,15 @@
     "api/tts.py": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/navidad",
+      "destination": "/navidad-2026.html"
+    },
+    {
+      "source": "/navidad/",
+      "destination": "/navidad-2026.html"
+    }
+  ]
 }

@@ -9,6 +9,9 @@
   const W = 1920, H = 1080;
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const qs = new URLSearchParams(location.search);
+  // enlace público de solo lectura: /navidad, /ver/... o ?ver → se presenta con animaciones pero no se edita
+  const SOLO_VER = qs.has('ver') || /^\/(navidad|ver)(\/|$)/.test(location.pathname);
+  if (SOLO_VER) document.body.classList.add('solo-ver');
   const body = document.body, deckId = (qs.get('d') || body.dataset.deck || 'deck').replace(/[^\w\-]/g, ''), LSK = 'deck:' + deckId;
   const stage = $('.stage'); let slides = [];
   const hooks = {};
@@ -226,8 +229,8 @@
     if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
     else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
     else if (k === 'Home') go(visibleIdx()[0]); else if (k === 'End') go(visibleIdx().slice(-1)[0]);
-    else if (k === 'o' || k === 'O') toggleOv(); else if (k === 'f' || k === 'F') toggleFs();
-    else if (k === 'e' || k === 'E') toggleEdit(); else if (k === 'm' || k === 'M') toggleMove(); else if (k === 'p' || k === 'P') printDeck();
+    else if ((k === 'o' || k === 'O') && !SOLO_VER) toggleOv(); else if (k === 'f' || k === 'F') toggleFs();
+    else if ((k === 'e' || k === 'E') && !SOLO_VER) toggleEdit(); else if ((k === 'm' || k === 'M') && !SOLO_VER) toggleMove(); else if (k === 'p' || k === 'P') printDeck();
     else if (k === 'Escape') { ov.classList.remove('on'); lb.classList.remove('on'); if (D.moving()) toggleMove(); else if (D.editing()) toggleEdit(); }
   });
   stage.parentElement.addEventListener('click', e => {
@@ -275,6 +278,7 @@
     persist();
   }
   function toggleEdit() {
+    if (SOLO_VER && !D.editing()) return;
     const on = !D.editing(); if (!on && D.moving && D.moving()) toggleMove();
     if (on) { slides.forEach(s => showAll(s)); }
     body.classList.toggle('editing', on); $('[data-k=edit]', ui).classList.toggle('on', on);

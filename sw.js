@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: b585080432 */
-const VERSION = 'b585080432';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 0a9668f9c7 */
+const VERSION = '0a9668f9c7';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -11,11 +11,13 @@ const FILES = [
 "gum-octubre-2026.html",
 "gum.html",
 "index.html",
+"navidad-2026.html",
 "requirements.txt",
 "riesgos-corp.html",
 "riesgos-opt.html",
 "api/tts.py",
 "assets/css/deck.css",
+"assets/css/navidad.css",
 "assets/css/tpl.css",
 "assets/fonts/montserrat-latin-400-normal.woff2",
 "assets/fonts/montserrat-latin-500-normal.woff2",
@@ -165,6 +167,9 @@ const FILES = [
 "assets/img/lucho/art141/02.svg",
 "assets/img/lucho/art142/01.svg",
 "assets/img/lucho/art142/02.svg",
+"assets/img/navidad/ares.png",
+"assets/img/navidad/hochschild.png",
+"assets/img/navidad/portada.jpg",
 "assets/img/riesgos/2026-11-14/dinamica.jpg",
 "assets/img/riesgos/2026-11-14/momento.jpg",
 "assets/img/riesgos/2026-11-14/portada.jpg",
