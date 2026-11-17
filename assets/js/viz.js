@@ -261,7 +261,7 @@
       let x = bx; r.seg.forEach((sg, k) => { const w = sg.v / tot * bw; if (w <= 0) return;
         g += `<g class="vz-seg" data-i="${i}"><rect x="${x}" y="${cy - bh / 2}" width="${w}" height="${bh}" fill="${sg.c}" clip-path="url(#vzz-${host.id}-${i})"/>`;
         if (w <= 34) g += T(x + w / 2, cy + bh / 2 + 22, `${sg.v} ${sg.label}`, { a: 'middle', fs: 16, fw: 900, c: sg.c === '#cfc8bb' ? C.mute : sg.c });
-        if (w > 120) g += T(x + w / 2, cy + 1, `${sg.v} ${sg.label}`, { a: 'middle', db: 'middle', fs: 22, fw: 900, c: sg.dark ? C.ink : '#fff' });
+        if (w > 88) g += T(x + w / 2, cy + 1, `${sg.v} ${sg.label}`, { a: 'middle', db: 'middle', fs: 22, fw: 900, c: sg.dark ? C.ink : '#fff' });
         else if (w > 34) g += T(x + w / 2, cy + 1, sg.v, { a: 'middle', db: 'middle', fs: 20, fw: 900, c: sg.dark ? C.ink : '#fff' });
         g += '</g>'; x += w; });
       g += `<rect x="${bx}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="${bh / 2}" fill="none" stroke="#fff" stroke-width="3"/>`;
@@ -298,6 +298,33 @@
     host.querySelectorAll('.vz-ag').forEach(a => { const r = a.querySelector('rect'), t = a.querySelector('text'), at = .7 + +a.dataset.i * .2 + +a.dataset.k * .22; tl.from(r, { attr: { width: 0 }, duration: .55, ease: 'power2.out' }, at); if (t) tl.from(t, { opacity: 0, scale: .5, transformOrigin: '50% 50%', duration: .3 }, at + .35); });
     tl.from(host.querySelectorAll('.vz-tt'), { opacity: 0, x: -16, duration: .4, stagger: .1 }, 1.9);
     counters(tl, host, 1.9, .1);
+    return tl;
+  };
+
+
+  /* ---------- panel de totales: dona por nivel + barra cerrados/abiertos ---------- */
+  K.totals = (host, d, W, H) => {
+    const cx = W / 2, R = Math.min(W * .3, 120), cy = 120 + R, CC = 2 * Math.PI * R, tot = d.levels.reduce((a, b) => a + b.v, 0);
+    let g = `<rect x="0" y="0" width="${W}" height="${H}" rx="26" fill="#1a1917"/>`;
+    g += T(cx, 52, d.title || 'Total del mes', { a: 'middle', fs: 24, fw: 900, c: '#e8c97f' }) + T(cx, 82, d.sub || '', { a: 'middle', fs: 17, fw: 600, c: '#bdb6a8' });
+    g += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#2c2a26" stroke-width="34"/>`;
+    let acc = 0; d.levels.forEach((l, i) => { const len = l.v / tot * CC;
+      g += `<circle class="vz-don" data-len="${len}" data-off="${-acc}" cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${l.c}" stroke-width="34" stroke-dasharray="0 ${CC}" stroke-dashoffset="${-acc}" transform="rotate(-90 ${cx} ${cy})"/>`; acc += len; });
+    g += T(cx, cy + 8, '', { a: 'middle', fs: 54, fw: 900, c: '#fff', at: `data-to="${tot}"` }) + T(cx, cy + 38, 'reportes', { a: 'middle', fs: 18, fw: 700, c: '#bdb6a8' });
+    let y = cy + R + 60;
+    d.levels.forEach(l => { g += `<g class="vz-lv"><rect x="34" y="${y - 20}" width="26" height="26" rx="7" fill="${l.c}"/>${T(72, y, l.label, { fs: 23, fw: 800, c: '#fff' })}${T(W - 34, y, '', { a: 'end', fs: 28, fw: 900, c: l.c === '#9aa7b6' || l.c === '#7d8fa6' ? '#c9d3e0' : l.c, at: `data-to="${l.v}"` })}${T(W - 108, y, `${Math.round(l.v / tot * 100)} %`, { a: 'end', fs: 17, fw: 700, c: '#bdb6a8' })}</g>`; y += 42; });
+    y += 18; g += T(34, y, d.stLab || 'Estado', { fs: 20, fw: 900, c: '#e8c97f' }); y += 18;
+    const bw = W - 68, st = d.status, sTot = st.reduce((a, b) => a + b.v, 0); let x = 34;
+    g += `<clipPath id="vzt-${host.id}"><rect x="34" y="${y}" width="${bw}" height="54" rx="27"/></clipPath>`;
+    st.forEach((sv, i) => { const w = sv.v / sTot * bw; g += `<g class="vz-st"><rect x="${x}" y="${y}" width="${w}" height="54" fill="${sv.c}" clip-path="url(#vzt-${host.id})"/>${T(x + w / 2, y + 28, `${sv.v} ${sv.label}`, { a: 'middle', db: 'middle', fs: w > 150 ? 22 : 18, fw: 900, c: '#fff' })}</g>`; x += w; });
+    y += 84; g += T(cx, y, d.note || '', { a: 'middle', fs: 18, fw: 700, c: '#bdb6a8' });
+    host.innerHTML = svg(W, H, g);
+    const tl = gsap.timeline({ paused: true });
+    host.querySelectorAll('.vz-don').forEach((c, i) => tl.to(c, { attr: { 'stroke-dasharray': `${c.dataset.len} ${CC}` }, duration: .7, ease: 'power2.out' }, .3 + i * .45));
+    counters(tl, host, .3, .15);
+    tl.from(host.querySelectorAll('.vz-lv'), { opacity: 0, x: 30, duration: .45, stagger: .12 }, .5);
+    host.querySelectorAll('.vz-st rect').forEach((r, i) => tl.from(r, { attr: { width: 0 }, duration: .8, ease: 'power2.out' }, 1.6 + i * .5));
+    tl.from(host.querySelectorAll('.vz-st text'), { opacity: 0, duration: .4, stagger: .3 }, 2.1);
     return tl;
   };
 
