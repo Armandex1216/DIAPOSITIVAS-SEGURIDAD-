@@ -98,7 +98,7 @@
     } } catch (e) { }
 
   // Espera a tener la última versión de la nube para no perder los gráficos recibidos.
-  const imp = qs.get('importar'); const cfg = window.NUBE || {};
+  const imp = document.body.classList.contains('solo-ver') ? null : qs.get('importar'); const cfg = window.NUBE || {};
   if (imp && cfg.url && cfg.key && D.store.meta.importado !== imp) {
     D.toast('Recibiendo los gráficos de Safety HOC…', 6000);
     (D.nubeLista || Promise.resolve()).then(() => fetch(`${cfg.url}/rest/v1/diapo_importaciones?id=eq.${encodeURIComponent(imp)}&select=data,periodo`, { headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key } }))
