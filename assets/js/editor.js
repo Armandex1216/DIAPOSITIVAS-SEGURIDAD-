@@ -175,6 +175,7 @@
     if (f.t === 'chart') { el.innerHTML = `<div class="chartbox"><canvas id="fc-${fid}"></canvas></div>`; }
     if (f.t === 'table') { el.innerHTML = `<table class="t tt" data-tbl ${f.auto ? 'data-auto' : ''}>${f.html}</table>`; }
     if (f.t === 'box') { el.innerHTML = `<div class="fbox" style="background:${f.bg || '#1a1917'}"><div class="ftx">${f.html || 'Comentario'}</div></div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
+    if (f.t === 'viz') { el.innerHTML = `<div class="vizbox" id="vz-${fid}"></div><button class="data-btn viz-ed" data-noedit contenteditable="false">✎ Datos del gráfico</button>`; $('.viz-ed', el).onclick = e => { e.stopPropagation(); vizEdit(fid); }; }
     if (f.t === 'bubble') { el.innerHTML = `<div class="bub"><div class="ftx">${f.html || 'Escriba aquí'}</div></div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
     el.insertAdjacentHTML('beforeend', '<i class="fgrip" data-noedit contenteditable="false" title="Arrastre para mover">✥</i><i class="frz" data-noedit contenteditable="false" title="Arrastre para cambiar el tamaño"></i>');
     layerOf(sl).appendChild(el); applyStyle(el, f);
@@ -183,9 +184,18 @@
       // al poner una imagen, el cuadro toma su proporción (así no se recorta ni se estira)
       el.addEventListener('load', ev => { const im = ev.target; if (im.tagName !== 'IMG' || !im.naturalWidth) return; const L = store.layout['free:' + fid] || (store.layout['free:' + fid] = {}); let w = L.w || el.offsetWidth, h = Math.round(w * im.naturalHeight / im.naturalWidth); if (L.fit && L.h && h > L.h + 3) { const w2 = Math.round(L.h * im.naturalWidth / im.naturalHeight); L.x = Math.round((L.x || 0) + (w - w2) / 2); L.w = w = w2; h = L.h; D.applyLayout(el, L); D.persist(); } delete L.fit;
         if (L.ar === im.currentSrc.slice(-40)) return; L.ar = im.currentSrc.slice(-40); if (Math.abs((L.h || el.offsetHeight) - h) > 3) { L.h = h; D.applyLayout(el, L); D.persist(); } }, true); }
+    if (f.t === 'viz' && window.VIZ) { const L = store.layout['free:' + fid] || {}; VIZ.mount(f.s, $('.vizbox', el), f.kind, Object.assign({}, f.def, { w: L.w || (f.def || {}).w, h: L.h || (f.def || {}).h })); }
     if (f.t === 'chart' && window.HC) { HC.bind(f.s, 'fc-' + fid, KINDS[f.kind] ? chartMake(f.kind) : HC.maker(f.kind), f.def); HC.colorable['fc-' + fid] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(f.kind) || (f.def && f.def.porBarra) ? 'label' : 'series'; }
     if (D.editing()) setEditable(el, true);
     return el;
+  }
+  // datos de un gráfico especial: se editan como texto (JSON) y se vuelve a dibujar
+  function vizEdit(fid) {
+    const f = store.free[fid]; if (!f) return; let m = document.querySelector('.viz-modal'); if (m) m.remove();
+    m = document.createElement('div'); m.className = 'modal viz-modal on'; m.setAttribute('data-noedit', '');
+    m.innerHTML = `<div class="nbox" style="width:min(1100px,92vw)"><h3 style="margin:0 0 8px">Datos del gráfico</h3><p style="margin:0 0 10px;font-size:15px;color:#6f6b63">Cambie los números o nombres y pulse Aplicar. Mantenga las comillas, comas y corchetes.</p><textarea style="width:100%;height:55vh;font:14px/1.4 monospace;padding:12px;border-radius:10px;border:1px solid #d8d0bf">${JSON.stringify(f.def, null, 1).replace(/</g, '&lt;')}</textarea><p class="nerr" style="color:#b00"></p><div style="display:flex;gap:10px;justify-content:flex-end"><button data-x>Cancelar</button><button data-ok style="background:#c39531;border:0;padding:10px 18px;border-radius:10px;font-weight:800">Aplicar</button></div></div>`;
+    document.body.appendChild(m); m.querySelector('[data-x]').onclick = () => m.remove();
+    m.querySelector('[data-ok]').onclick = () => { try { f.def = JSON.parse(m.querySelector('textarea').value); } catch (e) { m.querySelector('.nerr').textContent = 'Revise el formato: ' + e.message; return; } m.remove(); renderFree(fid); D.persist(); D.toast('Gráfico actualizado'); };
   }
   function setEditable(root, on) { $$('.ftx, [data-tbl] td, [data-tbl] th', root).forEach(x => x.contentEditable = on && !(D.moving && D.moving()) ? 'true' : 'false'); }
   D.onFreeDelete = fid => { const f = store.free[fid]; if (!f) return; if (typeof selectFree === 'function' && selF === fid) selectFree(null); delete store.free[fid]; delete store.layout['free:' + fid]; if (f.t === 'img') delete store.images['free-' + fid]; const el = $(`.free[data-fid="${fid}"]`); if (el) el.remove(); D.persist(); D.toast('Elemento eliminado'); };
