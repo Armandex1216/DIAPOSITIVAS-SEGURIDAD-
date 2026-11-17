@@ -13,7 +13,15 @@
 .vz-kl{font:800 22px/1.2 Montserrat,sans-serif;color:${C.ink};margin-top:10px}.vz-ks{font:600 18px/1.3 Montserrat,sans-serif;color:${C.mute};margin-top:6px}
 .vz-kbar{margin-top:auto;height:8px;border-radius:8px;background:${C.soft};overflow:hidden}.vz-kbar span{display:block;height:100%;width:0;background:var(--c);border-radius:8px}
 .vz-k .vz-tag{position:absolute;right:16px;top:14px;font:800 15px Montserrat,sans-serif;padding:5px 10px;border-radius:20px;background:var(--tb,#eef7f1);color:var(--tc,${C.green})}
-.viz-ed{right:auto!important;left:0}.viz-modal{place-items:center!important;padding:0!important;background:rgba(10,9,8,.45)!important;z-index:200!important}.viz-modal .nbox{background:#fff;padding:24px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Montserrat,sans-serif}.solo-ver .viz-ed{display:none!important}`;
+.viz-ed{right:auto!important;left:0}
+.vz-halo{transform-box:fill-box;transform-origin:center;animation:vzHalo 1.8s ease-out infinite}
+@keyframes vzHalo{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.4);opacity:0}}
+.vz-pulse{transform-box:fill-box;transform-origin:center;animation:vzPulse 1.6s ease-in-out infinite}
+@keyframes vzPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.vz-march{animation:vzMarch 1.2s linear infinite}@keyframes vzMarch{to{stroke-dashoffset:-32}}
+.vz-glow{animation:vzGlow 2s ease-in-out infinite}@keyframes vzGlow{0%,100%{opacity:.25}50%{opacity:.75}}
+.vz-k::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);transform:translateX(-120%);animation:vzShine 5s ease-in-out 2.4s infinite;pointer-events:none}
+@keyframes vzShine{0%{transform:translateX(-120%)}25%,100%{transform:translateX(120%)}}.viz-modal{place-items:center!important;padding:0!important;background:rgba(10,9,8,.45)!important;z-index:200!important}.viz-modal .nbox{background:#fff;padding:24px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Montserrat,sans-serif}.solo-ver .viz-ed{display:none!important}`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   const svg = (W, H, inner) => `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
   const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 20}" font-weight="${o.fw || 700}" fill="${o.c || C.ink}" text-anchor="${o.a || 'start'}" ${o.db ? `dominant-baseline="${o.db}"` : ''} ${o.cls ? `class="${o.cls}"` : ''} ${o.at || ''}>${esc(s)}</text>`;
@@ -46,8 +54,8 @@
       if (k === d.series.length - 1) g += `<path class="vz-area" d="${p} L${pts[pts.length - 1][0]},${y(0)} L${pts[0][0]},${y(0)} Z" fill="url(#vzg-${host.id})"/>`;
       g += `<path class="vz-ln" d="${p}" pathLength="1" fill="none" stroke="${s.c}" stroke-width="${s.wd || 6}" stroke-linecap="round" stroke-linejoin="round" ${s.dash ? 'stroke-dasharray="1"' : ''} opacity="${s.op || 1}"/>`;
       const e = pts[pts.length - 1], lv = s.values[s.values.length - 1];
-      g += `<g class="vz-end" data-k="${k}"><circle cx="${e[0]}" cy="${e[1]}" r="11" fill="${s.c}" stroke="#fff" stroke-width="4"/>${T(e[0] + 18, e[1] + 2, '', { fs: 30, fw: 900, c: s.c, db: 'middle', at: `data-to="${lv}"` })}${T(e[0] + 18, e[1] + 30, s.name, { fs: 17, fw: 700, c: C.mute, db: 'middle' })}</g>`;
-      if (s.mark) { const i = s.mark - 1, v = s.values[i]; g += `<g class="vz-mk"><circle cx="${x(i)}" cy="${y(v)}" r="9" fill="#fff" stroke="${s.c}" stroke-width="4"/>${T(x(i) + 14, y(v) + 26, `${nf(v)} al día ${s.mark}`, { fs: 18, fw: 800, c: s.c })}</g>`; }
+      g += `<g class="vz-end" data-k="${k}">${k === d.series.length - 1 ? `<circle class="vz-halo" cx="${e[0]}" cy="${e[1]}" r="12" fill="${s.c}"/>` : ''}<circle cx="${e[0]}" cy="${e[1]}" r="11" fill="${s.c}" stroke="#fff" stroke-width="4"/>${T(e[0] + 18, e[1] + 2, '', { fs: 30, fw: 900, c: s.c, db: 'middle', at: `data-to="${lv}"` })}${T(e[0] + 18, e[1] + 30, s.name, { fs: 17, fw: 700, c: C.mute, db: 'middle' })}</g>`;
+      if (s.mark) { const i = s.mark - 1, v = s.values[i]; g += `<g class="vz-mk"><circle cx="${x(i)}" cy="${y(v)}" r="9" fill="#fff" stroke="${s.c}" stroke-width="4"/>${T(x(i) + 14, y(v) + 40, `${nf(v)} al día ${s.mark}`, { fs: 18, fw: 800, c: s.c })}</g>`; }
     });
     host.innerHTML = svg(W, H, g);
     const tl = gsap.timeline({ paused: true }), lns = host.querySelectorAll('.vz-ln');
@@ -74,7 +82,7 @@
       if (r.meta != null) g += `<g class="vz-meta"><line x1="${sx(r.meta)}" x2="${sx(r.meta)}" y1="${cy - 30}" y2="${cy + 20}" stroke="${C.gold}" stroke-width="4"/><path d="M${sx(r.meta)},${cy - 30} l22,7 l-22,7 Z" fill="${C.gold}"/>${T(sx(r.meta) + (r.meta > 88 || r.inv ? -8 : 26), cy - 18, `Meta ${r.inv ? '≤' : ''}${r.meta}%`, { fs: 16, fw: 800, c: '#9a7420', a: r.meta > 88 || r.inv ? 'end' : 'start' })}</g>`;
       g += `<g class="vz-a"><circle cx="${sx(r.a)}" cy="${cy}" r="13" fill="#fff" stroke="#9c978d" stroke-width="4"/>${T(sx(r.a), cy + 42, `${d.aLab || 'Oct'} ${r.a}%`, { a: 'middle', fs: 17, fw: 700, c: '#8a857b' })}</g>`;
       g += `<g class="vz-b" data-dx="${sx(r.b) - sx(r.a)}"><circle cx="${sx(r.a)}" cy="${cy}" r="17" fill="${col}" stroke="#fff" stroke-width="4"/>${T(sx(r.a), cy - 28, '', { a: 'middle', fs: 24, fw: 900, c: col, at: `data-to="${r.b}"` })}</g>`;
-      g += `<g class="vz-chip"><rect x="${W - RW + 10}" y="${cy - 26}" width="${RW - 20}" height="52" rx="26" fill="${col}"/>${T(W - RW / 2, cy + 2, same ? '= igual' : `${better ? 'Mejoró' : 'Empeoró'} ${Math.abs(dl)} pts`, { a: 'middle', fs: 20, fw: 900, c: '#fff', db: 'middle' })}</g>`;
+      g += `<g class="vz-chip"><rect class="${!better && !same ? 'vz-pulse' : ''}" x="${W - RW + 10}" y="${cy - 26}" width="${RW - 20}" height="52" rx="26" fill="${col}"/>${T(W - RW / 2, cy + 2, same ? '= igual' : `${better ? 'Mejoró' : 'Empeoró'} ${Math.abs(dl)} pts`, { a: 'middle', fs: 20, fw: 900, c: '#fff', db: 'middle' })}</g>`;
       g += `</g>`;
     });
     host.innerHTML = svg(W, H, g);
@@ -93,7 +101,7 @@
     const LW = d.lw || 200, RW = 110, top = 64, nc = d.cols.length, nr = d.rows.length, gap = 6;
     const cw = (W - LW - RW - gap * (nc - 1)) / nc, ch = Math.min(110, (H - top - 10 - gap * (nr - 1)) / nr), max = Math.max(...d.values.flat());
     let g = '';
-    if (d.mark) d.mark.forEach(m => { const cx = LW + m.col * (cw + gap); g += `<g class="vz-mark"><rect x="${cx - 5}" y="${top - 12}" width="${cw + 10}" height="${nr * (ch + gap) + 16}" rx="12" fill="none" stroke="${m.c || C.gold}" stroke-width="4" stroke-dasharray="10 6"/>${T(cx + cw / 2, top - 22, m.label, { a: 'middle', fs: 17, fw: 900, c: m.c || '#9a7420' })}</g>`; });
+    if (d.mark) d.mark.forEach(m => { const cx = LW + m.col * (cw + gap); g += `<g class="vz-mark"><rect x="${cx - 5}" y="${top - 12}" width="${cw + 10}" height="${nr * (ch + gap) + 16}" rx="12" fill="${m.c || C.gold}" fill-opacity=".08" class="vz-glow"/><rect class="vz-march" x="${cx - 5}" y="${top - 12}" width="${cw + 10}" height="${nr * (ch + gap) + 16}" rx="12" fill="none" stroke="${m.c || C.gold}" stroke-width="4" stroke-dasharray="10 6"/>${T(cx + cw / 2, top - 22, m.label, { a: 'middle', fs: 17, fw: 900, c: m.c || '#9a7420' })}</g>`; });
     d.cols.forEach((c, j) => { g += T(LW + j * (cw + gap) + cw / 2, top - (d.mark && d.mark.some(m => m.col === j) ? 46 : 18), c, { a: 'middle', fs: 17, fw: 700, c: d.we && d.we.includes(j) ? C.red : C.mute }); });
     g += T(W - RW / 2 + 10, top - 18, 'Total', { a: 'middle', fs: 17, fw: 800, c: C.mute });
     d.rows.forEach((r, i) => {
@@ -151,7 +159,7 @@
     for (let v = 0; v <= d.xmax; v += d.xstep || 2) g += T(X(v), Tp + h + 30, v, { a: 'middle', fs: 17, fw: 600, c: C.mute });
     g += `<line x1="${L}" x2="${L + w}" y1="${Tp + h}" y2="${Tp + h}" stroke="#cfc6b5" stroke-width="2"/>` + T(L + w / 2, H - 6, d.xlab, { a: 'middle', fs: 18, fw: 800, c: C.mute }) + `<text transform="translate(18 ${Tp + h / 2}) rotate(-90)" text-anchor="middle" font-size="18" font-weight="800" fill="${C.mute}">${esc(d.ylab)}</text>`;
     d.pts.forEach(p => { const r = 12 + 26 * Math.sqrt(p.r / rmax), cx = X(p.x), cy = Y(p.y), right = p.lab !== 'l';
-      g += `<g class="vz-pt"><circle cx="${cx}" cy="${cy}" r="${r}" fill="${p.c}" fill-opacity=".85" stroke="#fff" stroke-width="3"/>${T(cx, cy + 1, p.x, { a: 'middle', db: 'middle', fs: Math.max(14, r * .7), fw: 900, c: '#fff' })}${T(right ? cx + r + 8 : cx - r - 8, cy - (p.dy || 0), p.name, { a: right ? 'start' : 'end', db: 'middle', fs: 18, fw: 800, at: 'paint-order="stroke" stroke="#fff" stroke-width="5"' })}${p.note ? T(right ? cx + r + 8 : cx - r - 8, cy - (p.dy || 0) + 21, p.note, { a: right ? 'start' : 'end', db: 'middle', fs: 15, fw: 700, c: p.c, at: 'paint-order="stroke" stroke="#fff" stroke-width="5"' }) : ''}</g>`; });
+      g += `<g class="vz-pt">${p.c === C.red ? `<circle class="vz-halo" cx="${cx}" cy="${cy}" r="${r}" fill="${p.c}"/>` : ''}<circle cx="${cx}" cy="${cy}" r="${r}" fill="${p.c}" fill-opacity=".85" stroke="#fff" stroke-width="3"/>${T(cx, cy + 1, p.x, { a: 'middle', db: 'middle', fs: Math.max(14, r * .7), fw: 900, c: '#fff' })}${T(right ? cx + r + 8 : cx - r - 8, cy - (p.dy || 0), p.name, { a: right ? 'start' : 'end', db: 'middle', fs: 18, fw: 800, at: 'paint-order="stroke" stroke="#fff" stroke-width="5"' })}${p.note ? T(right ? cx + r + 8 : cx - r - 8, cy - (p.dy || 0) + 21, p.note, { a: right ? 'start' : 'end', db: 'middle', fs: 15, fw: 700, c: p.c, at: 'paint-order="stroke" stroke="#fff" stroke-width="5"' }) : ''}</g>`; });
     host.innerHTML = svg(W, H, g);
     const tl = gsap.timeline({ paused: true });
     tl.from(host.querySelectorAll('line,svg > text'), { opacity: 0, duration: .4 }, 0);
@@ -234,6 +242,62 @@
     host.querySelectorAll('.vz-bd').forEach((b, i) => tl.fromTo(b, { x: 0 }, { x: +b.dataset.dx, duration: 1.3, ease: 'power3.inOut' }, .8 + i * .15));
     host.querySelectorAll('.vz-bar').forEach((b, i) => tl.from(b, { attr: { x2: b.getAttribute('x1') }, duration: 1.3, ease: 'power3.inOut' }, .8 + i * .15));
     tl.from(host.querySelectorAll('.vz-chip'), { scale: 0, transformOrigin: '50% 50%', opacity: 0, duration: .45, stagger: .1, ease: 'back.out(2.2)' }, 2);
+    return tl;
+  };
+
+
+  /* ---------- tarjetas por zona: reparto por nivel + anillo de abiertos ---------- */
+  K.zones = (host, d, W, H) => {
+    const n = d.rows.length, gap = 26, rh = (H - gap * (n - 1)) / n, LW = 330, RW = 270, bx = LW + 20, bw = W - LW - RW - 50, bh = Math.min(64, rh * .3);
+    let g = `<defs><filter id="vzs-${host.id}" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#281e0a" flood-opacity=".12"/></filter></defs>`;
+    d.rows.forEach((r, i) => {
+      const y = i * (rh + gap), tot = r.seg.reduce((a, b) => a + b.v, 0), cy = y + rh / 2, R = Math.min(70, rh * .32), CC = 2 * Math.PI * R, po = r.open / r.total;
+      g += `<g class="vz-zone"><rect x="0" y="${y}" width="${W}" height="${rh}" rx="22" fill="#fff" filter="url(#vzs-${host.id})"/><rect x="0" y="${y}" width="12" height="${rh}" rx="6" fill="${r.c}"/>`;
+      if (r.hot) g += `<rect class="vz-glow" x="2" y="${y + 2}" width="${W - 4}" height="${rh - 4}" rx="21" fill="none" stroke="${C.red}" stroke-width="4"/>`;
+      g += T(40, cy - 22, r.name, { fs: r.name.length > 12 ? 27 : 32, fw: 900, c: r.c }) + T(40, cy + 30, '', { fs: 46, fw: 900, at: `data-to="${r.total}"` }) + T(40 + String(r.total).length * 30 + 12, cy + 30, 'reportes', { fs: 20, fw: 700, c: C.mute });
+      g += T(bx, cy - bh / 2 - 16, d.barLab || 'Nivel de riesgo de sus reportes', { fs: 17, fw: 800, c: C.mute });
+      g += `<rect x="${bx}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="${bh / 2}" fill="${C.soft}"/>`;
+      g += `<clipPath id="vzz-${host.id}-${i}"><rect x="${bx}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="${bh / 2}"/></clipPath>`;
+      let x = bx; r.seg.forEach((sg, k) => { const w = sg.v / tot * bw; if (w <= 0) return;
+        g += `<g class="vz-seg" data-i="${i}"><rect x="${x}" y="${cy - bh / 2}" width="${w}" height="${bh}" fill="${sg.c}" clip-path="url(#vzz-${host.id}-${i})"/>`;
+        if (w <= 34) g += T(x + w / 2, cy + bh / 2 + 22, `${sg.v} ${sg.label}`, { a: 'middle', fs: 16, fw: 900, c: sg.c === '#cfc8bb' ? C.mute : sg.c });
+        if (w > 120) g += T(x + w / 2, cy + 1, `${sg.v} ${sg.label}`, { a: 'middle', db: 'middle', fs: 22, fw: 900, c: sg.dark ? C.ink : '#fff' });
+        else if (w > 34) g += T(x + w / 2, cy + 1, sg.v, { a: 'middle', db: 'middle', fs: 20, fw: 900, c: sg.dark ? C.ink : '#fff' });
+        g += '</g>'; x += w; });
+      g += `<rect x="${bx}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="${bh / 2}" fill="none" stroke="#fff" stroke-width="3"/>`;
+      if (r.note) g += `<g class="vz-note">${T(bx, cy + bh / 2 + 52, '', { fs: 21, fw: 700, c: r.hot ? C.red : C.mute, at: '' }).replace('></text>', `>${esc(r.note)}</text>`)}</g>`;
+      const rx = W - RW / 2 - 10;
+      g += `<circle cx="${rx}" cy="${cy}" r="${R}" fill="none" stroke="${C.soft}" stroke-width="18"/><circle class="vz-arc" data-c="${CC}" data-p="${po}" cx="${rx}" cy="${cy}" r="${R}" fill="none" stroke="${r.hot ? C.red : r.c}" stroke-width="18" stroke-linecap="round" stroke-dasharray="0 ${CC}" transform="rotate(-90 ${rx} ${cy})"/>`;
+      g += T(rx, cy - 4, '', { a: 'middle', fs: 40, fw: 900, c: r.hot ? C.red : C.ink, at: `data-to="${r.open}"` }) + T(rx, cy + 24, 'abiertos', { a: 'middle', fs: 17, fw: 800, c: C.mute }) + T(rx, cy + R + 32, `${Math.round(po * 100)} % · ${r.openMA} de riesgo Medio`, { a: 'middle', fs: 17, fw: 800, c: r.hot ? C.red : C.mute });
+      g += '</g>';
+    });
+    host.innerHTML = svg(W, H, g);
+    const tl = gsap.timeline({ paused: true });
+    tl.from(host.querySelectorAll('.vz-zone'), { opacity: 0, x: -60, duration: .6, stagger: .15, ease: 'power3.out' }, .1);
+    host.querySelectorAll('.vz-seg').forEach((sg, k) => { const r = sg.querySelector('rect'); tl.from(r, { attr: { width: 0 }, duration: .7, ease: 'power2.out' }, .6 + +sg.dataset.i * .25 + (k % 4) * .18); const t = sg.querySelector('text'); if (t) tl.from(t, { opacity: 0, duration: .3 }, 1 + +sg.dataset.i * .25 + (k % 4) * .18); });
+    host.querySelectorAll('.vz-arc').forEach((a, i) => tl.to(a, { attr: { 'stroke-dasharray': `${a.dataset.c * a.dataset.p} ${a.dataset.c}` }, duration: 1.3, ease: 'power3.out' }, 1 + i * .25));
+    counters(tl, host, .5, .2);
+    tl.from(host.querySelectorAll('.vz-note'), { opacity: 0, y: 10, duration: .5, stagger: .2 }, 1.8);
+    return tl;
+  };
+  /* ---------- barras apiladas por antigüedad (semáforo) ---------- */
+  K.agebars = (host, d, W, H) => {
+    const LW = d.lw || 300, RW = 230, top = 80, nr = d.rows.length, rh = (H - top) / nr, bh = Math.min(60, rh * .55), max = d.max || Math.max(...d.rows.map(r => r.vals.reduce((a, b) => a + b, 0))), X = v => v / max * (W - LW - RW - 30);
+    let g = '', lx = LW;
+    d.buckets.forEach(b => { g += `<g class="vz-lg"><rect x="${lx}" y="10" width="30" height="30" rx="8" fill="${b.c}"/>${T(lx + 40, 32, b.label, { fs: 20, fw: 800 })}</g>`; lx += 50 + b.label.length * 12 + 34; });
+    d.rows.forEach((r, i) => { const cy = top + i * rh + rh / 2, tot = r.vals.reduce((a, b) => a + b, 0);
+      g += `<g class="vz-ar">${T(LW - 20, cy - 2, r.name, { a: 'end', db: 'middle', fs: 25, fw: 800 })}<rect x="${LW}" y="${cy - bh / 2}" width="${X(max)}" height="${bh}" rx="12" fill="${C.soft}"/></g>`;
+      let x = LW; r.vals.forEach((v, k) => { if (!v) return; const w = X(v), b = d.buckets[k];
+        g += `<g class="vz-ag" data-i="${i}" data-k="${k}"><rect class="${b.hot ? 'vz-pulse' : ''}" x="${x}" y="${cy - bh / 2}" width="${w}" height="${bh}" rx="${w > 24 ? 10 : 4}" fill="${b.c}" stroke="#fff" stroke-width="3"/>${w > 18 ? T(x + w / 2, cy + 1, v, { a: 'middle', db: 'middle', fs: w > 30 ? 24 : 18, fw: 900, c: b.dark ? C.ink : '#fff' }) : ''}</g>`; x += w; });
+      g += `<g class="vz-tt">${T(x + 16, cy + 2, '', { db: 'middle', fs: 34, fw: 900, at: `data-to="${tot}"` })}${r.ma ? `<rect x="${x + 16 + String(tot).length * 22 + 14}" y="${cy - 17}" width="${118}" height="34" rx="17" fill="${C.amber}"/>${T(x + 16 + String(tot).length * 22 + 14 + 59, cy + 1, `${r.ma} Medio`, { a: 'middle', db: 'middle', fs: 18, fw: 900, c: C.ink })}` : ''}</g>`;
+    });
+    host.innerHTML = svg(W, H, g);
+    const tl = gsap.timeline({ paused: true });
+    tl.from(host.querySelectorAll('.vz-lg'), { opacity: 0, y: -14, duration: .4, stagger: .08 }, 0);
+    tl.from(host.querySelectorAll('.vz-ar'), { opacity: 0, x: -30, duration: .5, stagger: .1 }, .2);
+    host.querySelectorAll('.vz-ag').forEach(a => { const r = a.querySelector('rect'), t = a.querySelector('text'), at = .7 + +a.dataset.i * .2 + +a.dataset.k * .22; tl.from(r, { attr: { width: 0 }, duration: .55, ease: 'power2.out' }, at); if (t) tl.from(t, { opacity: 0, scale: .5, transformOrigin: '50% 50%', duration: .3 }, at + .35); });
+    tl.from(host.querySelectorAll('.vz-tt'), { opacity: 0, x: -16, duration: .4, stagger: .1 }, 1.9);
+    counters(tl, host, 1.9, .1);
     return tl;
   };
 
