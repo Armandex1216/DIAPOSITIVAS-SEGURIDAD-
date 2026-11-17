@@ -270,4 +270,12 @@
     D.on(sl.id, 'leave', s => { s._rpIn = 0; setTimeout(() => preparar(s), 700); });
     sl.addEventListener('input', () => pintar(sl, false));
   });
+  // GUM: barras de avance (%) en los pedidos y acuerdos del CSST
+  const esG = sl => /^g-(pedidos|acuerdos|insp)$/.test(sl.id) || /^g-(pedidos|acuerdos|insp)$/.test(sl.dataset.base || '');
+  $$('.slide').filter(esG).forEach(sl => {
+    pintar(sl, false);
+    D.on(sl.id, 'enter', s => { if (D.editing()) return pintar(s, false); $$('td.pc.rp-bar', s).forEach(td => { td.style.transition = 'none'; td.style.setProperty('--p', 0); }); requestAnimationFrame(() => { $$('td.pc.rp-bar', s).forEach(td => td.style.transition = ''); setTimeout(() => pintar(s, false), 450); }); });
+    D.on(sl.id, 'edited', s => pintar(s, false)); D.on(sl.id, 'print', s => pintar(s, false));
+    sl.addEventListener('input', () => pintar(sl, false));
+  });
 })();
