@@ -9,6 +9,9 @@ window.PLANTILLAS = {
   blanco: { nombre: 'En blanco', archivo: 'blanco.html', titulo: 'Nueva presentación', laminas: 3 }
 };
 window.CATALOGO = [
+  { id: 'campana-fin-anio', nombre: 'CAMPAÑA FIN DE AÑO', plantilla: 'blanco', portada: 'assets/img/navidad/portada.jpg', items: [
+    { titulo: 'Plan de Seguridad de Fin de Año 2026 · En esta Navidad, elige volver', fecha: 'Temporada navideña 2026', archivo: 'navidad-2026.html', deck: 'navidad-2026', laminas: 11, portada: 'assets/img/navidad/portada.jpg' }
+  ] },
   { id: 'reporte-diario', nombre: 'REPORTE DIARIO', plantilla: 'diario', anual: true, portada: 'assets/img/diario/portada-diario.jpg', items: [] },
   { id: 'riesgos-opt', nombre: 'RIESGOS CRÍTICOS OPT', plantilla: 'riesgos-opt', portada: 'assets/img/portada.jpg', items: [] },
   { id: 'gum', nombre: 'REUNIÓN GUM', plantilla: 'gum', portada: 'assets/img/portada.jpg', items: [

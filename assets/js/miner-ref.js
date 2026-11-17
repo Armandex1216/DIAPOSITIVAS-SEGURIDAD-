@@ -20,7 +20,7 @@
     vertexShader: 'uniform float k; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vec3 n = normalize(normalMatrix * normal); mv.xyz += n * k * max(1.0, -mv.z); gl_Position = projectionMatrix * mv; }',
     fragmentShader: 'uniform vec3 c; void main(){ gl_FragColor = vec4(c,1.0); }'
   });
-  const K = {
+  const K0 = {
     suit: toon(0xd4dc00), suitD: toon(0xa7b000), refl: toon(0xdfe2e0), black: toon(0x202124), boot: toon(0x26282b),
     sole: toon(0x3b3e42), metal: toon(0xc4c8cc), glove: toon(0xe2c900), cuff: toon(0x1d1e20), skin: toon(0xf0b27c),
     lip: toon(0xc77a5a), hair: toon(0x6a3b1c), brow: toon(0x4a2a14), helmet: toon(0xf7b500), white: toon(0xffffff), iris: toon(0x3b2a20),
@@ -28,6 +28,9 @@
     lens: new T.MeshBasicMaterial({ color: 0xcfe9f2, transparent: true, opacity: .28, depthWrite: false, side: T.DoubleSide }),
     frame: toon(0xc9d1d4), mouth: toon(0x5a1f18), blush: toon(0xf3a587)
   };
+  // traje de Papá Noel (data-santa): rojo con piel blanca, guantes blancos y hebilla dorada
+  const KS = Object.assign({}, K0, { suit: toon(0xd0142f), suitD: toon(0xa30d24), refl: toon(0xffffff), glove: toon(0xf4f4f2), metal: toon(0xf2c230), fur: toon(0xffffff), hatR: toon(0xd0142f) });
+  let K = K0;
 
   /* ---------- geometría ---------- */
   const V2 = (r, y) => new T.Vector2(Math.max(.001, r), y);
@@ -65,7 +68,8 @@
     return { hand, fingers, th, tk };
   }
 
-  function buildMiner() {
+  function buildMiner(santa) {
+    K = santa ? KS : K0;
     const root = new T.Group(), hips = new T.Group(); root.add(hips);
     /* piernas: pantalón holgado que cae sobre botas de jebe */
     const PL = prof([[.0, -2.12], [.27, -2.1], [.35, -2.0], [.375, -1.84], [.34, -1.62], [.3, -1.4], [.33, -1.12], [.35, -.9], [.33, -.62], [.37, -.3], [.36, 0], [.2, .1], [0, .13]]);
@@ -113,7 +117,7 @@
     const ant = cyl(.012, .012, .1, K.black, false, 8); ant.position.set(-.05, .15, 0); rd.add(ant);
     // cuello: polo negro y cuello del mameluco levantado, abierto adelante
     const tn = cyl(.17, .2, .2, K.black); tn.position.y = 2.0; torso.add(tn);
-    const col = M(new T.CylinderGeometry(.29, .22, .27, 32, 1, true, .62, Math.PI * 2 - 1.24), toon(0xc8d000, { side: T.DoubleSide }));
+    const col = M(new T.CylinderGeometry(.29, .22, .27, 32, 1, true, .62, Math.PI * 2 - 1.24), toon(K === KS ? 0xffffff : 0xc8d000, { side: T.DoubleSide }));
     col.position.y = 2.04; col.scale.z = .92; torso.add(col);
     [-1, 1].forEach(s => { const lap = M(new T.SphereGeometry(.2, 20, 12, 0, Math.PI), K.suit); lap.scale.set(.75, 1, .18); lap.position.set(.13 * s, 1.9, zf(.13, 1.9) - .03); lap.rotation.set(-.5, 0, s * .55); torso.add(lap); });
     /* brazos */
@@ -182,6 +186,21 @@
     const br = box(.06, .12, .05, K.black); br.position.set(0, .1, -.03); lampG.add(br);
     const beam = new T.Mesh(new T.ConeGeometry(.65, 2.6, 24, 1, true), new T.MeshBasicMaterial({ color: 0xfff1b8, transparent: true, opacity: .08, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide }));
     beam.rotation.x = -Math.PI / 2 - .1; beam.position.set(0, -.05, 1.35); lampG.add(beam);
+    if (santa) { // barba, bigote y gorro navideño sobre el casco
+      const beard = sph(.34, K.fur); beard.scale.set(.98, .9, .62); beard.position.set(0, -.36, fz(0, -.2) - .16); face.add(beard);
+      const chin = sph(.2, K.fur); chin.scale.set(.9, 1.15, .7); chin.position.set(0, -.56, fz(0, -.2) - .12); face.add(chin);
+      [-1, 1].forEach(sd => { const m = sph(.12, K.fur); m.scale.set(1.15, .5, .6); m.position.set(.09 * sd, -.16, fz(.09, -.16) + .01); m.rotation.z = -.35 * sd; face.add(m); });
+      mouth.visible = false; smile.visible = false;
+      // gorro navideño puesto como funda sobre el casco: cuerpo + punta caída + pompón
+      const hat = new T.Group(); hat.position.set(0, .02, 0); helmet.add(hat);
+      const body = lathe(prof([[.53, 0], [.51, .2], [.42, .44], [.27, .64], [.12, .78], [.05, .83]], 40), K.hatR, 44); body.scale.z = 1.1; hat.add(body);
+      const tip = M(new T.ConeGeometry(.11, .62, 24), K.hatR); tip.position.set(.26, .8, 0); tip.rotation.z = -2.05; hat.add(tip);
+      const trim = M(new T.TorusGeometry(.53, .1, 16, 48), K.fur); trim.rotation.x = Math.PI / 2; trim.scale.set(1, 1.1, 1); trim.position.y = .02; hat.add(trim);
+      const pom = sph(.14, K.fur); pom.position.set(.55, .68, 0); hat.add(pom);
+      helmet.children.forEach(c => { if (c !== hat) c.visible = false; });
+      root.userData.santaHat = hat;
+    }
+    K = K0;
     Object.assign(root.userData, { hips, torso, head, face, legs, arms, eyes, mouth, smile, beam, brows, happy });
     return root;
   }
@@ -246,8 +265,8 @@
     scene.add(new T.AmbientLight(0xffffff, .5));
     const key = new T.DirectionalLight(0xffffff, .64); key.position.set(-6, 5, 4.5); scene.add(key);
     const rim = new T.DirectionalLight(0xfff1cf, .22); rim.position.set(6, 4, -5); scene.add(rim);
-    const miner = buildMiner(); scene.add(miner); scene.add(shadowDisc());
-    const U = miner.userData; U.beam.visible = !!el.closest('.dark');
+    const miner = buildMiner(el.dataset.santa !== undefined); scene.add(miner); scene.add(shadowDisc());
+    const U = miner.userData; U.beam.visible = !!el.closest('.dark') && el.dataset.santa === undefined;
     const face0 = parseFloat(el.dataset.face || 0); miner.rotation.y = face0;
     let W = 0, H = 0;
     function size() {
