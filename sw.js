@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 01bf3e4780 */
-const VERSION = '01bf3e4780';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 29e7434729 */
+const VERSION = '29e7434729';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -186,6 +186,7 @@ const FILES = [
 "assets/js/miner-ref.js",
 "assets/js/miner3d.js",
 "assets/js/tpl.js",
+"assets/js/viz.js",
 "assets/lib/MotionPathPlugin.min.js",
 "assets/lib/chart.umd.min.js",
 "assets/lib/chartjs-plugin-datalabels.min.js",
