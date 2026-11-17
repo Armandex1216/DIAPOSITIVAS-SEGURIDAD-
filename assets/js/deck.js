@@ -69,7 +69,7 @@
   addEventListener('keydown', e => { if ((e.key === 'l' || e.key === 'L') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && document.activeElement.isContentEditable) && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName)) setProy(!body.classList.contains('proyector')); });
   const persist = () => { snap(); try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
-  const D = window.DECK = {
+  const D = window.DECK = { soloVer: SOLO_VER,
     i: 0, slides, busy: false, frags: [], store, deckId, LSK, $, $$,
     on(id, ev, fn) { (hooks[id + ':' + ev] = hooks[id + ':' + ev] || []).push(fn); },
     fire(sl, ev) { (hooks[sl.id + ':' + ev] || []).forEach(f => { try { f(sl); } catch (e) { console.error(e); } }); },
@@ -102,7 +102,7 @@
   const tst = document.createElement('div'); tst.className = 'toast'; document.body.appendChild(tst);
   function toast(m, t = 2600) { tst.textContent = m; tst.classList.add('on'); clearTimeout(tst._t); tst._t = setTimeout(() => tst.classList.remove('on'), t); }
   D.toast = toast; D.compress = (f, cb) => compress(f, cb);
-  if (!body.dataset.nohome) { const h = document.createElement('a'); h.className = 'home'; h.href = 'index.html'; h.textContent = '← Presentaciones'; document.body.appendChild(h); }
+  if (!body.dataset.nohome && !SOLO_VER) { const h = document.createElement('a'); h.className = 'home'; h.href = 'index.html'; h.textContent = '← Presentaciones'; document.body.appendChild(h); }
   const ov = document.createElement('div'); ov.className = 'overview'; document.body.appendChild(ov);
   const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = '<img alt="">'; document.body.appendChild(lb);
   const fileIn = document.createElement('input'); fileIn.type = 'file'; fileIn.accept = '.js,.json'; fileIn.hidden = true; document.body.appendChild(fileIn);
@@ -230,7 +230,7 @@
     else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
     else if (k === 'Home') go(visibleIdx()[0]); else if (k === 'End') go(visibleIdx().slice(-1)[0]);
     else if ((k === 'o' || k === 'O') && !SOLO_VER) toggleOv(); else if (k === 'f' || k === 'F') toggleFs();
-    else if ((k === 'e' || k === 'E') && !SOLO_VER) toggleEdit(); else if ((k === 'm' || k === 'M') && !SOLO_VER) toggleMove(); else if (k === 'p' || k === 'P') printDeck();
+    else if ((k === 'e' || k === 'E') && !SOLO_VER) toggleEdit(); else if ((k === 'm' || k === 'M') && !SOLO_VER) toggleMove(); else if ((k === 'p' || k === 'P') && !SOLO_VER) printDeck();
     else if (k === 'Escape') { ov.classList.remove('on'); lb.classList.remove('on'); if (D.moving()) toggleMove(); else if (D.editing()) toggleEdit(); }
   });
   stage.parentElement.addEventListener('click', e => {
@@ -460,6 +460,7 @@
     Object.assign(selBox.style, { left: (r.left - a.left) / k + 'px', top: (r.top - a.top) / k + 'px', width: r.width / k + 'px', height: r.height / k + 'px' }); }
   const lay = el => { const sl = el.closest('.slide'), k = mkey(sl, el); return [k, store.layout[k] || (store.layout[k] = {})]; };
   function toggleMove() {
+    if (SOLO_VER && !D.moving()) return;
     const on = !D.moving(); if (on && !D.editing()) toggleEdit();
     body.classList.toggle('moving', on); $('[data-k=move]', ui).classList.toggle('on', on);
     slides.forEach(sl => editablesIn(sl).forEach(el => el.contentEditable = on ? 'false' : 'true'));

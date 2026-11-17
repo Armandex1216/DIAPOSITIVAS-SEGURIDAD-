@@ -443,3 +443,4 @@ body.proyector .ui [data-k=proy].on{background:#f1d48a;color:#1a1917}
 .offline-pkg .ui [data-k=dl]{display:none}
 /* enlace público de solo lectura */
 .solo-ver .ui > *:not([data-k=prev]):not(.num):not([data-k=next]):not([data-k=fs]){display:none!important}
+.solo-ver .home,.solo-ver .edit-badge,.solo-ver .ins-btn,.solo-ver .ins-menu,.solo-ver .rt-bar,.solo-ver .tbl-tool,.solo-ver .fprops,.solo-ver .modal.nube,.solo-ver .slot-ui,.solo-ver .vs-ui,.solo-ver .box-tg,.solo-ver .overview,.solo-ver .undo-imp{display:none!important}

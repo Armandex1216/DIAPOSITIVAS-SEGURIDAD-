@@ -83,7 +83,7 @@
   }
   let t = null, busy = false, again = false;
   async function push() {
-    if (!user) return; if (busy) { again = true; return; } busy = true; paint('sync');
+    if (!user || document.body.classList.contains('solo-ver')) return; if (busy) { again = true; return; } busy = true; paint('sync');
     try {
       await uploadImages();
       // si otro equipo (u otra pestaña) guardó mientras tanto, se juntan los cambios: lo editado aquí gana y lo demás se toma de la nube
