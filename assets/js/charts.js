@@ -25,6 +25,9 @@
       x.font = `700 ${Math.round(r * .2)}px Montserrat, sans-serif`; x.fillStyle = '#8d8a83'; x.fillText(o.label || 'TOTAL', cx, cy + r * .36); x.restore();
       if (t < 1) requestAnimationFrame(() => { try { c.draw(); } catch (e) { } }); } });
   const lum = hex => { const h = String(hex || '').replace('#', ''); if (!/^[0-9a-f]{6}$/i.test(h)) return 0; const n = parseInt(h, 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+  Chart.register({ id: 'hcGauge', afterDraw(c) { const g = c.config.options.hcGauge; if (!g) return; const m = c.getDatasetMeta(0).data[0]; if (!m) return; const x = c.ctx;
+      x.save(); x.textAlign = 'center'; x.fillStyle = '#1a1917'; x.font = `900 ${Math.round(m.outerRadius * .42)}px Montserrat`; x.textBaseline = 'alphabetic'; x.fillText(g.txt, m.x, m.y - m.outerRadius * .08);
+      x.font = `700 ${Math.max(14, Math.round(m.outerRadius * .13))}px Montserrat`; x.fillStyle = '#6f6b63'; x.fillText(g.lab, m.x, m.y + m.outerRadius * .14); x.restore(); } });
   Chart.register({ id: 'hcStackTotal', // total encima (o a la derecha) de cada barra apilada
     afterDatasetsDraw(c) { const o = c.config.options; if (!o.hcStackTotal) return; const metas = c.data.datasets.map((_, i) => c.getDatasetMeta(i)).filter(m => !m.hidden && m.data.length); if (!metas.length) return;
       const horiz = o.indexAxis === 'y', x = c.ctx, n = c.data.labels.length, sz = o.hcStackTotal.size || 22;
@@ -63,7 +66,7 @@
     if (type === 'doughnut' || type === 'pie') {
       o.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 1700, easing: 'easeOutQuart' }, o.animation || {});
       if (o.hcCenter === undefined) o.hcCenter = { label: 'TOTAL' };
-      ds.forEach(d => { const v = (d.data || []).map(Number), max = Math.max(...v); d.offset = v.map(x => x === max && v.length > 1 ? 22 : 0); d.hoverOffset = 30; d.spacing = d.spacing == null ? 3 : d.spacing; d.borderRadius = d.borderRadius == null ? 8 : d.borderRadius; d.borderWidth = d.borderWidth == null ? 0 : d.borderWidth; });
+      ds.forEach(d => { const v = (d.data || []).map(Number), max = Math.max(...v); d.offset = v.map(x => x === max && v.length > 1 && !o.hcGauge ? 22 : 0); d.hoverOffset = 30; d.spacing = d.spacing == null ? 3 : d.spacing; d.borderRadius = d.borderRadius == null ? 8 : d.borderRadius; d.borderWidth = d.borderWidth == null ? 0 : d.borderWidth; });
     } else if (type === 'polarArea') {
       o.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 1800, easing: 'easeOutBack' }, o.animation || {});
       ds.forEach(d => { d.borderWidth = 3; d.borderColor = '#fff'; d.hoverOffset = 18; });
@@ -76,7 +79,7 @@
         y: { type: 'number', easing: 'easeOutQuad', duration: step, from: c => c.index === 0 ? c.chart.scales.y.getPixelForValue(0) : c.chart.getDatasetMeta(c.datasetIndex).data[c.index - 1].getProps(['y'], true).y, delay: c => c.type === 'data' && !c.yStarted ? (c.yStarted = true, c.index * step) : 0 } }, o.animations || {});
       ds.forEach(d => { const col = d.borderColor || '#c39531', v = (d.data || []).map(Number), max = Math.max(...v);
         d.borderWidth = d.borderWidth || 5; d.tension = .25; d.cubicInterpolationMode = 'monotone'; d.clip = false; d.fill = d.fill == null ? 'origin' : d.fill;
-        d.backgroundColor = c => { const a = c.chart.chartArea; if (!a) return shade(col, .7); const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom); g.addColorStop(0, shade(col, .45) + 'aa'); g.addColorStop(1, shade(col, .9) + '11'); return g; };
+        const solid = d.hcSolid; d.backgroundColor = c => { const a = c.chart.chartArea; if (!a) return shade(col, .7); const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom); g.addColorStop(0, shade(col, solid ? .1 : .45) + (solid ? 'ee' : 'aa')); g.addColorStop(1, shade(col, solid ? .55 : .9) + (solid ? '88' : '11')); return g; };
         d.pointRadius = v.map(x => x === max ? 11 : x === 0 ? 8 : 6); d.pointHoverRadius = 13; d.pointBorderWidth = 3; d.pointBorderColor = '#fff';
         d.pointBackgroundColor = v.map(x => x === max ? '#c39531' : x === 0 ? '#e11d1d' : col); });
     } else if (type === 'bar') {
@@ -129,9 +132,9 @@
     ],
     COLORES: ['#1f9d5c', '#16a34a', '#82c9a0', '#f6c343', '#e6a316', '#e07b39', '#e11d1d', '#d23c3c', '#f19c9c', '#1f5fa8', '#2f6db5', '#7f95c3', '#0f766e', '#14b8a6', '#6b46c1', '#c39531', '#9a7422', '#e8c97f', '#1a1917', '#4c4a46', '#8d8a83', '#b4b5b7', '#d6d3cc', '#ffffff'],
     /* ---------- tipo de gráfico elegido por el usuario: la misma data en otra forma ---------- */
-    KINDS: { split: ['▭', 'Barra de proporción'], waffle: ['▦', 'Cuadrícula de 100'], donut: ['◍', 'Dona'], pie: ['◕', 'Pastel'], polar: ['✺', 'Área polar'], bar: ['▮', 'Barras'], hbar: ['▬', 'Barras horizontales'], line: ['⟋', 'Líneas'], radar: ['⬡', 'Radar'], stack: ['▤', 'Barras apiladas'] },
+    KINDS: { split: ['▭', 'Barra de proporción'], waffle: ['▦', 'Cuadrícula de 100'], donut: ['◍', 'Dona'], pie: ['◕', 'Pastel'], polar: ['✺', 'Área polar'], bar: ['▮', 'Barras'], hbar: ['▬', 'Barras horizontales'], line: ['⟋', 'Líneas'], radar: ['⬡', 'Radar'], stack: ['▤', 'Barras apiladas'], hstack: ['☰', 'Apiladas horizontales'], stack100: ['▥', 'Apiladas al 100 %'], area: ['◭', 'Área'], combo: ['⫶', 'Barras + línea'], gauge: ['◠', 'Medidor (semicírculo)'] },
     kindOf(id) { const t = DECK.store.meta && DECK.store.meta.tipos; return (t && t[id]) || null; },
-    setKind(id, k) { const m = DECK.store.meta; m.tipos = Object.assign({}, m.tipos || {}); if (k) m.tipos[id] = k; else delete m.tipos[id]; HC.colorable[id] = ['donut', 'pie', 'polar', 'split', 'waffle'].includes(k) ? 'label' : HC.colorable0[id] || HC.colorable[id]; DECK.persist(); if (HC.builders[id]) HC.builders[id](true); },
+    setKind(id, k) { const m = DECK.store.meta; m.tipos = Object.assign({}, m.tipos || {}); if (k) m.tipos[id] = k; else delete m.tipos[id]; HC.colorable[id] = ['donut', 'pie', 'polar', 'split', 'waffle', 'gauge'].includes(k) ? 'label' : HC.colorable0[id] || HC.colorable[id]; DECK.persist(); if (HC.builders[id]) HC.builders[id](true); },
     colorable0: {},
     kindMenu(id, btn) {
       let m = document.querySelector('.kind-pop'); if (m) { m.remove(); if (m.dataset.id === id) return; }
@@ -146,7 +149,7 @@
       const cols = cols0 && cols0.length ? cols0 : ['#c39531', '#2f6db5', '#1f9d5c', '#d23c3c', '#e6a316', '#6b46c1', '#8d8a83'];
       const fmt = v => v == null ? '' : (Math.round(v * 100) / 100).toLocaleString('es-PE');
       return (ctx, d) => {
-        const C = d.colors && d.colors.length ? d.colors : cols, one = d.series.length === 1, pc = d.pct ? ' %' : '';
+        const C = d.colors && d.colors.length ? d.colors : cols, one = d.series.length === 1; let pc = d.pct ? ' %' : '';
         const perLabel = d.labels.map((_, i) => C[i % C.length]);
         if (kind === 'waffle') return { type: 'bar', data: { labels: [], datasets: [] }, options: { maintainAspectRatio: false, hcShadow: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } },
           hcWaffle: { labels: d.labels, values: d.series[0].values, colors: perLabel, pct: !!d.pct } } };
@@ -171,16 +174,28 @@
           if (kind === 'polar') cfg.options.scales = { r: { ticks: { display: false }, grid: { color: 'rgba(60,50,30,.12)' }, angleLines: { display: false } } };
           return cfg;
         }
-        const horiz = kind === 'hbar', stack = kind === 'stack';
+        if (kind === 'gauge') { // medidor: el primer valor sobre el máximo (por defecto 100)
+          const v = +d.series[0].values[0] || 0, mx = +d.max || (d.pct || v <= 100 ? 100 : v), p = Math.max(0, Math.min(v, mx)), col = C[0];
+          return { type: 'doughnut', data: { labels: [d.labels[0] || '', ''], datasets: [{ data: [p, mx - p], backgroundColor: [col, '#e9e4d8'], borderWidth: 0, borderRadius: 10 }] },
+            options: { maintainAspectRatio: false, circumference: 180, rotation: -90, cutout: '70%', layout: { padding: { top: 10, bottom: 10, left: 20, right: 20 } }, hcShadow: false, hcCenter: false,
+              plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }, hcGauge: { txt: fmt(v) + pc, lab: d.labels[0] || '', col } } };
+        }
+        const horiz = kind === 'hbar' || kind === 'hstack', stack = kind === 'stack' || kind === 'hstack' || kind === 'stack100';
+        if (kind === 'stack100') { const tot = d.labels.map((_, j) => d.series.reduce((a, s) => a + (+s.values[j] || 0), 0)); d = Object.assign({}, d, { pct: true, series: d.series.map(s => ({ name: s.name, values: s.values.map((x, j) => tot[j] ? Math.round((+x || 0) / tot[j] * 1000) / 10 : 0) })) }); pc = ' %'; }
         const ds = d.series.map((s, i) => ({ label: s.name, data: s.values, borderColor: one && kind !== 'line' && kind !== 'radar' ? perLabel : C[i % C.length],
           backgroundColor: one && (kind === 'bar' || kind === 'hbar') ? perLabel : C[i % C.length],
           datalabels: { display: c => c.dataset.data[c.dataIndex] != null && (stack ? +c.dataset.data[c.dataIndex] > 0 : true), anchor: stack ? 'center' : 'end', align: stack ? 'center' : horiz ? 'right' : 'top', offset: 4, color: stack ? '#fff' : '#1a1917', font: { weight: '800', size: 18 }, formatter: x => fmt(x) + pc } }));
         if (kind === 'line' || kind === 'radar') ds.forEach((x, i) => { x.borderColor = C[i % C.length]; });
-        const cfg = { type: kind === 'line' ? 'line' : kind === 'radar' ? 'radar' : 'bar', data: { labels: d.labels, datasets: ds },
+        if (kind === 'area') ds.forEach((x, i) => { const c = C[i % C.length]; Object.assign(x, { fill: 'origin', hcSolid: true, backgroundColor: c + '99', borderColor: c, borderWidth: 4, tension: .35, pointRadius: 6, pointBackgroundColor: c }); });
+        if (kind === 'line') ds.forEach(x => Object.assign(x, { fill: false, borderWidth: 4, tension: .3, pointRadius: 7, pointBackgroundColor: x.borderColor }));
+        if (kind === 'combo') ds.forEach((x, i) => { const c = C[i % C.length]; if (i) Object.assign(x, { type: 'line', borderColor: c, backgroundColor: c, borderWidth: 4, tension: .3, pointRadius: 7, order: 0, datalabels: Object.assign({}, x.datalabels, { align: 'top' }) }); else Object.assign(x, { order: 1, borderRadius: 8, backgroundColor: c, datalabels: Object.assign({}, x.datalabels, { anchor: 'center', align: 'center', color: '#fff' }) }); });
+        if (!['line', 'area', 'radar', 'combo'].includes(kind)) ds.forEach(x => { x.borderRadius = stack ? 4 : 8; x.borderSkipped = false; });
+        const cfg = { type: kind === 'line' || kind === 'area' ? 'line' : kind === 'radar' ? 'radar' : 'bar', data: { labels: d.labels, datasets: ds },
           options: { maintainAspectRatio: false, indexAxis: horiz ? 'y' : 'x', layout: { padding: { top: 30, right: horiz ? 70 : 30 } },
-            plugins: { legend: { display: !one || stack, position: 'top', labels: { font: { size: 17, weight: '700' } } } } } };
+            plugins: { legend: { display: !one || stack || kind === 'combo', position: 'top', labels: { font: { size: 17, weight: '700' } } } } } };
         if (kind === 'radar') { cfg.options.scales = { r: { beginAtZero: true, ticks: { display: false }, grid: { color: 'rgba(60,50,30,.14)' }, pointLabels: { font: { size: 18, weight: '700' }, color: '#1a1917' } } }; ds.forEach(x => x.datalabels = { display: false }); }
         else cfg.options.scales = { x: HC.axis({ stacked: stack, beginAtZero: true, grid: { display: horiz } }), y: HC.axis({ stacked: stack, beginAtZero: true, grid: { display: !horiz } }) };
+        if (kind === 'stack100') { const ax = horiz ? 'x' : 'y'; cfg.options.scales[ax].max = 100; cfg.options.hcStackTotal = false; }
         return cfg;
       };
     },

@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: d4f97743d7 */
-const VERSION = 'd4f97743d7';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: 09d1a3d131 */
+const VERSION = '09d1a3d131';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",

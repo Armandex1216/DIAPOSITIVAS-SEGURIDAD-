@@ -32,7 +32,7 @@
     list.forEach(([id, v]) => {
       let sl;
       if (v.base && base[v.base]) { sl = base[v.base].cloneNode(true); sl.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); sl.querySelectorAll('[data-slot]').forEach(e => e.dataset.slot = e.dataset.slot + '@' + id); sl.removeAttribute('data-hidden'); sl.dataset.base = v.base; }
-      else { sl = document.createElement('section'); sl.className = 'slide ' + (v.dark ? 'dark' : 'light'); sl.innerHTML = BLANK(v.title, v.kick); }
+      else { sl = document.createElement('section'); sl.className = 'slide ' + (v.dark ? 'dark' : 'light') + (v.empty ? ' white vacia' : ''); sl.innerHTML = v.empty ? '<img class="mark" src="assets/img/logo-mark.png?v=2" alt=""><p class="vacia-hint" data-noedit>Lámina vacía · use «H Título», «T Texto», «🖼 Imagen» o «＋ Insertar» para diseñarla</p>' : BLANK(v.title, v.kick); }
       sl.id = id; sl.dataset.title = v.title || (v.base ? 'Copia' : 'Lámina nueva'); sl.dataset.extra = '1';
       const after = v.after && document.getElementById(v.after);
       if (after && after.parentNode === stage) after.after(sl); else stage.appendChild(sl);
