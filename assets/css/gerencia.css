@@ -237,3 +237,5 @@
 #gc-sistema .gc-cult{top:1010px;font-size:48px}
 #gc-sistema .gc-cult-u{top:1062px}
 #gc-sistema .gc-sgr-h .gc-h{color:#fff}
+.gc-dac p+p::before,.gc-dac .gc-dot+p::before{content:none}
+.gc-dac .gc-dot{font:900 28px/1 Montserrat,sans-serif;color:var(--gd);font-style:normal}
