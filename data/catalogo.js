@@ -5,6 +5,7 @@ window.PLANTILLAS = {
   gum: { nombre: 'Reunión GUM (martes)', archivo: 'gum.html', dia: 2, titulo: 'Reunión GUM', laminas: 11 },
   'riesgos-opt': { nombre: 'Análisis de eventos y riesgos críticos · OPT (sábados)', archivo: 'riesgos-opt.html', dia: 6, titulo: 'Análisis de eventos y riesgos críticos', laminas: 7 },
   'riesgos-corp': { nombre: 'Riesgos críticos corporativo', archivo: 'riesgos-corp.html', titulo: 'Riesgos críticos corporativo', laminas: 5 },
+  gerencia: { nombre: 'Reunión gerencia corporativa (viernes)', archivo: 'gerencia.html', dia: 5, titulo: 'Reunión gerencia corporativa', laminas: 2 },
   csst: { nombre: 'Reunión ordinaria CSST', archivo: 'csst-noviembre-2026.html', titulo: 'Reunión ordinaria CSST', laminas: 16 },
   blanco: { nombre: 'En blanco', archivo: 'blanco.html', titulo: 'Nueva presentación', laminas: 3 }
 };
@@ -17,7 +18,7 @@ window.CATALOGO = [
   { id: 'gum', nombre: 'REUNIÓN GUM', plantilla: 'gum', portada: 'assets/img/portada.jpg', items: [
     { titulo: 'Reunión GUM · hallazgos y OTO', fecha: 'Octubre 2026', archivo: 'gum-octubre-2026.html', deck: 'gum-2026-10', laminas: 15, portada: 'assets/img/portada.jpg' }
   ] },
-  { id: 'gerencia-co', nombre: 'REUNIÓN GERENCIA CORPORATIVA', plantilla: 'blanco', portada: 'assets/img/portada.jpg', items: [] },
+  { id: 'gerencia-co', nombre: 'REUNIÓN GERENCIA CORPORATIVA', plantilla: 'gerencia', portada: 'assets/img/portada.jpg', items: [] },
   { id: 'riesgos-cor', nombre: 'RIESGOS CRÍTICOS CORPORATIVOS', plantilla: 'riesgos-corp', portada: 'assets/img/portada.jpg', items: [] },
   { id: 'mensaje', nombre: 'MENSAJE DE SEGURIDAD', plantilla: 'blanco', portada: '', items: [] },
   { id: 'certificados', nombre: 'Certificados', plantilla: 'blanco', portada: '', items: [] },
