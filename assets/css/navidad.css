@@ -173,3 +173,7 @@
 .nv .nv-orn{right:240px;width:360px}
 .nv .nv-ttl{font-size:64px;max-width:none;white-space:nowrap}
 .nv-cover .nv-hoch{bottom:auto;top:44px;left:90px;height:60px}
+/* globo del minero navideño: anclado a la derecha y con salto de línea, para que nunca se salga de la pantalla */
+.nv-cover .miner .mn-say{left:auto;right:10px;top:auto;bottom:calc(100% - 96px);width:max-content;max-width:600px;white-space:normal;text-align:center;justify-content:center;font-size:30px;line-height:1.25;transform-origin:70% 100%}
+.nv-cover .miner .mn-say::before{left:auto;right:250px}
+.nv-cover .miner .mn-say::after{left:auto;right:255px}

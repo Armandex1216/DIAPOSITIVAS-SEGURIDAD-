@@ -7,8 +7,8 @@
 <title>Minijornada de Seguridad · Campaña de Fin de Año</title>
 <link rel="stylesheet" href="assets/css/deck.css?v=20261118c">
 <link rel="stylesheet" href="assets/css/tpl.css?v=20261117c">
-<link rel="stylesheet" href="assets/css/navidad.css?v=20261117c">
-<link rel="stylesheet" href="assets/css/minijornada.css?v=20261119a">
+<link rel="stylesheet" href="assets/css/navidad.css?v=20261119b">
+<link rel="stylesheet" href="assets/css/minijornada.css?v=20261119b">
 <script src="data/nube.js?v=1" onerror="void 0"></script><script>if(window.NUBE&&NUBE.key)document.documentElement.classList.add("nube-cargando")</script>
 </head>
 <body data-deck="minijornada-plantilla" data-transition="fade">
@@ -165,6 +165,18 @@
 <script src="assets/js/editor.js?v=20261118c"></script>
 <script src="assets/js/miner-ref.js?v=20261117c"></script>
 <script src="assets/js/miner3d.js?v=20261117c"></script>
+<script>
+// fotos de eventos: fondo difuminado con la misma foto y ampliación con un clic (fuera del modo edición)
+(function () {
+  const sync = () => document.querySelectorAll('.mj-ph').forEach(s => { const im = s.querySelector('img'); const u = im && im.getAttribute('src'); let bl = s.querySelector(':scope > .mj-blur'); if (!bl) { bl = document.createElement('i'); bl.className = 'mj-blur'; bl.setAttribute('aria-hidden', 'true'); s.prepend(bl); } const v = u ? `url("${u}")` : 'none'; if (bl.style.backgroundImage !== v) bl.style.backgroundImage = v; });
+  sync(); new MutationObserver(sync).observe(document.querySelector('.stage'), { subtree: true, attributes: true, attributeFilter: ['src'] });
+  document.addEventListener('click', e => { if (window.DECK && DECK.editing && DECK.editing()) return; const im = e.target.closest('.mj-ph img'); if (!im || !im.getAttribute('src')) return;
+    e.stopPropagation(); e.preventDefault(); const z = document.createElement('div'); z.className = 'mj-zoom'; z.innerHTML = `<img src="${im.src}" alt="">`; document.body.appendChild(z);
+    requestAnimationFrame(() => z.classList.add('on')); const close = ev => { ev && ev.stopPropagation(); z.classList.remove('on'); setTimeout(() => z.remove(), 250); removeEventListener('keydown', key, true); };
+    const key = ev => { if (ev.key === 'Escape' || ev.key === ' ' || ev.key.startsWith('Arrow')) { ev.stopPropagation(); ev.preventDefault(); close(); } };
+    z.addEventListener('click', close); addEventListener('keydown', key, true); }, true);
+})();
+</script>
 <script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&DECK.hablando?setTimeout(go,1500):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>
