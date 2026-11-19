@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 0a7fce7098 */
-const VERSION = '0a7fce7098';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: ee97990b54 */
+const VERSION = 'ee97990b54';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -12,6 +12,7 @@ const FILES = [
 "gum-octubre-2026.html",
 "gum.html",
 "index.html",
+"minijornada.html",
 "navidad-2026.html",
 "requirements.txt",
 "riesgos-corp.html",
@@ -19,6 +20,7 @@ const FILES = [
 "api/tts.py",
 "assets/css/deck.css",
 "assets/css/gerencia.css",
+"assets/css/minijornada.css",
 "assets/css/navidad.css",
 "assets/css/tpl.css",
 "assets/fonts/montserrat-latin-400-normal.woff2",
@@ -169,6 +171,15 @@ const FILES = [
 "assets/img/lucho/art141/02.svg",
 "assets/img/lucho/art142/01.svg",
 "assets/img/lucho/art142/02.svg",
+"assets/img/minijornada/campana-nov.jpg",
+"assets/img/minijornada/conv.jpg",
+"assets/img/minijornada/l1.jpg",
+"assets/img/minijornada/l2.jpg",
+"assets/img/minijornada/l3a.jpg",
+"assets/img/minijornada/l3b.jpg",
+"assets/img/minijornada/lema.jpg",
+"assets/img/minijornada/mina.jpg",
+"assets/img/minijornada/portada.jpg",
 "assets/img/navidad/ares.png",
 "assets/img/navidad/hochschild.png",
 "assets/img/navidad/portada.jpg",

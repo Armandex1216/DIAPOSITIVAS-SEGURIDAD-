@@ -5,6 +5,7 @@ window.PLANTILLAS = {
   gum: { nombre: 'Reunión GUM (martes)', archivo: 'gum.html', dia: 2, titulo: 'Reunión GUM', laminas: 11 },
   'riesgos-opt': { nombre: 'Análisis de eventos y riesgos críticos · OPT (sábados)', archivo: 'riesgos-opt.html', dia: 6, titulo: 'Análisis de eventos y riesgos críticos', laminas: 7 },
   'riesgos-corp': { nombre: 'Riesgos críticos corporativo', archivo: 'riesgos-corp.html', titulo: 'Riesgos críticos corporativo', laminas: 5 },
+  minijornada: { nombre: 'Minijornada de Seguridad · Fin de Año (viernes)', archivo: 'minijornada.html', dia: 5, titulo: 'Minijornada de Seguridad', laminas: 11 },
   gerencia: { nombre: 'Reunión gerencia corporativa (viernes)', archivo: 'gerencia.html', dia: 5, titulo: 'Reunión gerencia corporativa', laminas: 2 },
   csst: { nombre: 'Reunión ordinaria CSST', archivo: 'csst-noviembre-2026.html', titulo: 'Reunión ordinaria CSST', laminas: 16 },
   blanco: { nombre: 'En blanco', archivo: 'blanco.html', titulo: 'Nueva presentación', laminas: 3 }
@@ -13,6 +14,7 @@ window.CATALOGO = [
   { id: 'campana-fin-anio', nombre: 'CAMPAÑA FIN DE AÑO', plantilla: 'blanco', portada: 'assets/img/navidad/portada.jpg', items: [
     { titulo: 'Plan de Seguridad de Fin de Año 2026 · En esta Navidad, elige volver', fecha: 'Temporada navideña 2026', archivo: 'navidad-2026.html', deck: 'navidad-2026', laminas: 11, portada: 'assets/img/navidad/portada.jpg' }
   ] },
+  { id: 'minijornadas-fin', nombre: 'MINI JORNADAS CAMPAÑA FIN DE AÑO', plantilla: 'minijornada', portada: 'assets/img/minijornada/mina.jpg', items: [] },
   { id: 'reporte-diario', nombre: 'REPORTE DIARIO', plantilla: 'diario', anual: true, portada: 'assets/img/diario/portada-diario.jpg', items: [] },
   { id: 'riesgos-opt', nombre: 'RIESGOS CRÍTICOS OPT', plantilla: 'riesgos-opt', portada: 'assets/img/portada.jpg', items: [] },
   { id: 'gum', nombre: 'REUNIÓN GUM', plantilla: 'gum', portada: 'assets/img/portada.jpg', items: [
