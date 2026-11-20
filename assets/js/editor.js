@@ -370,6 +370,12 @@
     const sl = cur(), id = 'x' + uid(), n = Date.now();
     if (kind === 'empty') { store.slides[id] = { n, after: sl.id, title: 'Lámina vacía', empty: true }; return goReload(D.i + 1); }
     if (kind === 'blank' || kind === 'dark') { store.slides[id] = { n, after: sl.id, title: 'Coloca el título aquí', kick: 'Escribe la sección', dark: kind === 'dark' }; return goReload(D.i + 1); }
+    if (kind === 'opt') { // cuadro de OPT nuevo: misma tabla y animaciones que «Programa OPT», con 3 filas vacías para llenar
+      const pc = '<td class="pc">0%</td>', fila = n => `<tr><td>${String(n).padStart(2, '0')}</td><td>Área</td><td>Nombre</td><td>PETS / estándar a revisar</td><td>dd/mm/aaaa</td>${pc}${pc}${pc}</tr>`;
+      store.slides[id] = { n, after: sl.id, base: 'r-cia', title: 'Cuadro de OPT' };
+      store.text[id + ':0'] = 'PROGRAMA DE OPT · Coloca el título aquí';
+      store.tables[id + ':0'] = '<thead><tr><th>N°</th><th>Área</th><th>Nombre</th><th>PETS / estándar a revisar</th><th>Fecha de ejecución</th><th>Ejec.</th><th>Safety HOC</th><th>PPT</th></tr></thead><tbody>' + fila(1) + fila(2) + fila(3) + '</tbody>';
+      D.persist(); D.toast('Cuadro de OPT creado: escriba en las celdas · «+ Fila» agrega más', 3600); return goReload(D.i + 1); }
     if (kind === 'dup') {
       if ($('canvas, .needle', sl) && !$$('canvas', sl).every(c => c.id && c.id.startsWith('fc-'))) { D.toast('Esta lámina tiene gráficos propios de la plantilla: cree una lámina en blanco e inserte un gráfico', 4200); return; }
       const baseId = store.slides[sl.id] && store.slides[sl.id].base ? store.slides[sl.id].base : (sl.dataset.extra ? null : sl.id);
@@ -417,7 +423,7 @@
     <h5>📊 Gráficos · 15 tipos (luego escriba sus datos)</h5><div class="sub-ins charts">${CH15.map(([k, ic, v]) => `<button data-i="chart" data-kind="${k}"><i>${ic}</i>${v}</button>`).join('')}</div>
     <button data-i="table">▦ Tabla</button>
     <h5>Láminas</h5>
-    <button data-i="empty">＋ Lámina vacía (diseñar desde cero)</button><button data-i="blank">＋ Lámina en blanco con título (clara)</button><button data-i="dark">＋ Lámina en blanco (oscura)</button><button data-i="dup">⧉ Duplicar esta lámina</button>
+    <button data-i="empty">＋ Lámina vacía (diseñar desde cero)</button><button data-i="blank">＋ Lámina en blanco con título (clara)</button><button data-i="dark">＋ Lámina en blanco (oscura)</button><button data-i="dup">⧉ Duplicar esta lámina</button>${document.getElementById('r-cia') ? '<button data-i="opt">＋ Lámina con cuadro de OPT (tabla con avance %)</button>' : ''}
     <div class="row2"><button data-i="left" title="Mover la lámina a la izquierda">◀ Mover</button><button data-i="right" title="Mover la lámina a la derecha">Mover ▶</button></div>
     <button data-i="del" class="danger">🗑 Eliminar / ocultar esta lámina</button>`;
   document.body.appendChild(menu);
