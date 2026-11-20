@@ -455,3 +455,17 @@ body.editing .slide.vacia:has(.free) .vacia-hint{display:none}
 .ins-menu .sub-ins.charts i{font-style:normal;font-size:17px;width:20px;text-align:center;color:#9a7422;flex:none}
 .free.fimg,.free.fchart,.free.fviz{cursor:grab}
 body.dragging .free{cursor:grabbing}
+/* relleno de celdas: rojo, amarillo, azul, verde y sin color (gana sobre los colores automáticos) */
+.rt-bar .fills{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:8px;border-left:1px solid #e3dccb}
+.rt-bar .fills i{font:700 11px Montserrat,sans-serif;font-style:normal;color:#6f6b63;margin-right:2px}
+.rt-bar .fills .sw{width:24px;height:24px;min-width:0;padding:0;border-radius:6px;background:var(--c)!important;border:2px solid #fff;box-shadow:0 0 0 1px #cfc6b2;cursor:pointer}
+.rt-bar .fills .sw.none{background:#fff!important;color:#9a9385;font-size:14px;line-height:1}
+.rt-bar .fills .sw:hover{transform:scale(1.15)}
+.rt-bar .fills label{display:inline-flex;align-items:center;gap:3px;font:600 11px Montserrat,sans-serif;color:#6f6b63;cursor:pointer;white-space:nowrap}
+table.tt td.f-blue,table.tt th.f-blue{background:#1f5fa8;color:#fff;font-weight:800}
+.slide table.tt tbody tr td.f-bad,.slide table.tt tbody tr:nth-child(even) td.f-bad,.slide .tbx table.tt tbody tr td.pc.rp-bar.f-bad,.slide .tbx table.tt tbody tr td.due.f-bad{background:#e11d1d!important;color:#fff!important;font-weight:800}
+.slide table.tt tbody tr td.f-warn,.slide table.tt tbody tr:nth-child(even) td.f-warn,.slide .tbx table.tt tbody tr td.pc.rp-bar.f-warn,.slide .tbx table.tt tbody tr td.due.f-warn{background:#f6c343!important;color:#1a1917!important;font-weight:800}
+.slide table.tt tbody tr td.f-blue,.slide table.tt tbody tr:nth-child(even) td.f-blue,.slide .tbx table.tt tbody tr td.pc.rp-bar.f-blue,.slide .tbx table.tt tbody tr td.due.f-blue{background:#1f5fa8!important;color:#fff!important;font-weight:800}
+.slide table.tt tbody tr td.f-ok,.slide table.tt tbody tr:nth-child(even) td.f-ok,.slide .tbx table.tt tbody tr td.pc.rp-bar.f-ok,.slide .tbx table.tt tbody tr td.due.f-ok{background:#16a34a!important;color:#fff!important;font-weight:800}
+.slide .tbx table.tt tbody tr td.pc.rp-bar:is(.f-bad,.f-blue,.f-ok)::after{background:rgba(255,255,255,.35)}
+.slide .tbx table.tt tbody tr td.pc.rp-bar:is(.f-bad,.f-blue,.f-ok)::before{background:#fff;box-shadow:none}

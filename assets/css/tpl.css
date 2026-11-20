@@ -424,3 +424,4 @@ body.editing .lv-empty{color:transparent}
 body.editing .el-off{opacity:.28!important;pointer-events:auto!important;outline:3px dashed #c8102e;outline-offset:4px}
 .sel-box .sel-bar [data-mv=hide]{display:inline-block}
 .sel-box.is-free .sel-bar [data-mv=hide]{display:none}
+body.editing .slide .tbx table.tt tbody tr{opacity:1!important;transform:none!important;translate:none!important}
