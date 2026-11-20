@@ -30,7 +30,7 @@
     <button data-c="insertUnorderedList" title="Viñetas">•≡</button>
     <button data-c="removeFormat" title="Quitar formato">⌫ Formato</button>
     <span class="sep tb-only"></span>
-    <span class="tb-only tb-g"><button data-t="row+" title="Agregar fila debajo">+ Fila</button><button data-t="row-" title="Quitar esta fila">− Fila</button><button data-t="col+" title="Agregar columna a la derecha">+ Col</button><button data-t="col-" title="Quitar esta columna">− Col</button><select data-t="fill" title="Color de la celda"><option value="">Color celda</option><option value="none">Sin color</option><option value="ok">Verde</option><option value="warn">Amarillo</option><option value="bad">Rojo</option><option value="gold">Dorado</option><option value="dark">Oscuro</option></select></span>`;
+    <span class="tb-only tb-g"><button data-t="row+" title="Agregar fila debajo">+ Fila</button><button data-t="row-" title="Quitar esta fila">− Fila</button><button data-t="col+" title="Agregar columna a la derecha">+ Col</button><button data-t="col-" title="Quitar esta columna">− Col</button><span class="fills"><i>Relleno</i><button data-t="fill" data-v="bad" class="sw" style="--c:#e11d1d" title="Rojo (p. ej. fuera de plazo)"></button><button data-t="fill" data-v="warn" class="sw" style="--c:#f6c343" title="Amarillo"></button><button data-t="fill" data-v="blue" class="sw" style="--c:#1f5fa8" title="Azul"></button><button data-t="fill" data-v="ok" class="sw" style="--c:#16a34a" title="Verde"></button><button data-t="fill" data-v="none" class="sw none" title="Sin color">⌀</button><label title="Pintar toda la fila"><input type="checkbox" class="fillrow"> toda la fila</label></span></span>`;
   document.body.appendChild(bar);
   let lastEd = null, savedRange = null;
   const activeEd = () => { const a = document.activeElement; return a && a.isContentEditable ? a.closest('[contenteditable="true"]') : null; };
@@ -87,6 +87,7 @@
     if (b.dataset.c === 'bigger') return fontSize(0, 1.18);
     if (b.dataset.c === 'bold') return toggleBold();
     if (b.dataset.c) return exec(b.dataset.c);
+    if (b.dataset.t === 'fill') return cellFill(b.dataset.v);
     if (b.dataset.t) return tableOp(b.dataset.t);
   });
   bar.addEventListener('change', e => {
@@ -139,7 +140,10 @@
       cells.forEach(c => { c.style.paddingTop = nv + 'px'; c.style.paddingBottom = nv + 'px'; }); }
     $$('.tt-row', t).forEach(x => x.classList.remove('tt-row')); saveTable(t); paintTable(t); if (ttRow) ttRow.classList.add('tt-row'); ttPlace(); D.toast('Tabla actualizada', 1200); });
   addEventListener('resize', ttPlace);
-  function cellFill(v) { const cell = cellOf(); if (!cell) { D.toast('Haga clic dentro de una celda'); return; } cell.className = cell.className.replace(/\bf-\w+/g, '').trim(); if (v && v !== 'none') cell.classList.add('f-' + v); saveTable(cell.closest('[data-tbl]')); }
+  function cellFill(v) { const cell = cellOf(); if (!cell) { D.toast('Haga clic dentro de una celda'); return; }
+    const fila = $('.fillrow', bar) && $('.fillrow', bar).checked, cells = fila ? $$('td,th', cell.closest('tr')) : [cell];
+    cells.forEach(c => { c.className = c.className.replace(/\bf-\w+/g, '').trim(); if (v && v !== 'none') c.classList.add('f-' + v); });
+    saveTable(cell.closest('[data-tbl]')); D.toast(v === 'none' ? 'Relleno quitado' : 'Relleno aplicado' + (fila ? ' a toda la fila' : ''), 1200); }
   // tablas de las plantillas: restaurar lo guardado
   D.slides.forEach(sl => $$('[data-tbl]', sl).filter(t => !t.closest('.free')).forEach(t => { const k = tblKey(t); if (store.tables[k] != null) t.innerHTML = store.tables[k]; paintTable(t); }));
   body.addEventListener('input', e => { const t = e.target.closest && e.target.closest('[data-tbl]'); if (t) { clearTimeout(t._s); t._s = setTimeout(() => saveTable(t), 400); } });
