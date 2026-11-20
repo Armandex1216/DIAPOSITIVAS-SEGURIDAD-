@@ -416,3 +416,11 @@ body.editing .lv-empty{color:transparent}
 :is(#r-evento,[data-base="r-evento"]) .ev-sub{margin:26px 0 0;font:800 36px/1.3 Montserrat,sans-serif;color:#d8d3c6;letter-spacing:.03em}
 :is(#r-evento,[data-base="r-evento"]) .ev-art{position:absolute;right:80px;top:200px;width:780px;height:659px;border-radius:28px;overflow:hidden;border:6px solid #f0a020;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 10px rgba(240,160,32,.12)}
 :is(#r-evento,[data-base="r-evento"]) .ev-art svg{width:100%;height:100%;display:block}
+/* avance al 100 %: la celda se pinta verde sola */
+.slide .tbx table.tt tbody tr td.pc.rp-bar[data-lv="2"],.slide .tbx table.tt tbody tr:nth-child(even) td.pc.rp-bar[data-lv="2"]{background:linear-gradient(180deg,#e3f6ea,#c9ecd6)!important;color:#0f7a3c;box-shadow:inset 0 0 0 2px #8fd3aa}
+.slide .tbx table.tt tbody tr td.pc.rp-bar[data-lv="2"]::after{background:#bfe6cd}
+/* elementos de la plantilla ocultos (Mover → «Ocultar»): no salen al presentar; en edición se ven tenues */
+.el-off{opacity:0!important;pointer-events:none!important}
+body.editing .el-off{opacity:.28!important;pointer-events:auto!important;outline:3px dashed #c8102e;outline-offset:4px}
+.sel-box .sel-bar [data-mv=hide]{display:inline-block}
+.sel-box.is-free .sel-bar [data-mv=hide]{display:none}
