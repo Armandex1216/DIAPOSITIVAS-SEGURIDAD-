@@ -131,4 +131,26 @@
       localStorage.setItem(STAMP, data.updated_at); setBase(D.store); done();
     } catch (e) { console.warn('Nube no disponible, se usa lo guardado en el equipo', e); done(); }
   })();
+  /* ---------- aviso: ¿es la presentación más reciente de su carpeta? ---------- */
+  // Evita editar por error la de la semana pasada (o una eliminada) creyendo que es la de hoy.
+  (async () => {
+    try {
+      if (D.soloVer) return;
+      const me = await sb.from('diapo_decks').select('id,carpeta,fecha,titulo,borrado').eq('id', id).maybeSingle();
+      if (me.error || !me.data) return;
+      const otros = await sb.from('diapo_decks').select('id,fecha,titulo,plantilla,borrado').eq('carpeta', me.data.carpeta);
+      if (otros.error) return;
+      const vivos = (otros.data || []).filter(x => !x.borrado && x.id !== id && (x.fecha || '') > (me.data.fecha || ''));
+      vivos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+      const fd = f => f ? f.split('-').reverse().join('/') : '';
+      let msg = '', link = '';
+      if (me.data.borrado) msg = 'Esta presentación está <b>eliminada</b> (en la papelera).';
+      if (vivos[0]) { const n = vivos[0]; const P = (window.PLANTILLAS || {})[n.plantilla] || {}; link = `${P.archivo || location.pathname.split('/').pop()}?d=${encodeURIComponent(n.id)}`;
+        msg = (msg ? msg + ' ' : '') + `Esta es la presentación del <b>${fd(me.data.fecha)}</b>; la más reciente de esta carpeta es la del <b>${fd(n.fecha)}</b>.`; }
+      if (!msg) return;
+      const b = document.createElement('div'); b.className = 'aviso-vieja';
+      b.innerHTML = `<span>⚠️ ${msg} Lo que cambie aquí se guarda en esta.</span>${link ? `<a href="${link}">Abrir la del ${fd(vivos[0].fecha)} →</a>` : ''}<button aria-label="Cerrar">✕</button>`;
+      b.querySelector('button').onclick = () => b.remove(); document.body.appendChild(b);
+    } catch (e) { }
+  })();
 })();
