@@ -238,7 +238,7 @@
       const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; w.style.display = 'none'; };
       voicesReady().then(() => { paintVoices(); warn(); });
       paintVoices(); panel.querySelector('.lp-voz').onchange = e => { C.voz = e.target.value; save(); };
-      panel.querySelector('.lp-test').onclick = async () => { const t = '¡Hola, equipo! Soy el ingeniero Pablo, su compañero de seguridad. Hoy les explico el reglamento, al toque y bien clarito.';
+      panel.querySelector('.lp-test').onclick = async () => { const t = 'Buenos días con todos los presentes. Les habla el ingeniero Pablo, de Seguridad. El día de hoy veremos el artículo del reglamento.';
         try { SS && SS.cancel(); au.pause(); } catch (e) { }
         if (useNeural()) { const b = panel.querySelector('.lp-test'); b.textContent = '⏳ Cargando voz…'; try { const o = await getAudio(chunks(t, 'charla')[0]); au.onended = null; au.src = o.a; au.play(); }
           catch (e) { D.toast('No se pudo cargar la voz natural (¿sin internet?). Se usará la voz del equipo.', 5000); } b.textContent = '🔊 Probar voz'; return; }
