@@ -518,12 +518,12 @@
     if (window.gsap && el.matches(ANIM_SEL)) { el._lay = { x, y }; el.style.translate = ''; gsap.set(el, { x, y }); }
     else el.style.translate = x || y ? `${x}px ${y}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
   function loadLayout() { try { aplicarOcultos(); } catch (e) { } slides.forEach(sl => { movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); }); movX(sl).forEach((el, i) => { const L = store.layout[sl.id + ':x' + i]; if (L) applyLayout(el, L); }); movY(sl).forEach((el, i) => { const L = store.layout[sl.id + ':y' + i]; if (L) applyLayout(el, L); }); }); }
-  let selEl = null, editSel = false; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="hide" title="Ocultar este elemento de la plantilla (no sale al presentar; se puede volver a mostrar)">👁 Ocultar</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
+  let selEl = null, editSel = false; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="mvh" title="Arrastre para mover el cuadro">✥</i><i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="hide" title="Ocultar este elemento de la plantilla (no sale al presentar; se puede volver a mostrar)">👁 Ocultar</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
   D.moving = () => body.classList.contains('moving');
   const paintHideBtn = () => { const hb = selBox.querySelector('[data-mv=hide]'); if (!hb || !selEl || selEl.dataset.fid) return; const sl = selEl.closest('.slide'); hb.textContent = store.hidden['el:' + mkey(sl, selEl)] ? '👁 Mostrar' : '🚫 Ocultar'; };
   function aplicarOcultos() { slides.forEach(sl => { const m = movables(sl), x = movX(sl); m.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':' + i])); x.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':x' + i])); movY(sl).forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':y' + i])); }); }
   D.aplicarOcultos = aplicarOcultos;
-  function drawSel() { paintHideBtn(); if (!selEl || !(D.moving() || (editSel && D.editing()))) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
+  function drawSel() { paintHideBtn(); selBox.classList.toggle('is-txt', !!(selEl && editSel && !D.moving() && selEl.matches('.rich'))); if (!selEl || !(D.moving() || (editSel && D.editing()))) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
     Object.assign(selBox.style, { left: (r.left - a.left) / k + 'px', top: (r.top - a.top) / k + 'px', width: r.width / k + 'px', height: r.height / k + 'px' }); }
   const lay = el => { const sl = el.closest('.slide'), k = mkey(sl, el); return [k, store.layout[k] || (store.layout[k] = {})]; };
   function toggleMove() {
@@ -541,12 +541,12 @@
     let el = e.target.closest(IMG_SEL); if (!el || !slides[D.i].contains(el)) return null; if (el.matches('.slot')) { if (el.classList.contains('slot-off')) return null; el = wrapOf(el) || el; } return el; };
   let tapImg = null;
   stage.addEventListener('pointerdown', e => {
-    const imgEl = !D.moving() && (imgTarget(e) || (editSel && e.target.closest('.sel-box .rz') ? selEl : null));
-    if (!D.moving() && !imgEl) { if (editSel && !e.target.closest('.sel-bar')) { editSel = false; selEl = null; drawSel(); } return; }
+    const imgEl = !D.moving() && (imgTarget(e) || (editSel && e.target.closest('.sel-box .rz,.sel-box .mvh') ? selEl : null));
+    if (!D.moving() && !imgEl) { if (editSel && !e.target.closest('.sel-bar') && !(selEl && selEl.matches('.rich') && selEl.contains(e.target))) { editSel = false; selEl = null; drawSel(); } return; }
     if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
     const sl = slides[D.i]; const rz = e.target.closest('.rz');
     if (imgEl && !rz) { const sh = imgEl.querySelector && imgEl.matches('.slot') ? imgEl : imgEl.querySelector('.slot'); tapImg = { el: imgEl, slot: sh || imgEl.closest('.slot'), moved: false }; selEl = imgEl; editSel = true; drawSel(); }
-    if (!rz && !imgEl) { let el = e.target.closest(MOVE_SEL + ',' + MOVE_X); if (el && el.matches('.slot')) el = wrapOf(el) || el; if (el && !el.matches(MOVE_SEL) && el.closest('.chartbox')) el = el.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
+    if (!rz && !imgEl) { let el = e.target.closest(MOVE_SEL + ',' + MOVE_X); if (el && el.matches('.slot')) el = wrapOf(el) || el; if (el && !el.matches(MOVE_SEL) && el.closest('.chartbox')) el = el.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); { const rc = el && !el.matches('.rich') && el.closest('.rich'); if (rc && !e.altKey && !rc.closest('.free,.free-layer')) el = rc; } if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
       if (!el || !sl.contains(el)) { selEl = null; drawSel(); return; } selEl = el; drawSel(); }
     if (!selEl) return; const [k, L] = lay(selEl), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = selEl.offsetWidth, h0 = selEl.offsetHeight, sc = D.scale;
     const ratio = !!(rz && !ev0Shift(e) && (selEl.classList.contains('fimg') || selEl.matches('img,.slot') || (selEl.querySelector('.slot,img') && !selEl.querySelector('canvas,[data-tbl],.ftx'))));
@@ -568,6 +568,10 @@
   document.addEventListener('keydown', e => { if (!D.moving() || !selEl || !/^Arrow/.test(e.key)) return; e.preventDefault(); e.stopImmediatePropagation(); const [k, L] = lay(selEl), d = e.shiftKey ? 10 : 1;
     if (e.key === 'ArrowLeft') L.x = (L.x || 0) - d; if (e.key === 'ArrowRight') L.x = (L.x || 0) + d; if (e.key === 'ArrowUp') L.y = (L.y || 0) - d; if (e.key === 'ArrowDown') L.y = (L.y || 0) + d; applyLayout(selEl, L); drawSel(); persist(); }, true);
   addEventListener('resize', drawSel);
+  // cuadros de texto (observaciones, acciones…): al escribir en ellos aparece el marco con ✥ para moverlo y la esquina dorada para el tamaño
+  const richOf = t => { const el = t && t.closest && t.closest('.rich'); return el && !el.closest('.free,.free-layer,.chartbox,[data-noedit]') && slides[D.i] && slides[D.i].contains(el) && movX(slides[D.i]).includes(el) ? el : null; };
+  document.addEventListener('focusin', e => { if (!D.editing() || D.moving() || SOLO_VER) return; const el = richOf(e.target); if (!el) return; selEl = el; editSel = true; drawSel(); });
+  document.addEventListener('input', e => { if (editSel && selEl && richOf(e.target) === selEl) drawSel(); });
   D.toggleMove = toggleMove; D.applyLayout = applyLayout; D.ANIM_SEL = ANIM_SEL; D.base = el => ({ x: bx(el), y: by(el) }); D.drawSel = drawSel; D.select = el => { selEl = el; drawSel(); }; D.textKey = el => { const sl = el.closest('.slide'), list = editablesIn(sl); return keyOf(sl, el, list); };
 
   /* ---------- seguro para proyector (HDMI) ---------- */
