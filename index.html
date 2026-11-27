@@ -164,8 +164,8 @@ h1 span{color:#c39531}
           const rows = await api(`diapo_cambios?deck_id=eq.${encodeURIComponent(src.deck)}&select=data`);
           if (rows && rows[0]) { data = rows[0].data || {}; data.meta = data.meta && Array.isArray(data.meta.orden) ? { orden: data.meta.orden } : {}; }
         }
-        // riesgos OPT: se continúa el programa de la semana anterior (tablas, textos y láminas ocultas); las fotos de la semana se ponen nuevas
-        if (pl === 'riesgos-opt' && data) { data.images = Object.fromEntries(Object.entries(data.images || {}).filter(([k]) => k === 'portada')); data.meta = {}; }
+        // riesgos OPT: se continúa el programa de la semana anterior (tablas, textos, láminas ocultas y la foto de la dinámica grupal); la foto del momento de seguridad se pone nueva
+        if (pl === 'riesgos-opt' && data) { data.images = Object.fromEntries(Object.entries(data.images || {}).filter(([k]) => k === 'portada' || k === 'dinamica')); data.meta = {}; }
         // GUM nueva: vacía (portada, acuerdos del CSST y cierre). De la anterior solo se copian textos y tablas (acuerdos), no gráficos ni láminas agregadas.
         if (pl === 'gum') {
           data = data || {}; data.meta = {}; data.slides = {}; data.free = {}; data.charts = {};
