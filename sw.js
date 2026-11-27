@@ -1,6 +1,6 @@
 /* Service worker: permite abrir y presentar sin internet desde el dominio.
-   Generado por tools/gen-sw.py — no editar a mano. Versión: 3e8c72578e */
-const VERSION = '3e8c72578e';
+   Generado por tools/gen-sw.py — no editar a mano. Versión: a0d5bcfcb9 */
+const VERSION = 'a0d5bcfcb9';
 const STATIC = 'diapo-static-' + VERSION, DATA = 'diapo-nube';
 const FILES = [
 "./",
@@ -23,6 +23,9 @@ const FILES = [
 "assets/css/minijornada.css",
 "assets/css/navidad.css",
 "assets/css/tpl.css",
+"assets/fonts/anton-latin-400-normal.woff2",
+"assets/fonts/bebas-neue-latin-400-normal.woff2",
+"assets/fonts/lobster-latin-400-normal.woff2",
 "assets/fonts/montserrat-latin-400-normal.woff2",
 "assets/fonts/montserrat-latin-500-normal.woff2",
 "assets/fonts/montserrat-latin-600-normal.woff2",
@@ -34,6 +37,12 @@ const FILES = [
 "assets/fonts/oswald-latin-700-normal.woff2",
 "assets/fonts/oswald-latin-ext-600-normal.woff2",
 "assets/fonts/oswald-latin-ext-700-normal.woff2",
+"assets/fonts/pacifico-latin-400-normal.woff2",
+"assets/fonts/poppins-latin-400-normal.woff2",
+"assets/fonts/poppins-latin-700-normal.woff2",
+"assets/fonts/poppins-latin-800-normal.woff2",
+"assets/fonts/roboto-slab-latin-400-normal.woff2",
+"assets/fonts/roboto-slab-latin-700-normal.woff2",
 "assets/icons/favicon.svg",
 "assets/icons/icon-180.png",
 "assets/icons/icon-192.png",

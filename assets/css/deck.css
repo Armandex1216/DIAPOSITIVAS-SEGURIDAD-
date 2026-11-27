@@ -473,3 +473,53 @@ table.tt td.f-blue,table.tt th.f-blue{background:#1f5fa8;color:#fff;font-weight:
 .aviso-vieja{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:14px;max-width:min(1100px,94vw);padding:12px 16px 12px 20px;border-radius:14px;background:#fff4d6;border:2px solid #e0a526;box-shadow:0 14px 40px rgba(0,0,0,.35);font:600 14px/1.35 Montserrat,sans-serif;color:#3f2e00}
 .aviso-vieja a{flex:none;padding:8px 14px;border-radius:10px;background:#c8102e;color:#fff;font-weight:800;text-decoration:none;white-space:nowrap}
 .aviso-vieja button{flex:none;border:0;background:none;font-size:16px;cursor:pointer;color:#7a5b00}
+/* ===== más tipos de letra (archivos dentro de la app: funcionan sin internet) ===== */
+@font-face{font-family:Poppins;font-weight:400;font-display:swap;src:url(../fonts/poppins-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Poppins;font-weight:700;font-display:swap;src:url(../fonts/poppins-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:Poppins;font-weight:800 900;font-display:swap;src:url(../fonts/poppins-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:"Bebas Neue";font-weight:100 900;font-display:swap;src:url(../fonts/bebas-neue-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Anton;font-weight:100 900;font-display:swap;src:url(../fonts/anton-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:"Roboto Slab";font-weight:400;font-display:swap;src:url(../fonts/roboto-slab-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:"Roboto Slab";font-weight:600 900;font-display:swap;src:url(../fonts/roboto-slab-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:Lobster;font-weight:100 900;font-display:swap;src:url(../fonts/lobster-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Pacifico;font-weight:100 900;font-display:swap;src:url(../fonts/pacifico-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Oswald;font-weight:600;font-display:swap;src:url(../fonts/oswald-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:Oswald;font-weight:700 900;font-display:swap;src:url(../fonts/oswald-latin-700-normal.woff2) format('woff2')}
+/* ===== más formas ===== */
+.free.fbubble[data-shape=triangulo] .bub{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%);padding:34% 18% 8%}
+.free.fbubble[data-shape=rombo] .bub{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);padding:18% 22%}
+.free.fbubble[data-shape=hexagono] .bub{border-radius:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);padding:10% 20%}
+.free.fbubble[data-shape=estrella5] .bub{border-radius:0;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);padding:30% 26% 22%}
+.free.fbubble[data-shape=flecha] .bub{border-radius:0;clip-path:polygon(0 25%,65% 25%,65% 0,100% 50%,65% 100%,65% 75%,0 75%);padding:0 30% 0 6%}
+.free.fbubble[data-shape=flechai] .bub{border-radius:0;clip-path:polygon(100% 25%,35% 25%,35% 0,0 50%,35% 100%,35% 75%,100% 75%);padding:0 6% 0 30%}
+.free.fbubble[data-shape=flechaa] .bub{border-radius:0;clip-path:polygon(25% 100%,25% 40%,0 40%,50% 0,100% 40%,75% 40%,75% 100%);padding:36% 26% 4%}
+.free.fbubble[data-shape=cheuron] .bub{border-radius:0;clip-path:polygon(0 0,80% 0,100% 50%,80% 100%,0 100%,20% 50%);padding:0 22%}
+.free.fbubble[data-shape=cruz] .bub{border-radius:0;clip-path:polygon(33% 0,67% 0,67% 33%,100% 33%,100% 67%,67% 67%,67% 100%,33% 100%,33% 67%,0 67%,0 33%,33% 33%);padding:30% 30%}
+.free.fbubble[data-shape=escudo] .bub{border-radius:0;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%);padding:10% 14% 30%}
+.free.fbubble[data-shape=linea] .bub{border-radius:6px;padding:0;min-height:8px;font-size:0}
+.ins-menu .sh-triangulo{clip-path:polygon(50% 0,100% 100%,0 100%);background:#1f5fa8!important;border:0!important}
+.ins-menu .sh-rombo{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#c8102e!important;border:0!important}
+.ins-menu .sh-hexagono{clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:#1f9d5c!important;border:0!important}
+.ins-menu .sh-estrella5{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:#f4c430!important;border:0!important}
+.ins-menu .sh-flecha{clip-path:polygon(0 25%,65% 25%,65% 0,100% 50%,65% 100%,65% 75%,0 75%);background:#c39531!important;border:0!important}
+.ins-menu .sh-flechai{clip-path:polygon(100% 25%,35% 25%,35% 0,0 50%,35% 100%,35% 75%,100% 75%);background:#c39531!important;border:0!important}
+.ins-menu .sh-flechaa{clip-path:polygon(25% 100%,25% 40%,0 40%,50% 0,100% 40%,75% 40%,75% 100%);background:#c39531!important;border:0!important}
+.ins-menu .sh-cheuron{clip-path:polygon(0 0,80% 0,100% 50%,80% 100%,0 100%,20% 50%);background:#12305a!important;border:0!important}
+.ins-menu .sh-cruz{clip-path:polygon(33% 0,67% 0,67% 33%,100% 33%,100% 67%,67% 67%,67% 100%,33% 100%,33% 67%,0 67%,0 33%,33% 33%);background:#c8102e!important;border:0!important}
+.ins-menu .sh-escudo{clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%);background:#12305a!important;border:0!important}
+.ins-menu .sh-linea{height:4px!important;margin:7px 0;background:#1a1917!important;border:0!important}
+/* ===== minero: quitarlo de una lámina o agregarlo como elemento ===== */
+.miner.mn-off{display:none!important}
+body.editing .miner.mn-off{display:block!important;opacity:.22;filter:grayscale(1)}
+.mn-tg{display:none;position:absolute;z-index:60;padding:8px 14px;border:0;border-radius:10px;background:#c8102e;color:#fff;font:800 15px Montserrat,sans-serif;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+body.editing .mn-tg{display:block}
+.free.fminer{overflow:visible}
+.free.fminer .miner{position:absolute;inset:0;width:100%;height:100%}
+.free.fminer .fm-say{display:none;position:absolute;left:8px;bottom:8px;z-index:5;padding:6px 12px;border:0;border-radius:10px;background:#12305a;color:#fff;font:700 14px Montserrat,sans-serif;cursor:pointer}
+body.editing .free.fminer .fm-say{display:block}
+/* imágenes de la plantilla: en modo edición se arrastran desde cualquier punto */
+body.editing:not(.moving) .slide .slot.has,body.editing:not(.moving) .slide .mark,body.editing:not(.moving) .slide .logo{cursor:grab}
+/* foto ya puesta: sin el aviso grande encima; solo botones pequeños abajo al pasar el mouse (la foto se arrastra libremente) */
+body.editing .slot.has .slot-ui{background:none!important;justify-content:flex-end;padding:14px;pointer-events:none}
+body.editing .slot.has .slot-ui b,body.editing .slot.has .slot-ui span{display:none}
+body.editing .slot.has .slot-ui .slot-btns{pointer-events:auto;background:rgba(26,25,23,.7);padding:6px;border-radius:12px;transform:scale(.8)}

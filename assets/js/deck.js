@@ -253,7 +253,7 @@
     if (ov.classList.toggle('on')) renderOv();
   }
   function renderOv() {
-    ov.innerHTML = `<h4>${document.title} · ${visibleIdx().length} de ${slides.length} láminas visibles</h4><p class="ovp">Clic en una lámina para ir a ella. Arrástrela (o use ◀ ▶) para cambiar el orden. «Ocultar» la saca de la presentación y del PDF.</p><div class="ov-grid">${slides.map((s, i) => `<div class="ov ${i === D.i ? 'cur' : ''} ${isHidden(s) ? 'off' : ''}" data-n="${i}"><b>${String(i + 1).padStart(2, '0')}</b>${(s.dataset.title || ($('h2,h1', s) || {}).textContent || 'Lámina').trim()}<button class="eye" data-h="${s.id}">${isHidden(s) ? '👁 Mostrar' : '🚫 Ocultar'}</button><span class="mv"><button data-mv="-1" title="Mover antes">◀</button><button data-mv="1" title="Mover después">▶</button></span></div>`).join('')}</div>`;
+    ov.innerHTML = `<h4>${document.title} · ${visibleIdx().length} de ${slides.length} láminas visibles</h4><p class="ovp">Clic en una lámina para ir a ella. Arrástrela (o use ◀ ▶) para cambiar el orden. «Ocultar» la saca de la presentación y del PDF.</p><div class="ov-grid">${slides.map((s, i) => `<div class="ov ${i === D.i ? 'cur' : ''} ${isHidden(s) ? 'off' : ''}" data-n="${i}"><b>${String(i + 1).padStart(2, '0')}</b>${(s.dataset.title || ($('h2,h1', s) || {}).textContent || 'Lámina').trim()}<button class="eye" data-h="${s.id}">${isHidden(s) ? '👁 Mostrar' : '🚫 Ocultar'}</button><span class="mv"><button data-mv="-1" title="Mover antes">◀</button><button data-dup title="Duplicar esta lámina (queda justo después)">⧉</button><button data-mv="1" title="Mover después">▶</button></span></div>`).join('')}</div>`;
     $$('.ov', ov).forEach(c => c.onclick = e => { if (e.target.closest('.eye')) return; ov.classList.remove('on'); go(+c.dataset.n); });
     $$('.ov', ov).forEach(c => { c.draggable = true;
       c.ondragstart = e => { c.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.dataset.n); };
@@ -261,6 +261,8 @@
       c.ondragover = e => { e.preventDefault(); c.classList.add('over'); }; c.ondragleave = () => c.classList.remove('over');
       c.ondrop = e => { e.preventDefault(); c.classList.remove('over'); const f = +e.dataTransfer.getData('text/plain'), t = +c.dataset.n; if (moveSlide(f, t)) renderOv(); }; });
     $$('[data-mv]', ov).forEach(b => b.onclick = e => { e.stopPropagation(); const n = +b.closest('.ov').dataset.n; if (moveSlide(n, n + +b.dataset.mv)) renderOv(); });
+    $$('[data-dup]', ov).forEach(b => b.onclick = e => { e.stopPropagation(); if (SOLO_VER) return; const n = +b.closest('.ov').dataset.n; if (!D.editor || !D.editor.newSlide) return toast('Abra el modo edición (E) para duplicar');
+      ov.classList.remove('on'); go(n); setTimeout(() => D.editor.newSlide('dup'), 350); });
     $$('.eye', ov).forEach(b => b.onclick = e => { e.stopPropagation(); const s = $('#' + b.dataset.h); store.hidden[s.id] = !isHidden(s); persist(); applyHidden(); update(); renderOv(); });
   }
   function toggleFs() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => { }); else document.exitFullscreen(); }
@@ -448,18 +450,21 @@
   // bloques extra que también se pueden mover (textos, tablas, títulos); llevan su propia numeración para no mover las posiciones ya guardadas
   const MOVE_X = '.rich,.dh-tbl,.dm-tbl,.dm-next,.dm-ttl,.de-sub,.bubble-dl,.dl-tag,[data-movex]';
   const movX = sl => $$(MOVE_X, sl).filter(el => !el.matches(MOVE_SEL) && !el.closest('.free-layer') && !el.closest('.chartbox'));
-  const mkey = (sl, el) => { if (el.dataset.fid) return 'free:' + el.dataset.fid; const i = movables(sl).indexOf(el); return i >= 0 ? sl.id + ':' + i : sl.id + ':x' + movX(sl).indexOf(el); };
+  // marcos de foto de la plantilla (p. ej. el círculo de la dinámica): se mueve el marco completo, no la foto dentro del marco
+  const wrapOf = slot => { const p = slot.parentElement, sl = slot.closest('.slide'); return p && p !== sl && !p.matches(MOVE_SEL + ',' + MOVE_X) && !p.closest('.free,.free-layer,.cover-bg') && p.querySelectorAll('.slot').length === 1 && getComputedStyle(p).position === 'absolute' ? p : null; };
+  const movY = sl => [...new Set($$('.slot', sl).map(wrapOf).filter(Boolean))];
+  const mkey = (sl, el) => { if (el.dataset.fid) return 'free:' + el.dataset.fid; const i = movables(sl).indexOf(el); if (i >= 0) return sl.id + ':' + i; const j = movX(sl).indexOf(el); return j >= 0 ? sl.id + ':x' + j : sl.id + ':y' + movY(sl).indexOf(el); };
   function applyLayout(el, L) {
     const x = (L && L.x) || 0, y = (L && L.y) || 0;
     if (window.gsap && el.matches(ANIM_SEL)) { el._lay = { x, y }; el.style.translate = ''; gsap.set(el, { x, y }); }
     else el.style.translate = x || y ? `${x}px ${y}px` : ''; el.style.width = L && L.w ? L.w + 'px' : ''; el.style.height = L && L.h ? L.h + 'px' : ''; if (L && (L.w || L.h)) el.style.maxWidth = 'none'; el.style.zIndex = L && L.z ? L.z : ''; if (L && L.z && getComputedStyle(el).position === 'static') el.style.position = 'relative'; }
-  function loadLayout() { try { aplicarOcultos(); } catch (e) { } slides.forEach(sl => { movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); }); movX(sl).forEach((el, i) => { const L = store.layout[sl.id + ':x' + i]; if (L) applyLayout(el, L); }); }); }
-  let selEl = null; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="hide" title="Ocultar este elemento de la plantilla (no sale al presentar; se puede volver a mostrar)">👁 Ocultar</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
+  function loadLayout() { try { aplicarOcultos(); } catch (e) { } slides.forEach(sl => { movables(sl).forEach((el, i) => { const L = store.layout[sl.id + ':' + i]; if (L) applyLayout(el, L); }); movX(sl).forEach((el, i) => { const L = store.layout[sl.id + ':x' + i]; if (L) applyLayout(el, L); }); movY(sl).forEach((el, i) => { const L = store.layout[sl.id + ':y' + i]; if (L) applyLayout(el, L); }); }); }
+  let selEl = null, editSel = false; const selBox = document.createElement('div'); selBox.className = 'sel-box'; selBox.innerHTML = '<i class="rz" title="Arrastre para cambiar el tamaño"></i><div class="sel-bar"><button data-mv="up" title="Traer al frente">⬆ Frente</button><button data-mv="reset" title="Volver a la posición y tamaño originales">↺ Original</button><button data-mv="hide" title="Ocultar este elemento de la plantilla (no sale al presentar; se puede volver a mostrar)">👁 Ocultar</button><button data-mv="del" class="mv-del" title="Eliminar este elemento">🗑 Eliminar</button></div>';
   D.moving = () => body.classList.contains('moving');
   const paintHideBtn = () => { const hb = selBox.querySelector('[data-mv=hide]'); if (!hb || !selEl || selEl.dataset.fid) return; const sl = selEl.closest('.slide'); hb.textContent = store.hidden['el:' + mkey(sl, selEl)] ? '👁 Mostrar' : '🚫 Ocultar'; };
-  function aplicarOcultos() { slides.forEach(sl => { const m = movables(sl), x = movX(sl); m.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':' + i])); x.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':x' + i])); }); }
+  function aplicarOcultos() { slides.forEach(sl => { const m = movables(sl), x = movX(sl); m.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':' + i])); x.forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':x' + i])); movY(sl).forEach((el, i) => el.classList.toggle('el-off', !!store.hidden['el:' + sl.id + ':y' + i])); }); }
   D.aplicarOcultos = aplicarOcultos;
-  function drawSel() { paintHideBtn(); if (!selEl || !D.moving()) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
+  function drawSel() { paintHideBtn(); if (!selEl || !(D.moving() || (editSel && D.editing()))) { selBox.remove(); return; } selBox.classList.toggle('is-free', !!selEl.dataset.fid); const sl = selEl.closest('.slide'); if (selBox.parentNode !== sl) sl.appendChild(selBox); const a = sl.getBoundingClientRect(), r = selEl.getBoundingClientRect(), k = D.scale;
     Object.assign(selBox.style, { left: (r.left - a.left) / k + 'px', top: (r.top - a.top) / k + 'px', width: r.width / k + 'px', height: r.height / k + 'px' }); }
   const lay = el => { const sl = el.closest('.slide'), k = mkey(sl, el); return [k, store.layout[k] || (store.layout[k] = {})]; };
   function toggleMove() {
@@ -471,18 +476,28 @@
     if (!on) { selEl = null; drawSel(); persist(); toast('Posiciones guardadas'); }
   }
   const ev0Shift = e => !!e.shiftKey;
+  // En modo edición las imágenes de la plantilla (fotos, logos) se arrastran desde cualquier punto; un clic solo las selecciona
+  const IMG_SEL = '.slot,.mark,.logo,img.lg';
+  const imgTarget = e => { if (!D.editing() || D.moving() || e.button || SOLO_VER) return null; if (e.target.closest('[data-s],.sel-bar,.free,.free-layer,.cover-bg,.bg-ui,input,button')) return null;
+    let el = e.target.closest(IMG_SEL); if (!el || !slides[D.i].contains(el)) return null; if (el.matches('.slot')) { if (el.classList.contains('slot-off')) return null; el = wrapOf(el) || el; } return el; };
+  let tapImg = null;
   stage.addEventListener('pointerdown', e => {
-    if (!D.moving()) return; if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
+    const imgEl = !D.moving() && (imgTarget(e) || (editSel && e.target.closest('.sel-box .rz') ? selEl : null));
+    if (!D.moving() && !imgEl) { if (editSel && !e.target.closest('.sel-bar')) { editSel = false; selEl = null; drawSel(); } return; }
+    if (e.target.closest('.sel-bar')) return; e.preventDefault(); e.stopPropagation();
     const sl = slides[D.i]; const rz = e.target.closest('.rz');
-    if (!rz) { let el = e.target.closest(MOVE_SEL + ',' + MOVE_X); if (el && !el.matches(MOVE_SEL) && el.closest('.chartbox')) el = el.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
+    if (imgEl && !rz) { const sh = imgEl.querySelector && imgEl.matches('.slot') ? imgEl : imgEl.querySelector('.slot'); tapImg = { el: imgEl, slot: sh || imgEl.closest('.slot'), moved: false }; selEl = imgEl; editSel = true; drawSel(); }
+    if (!rz && !imgEl) { let el = e.target.closest(MOVE_SEL + ',' + MOVE_X); if (el && el.matches('.slot')) el = wrapOf(el) || el; if (el && !el.matches(MOVE_SEL) && el.closest('.chartbox')) el = el.closest(MOVE_SEL); if (el && el.closest('.chartbox') && !el.classList.contains('chartbox')) el = el.closest('.chartbox'); if (e.altKey && el) el = el.parentElement.closest(MOVE_SEL) || el; const fr = e.target.closest('.free'); if (fr) el = fr;
       if (!el || !sl.contains(el)) { selEl = null; drawSel(); return; } selEl = el; drawSel(); }
     if (!selEl) return; const [k, L] = lay(selEl), x0 = e.clientX, y0 = e.clientY, sx = L.x || 0, sy = L.y || 0, w0 = selEl.offsetWidth, h0 = selEl.offsetHeight, sc = D.scale;
     const ratio = !!(rz && !ev0Shift(e) && (selEl.classList.contains('fimg') || selEl.matches('img,.slot') || (selEl.querySelector('.slot,img') && !selEl.querySelector('canvas,[data-tbl],.ftx'))));
-    const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc; if (rz && ratio) { const q = Math.max((w0 + dx) / w0, (h0 + dy) / h0, 40 / w0); L.w = Math.round(w0 * q); L.h = Math.round(h0 * q); } else if (rz) { L.w = Math.max(40, Math.round(w0 + dx)); L.h = Math.max(30, Math.round(h0 + dy)); } else { L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); } applyLayout(selEl, L); drawSel(); };
+    const mv = ev => { const dx = (ev.clientX - x0) / sc, dy = (ev.clientY - y0) / sc; if (rz && ratio) { const q = Math.max((w0 + dx) / w0, (h0 + dy) / h0, 40 / w0); L.w = Math.round(w0 * q); L.h = Math.round(h0 * q); } else if (rz) { L.w = Math.max(40, Math.round(w0 + dx)); L.h = Math.max(30, Math.round(h0 + dy)); } else { if (tapImg && !tapImg.moved && Math.abs(dx) + Math.abs(dy) < 4) return; if (tapImg) tapImg.moved = true; L.x = Math.round(sx + dx); L.y = Math.round(sy + dy); } applyLayout(selEl, L); drawSel(); };
     const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); persist(); const s2 = selEl && selEl.closest('.slide'); if (rz && s2) D.fire(s2, 'edited'); };
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
   }, true);
-  stage.addEventListener('click', e => { if (D.moving() && !e.target.closest('.sel-bar')) { e.preventDefault(); e.stopPropagation(); } }, true);
+  stage.addEventListener('click', e => { if (D.moving() && !e.target.closest('.sel-bar')) { e.preventDefault(); e.stopPropagation(); return; }
+    // tras arrastrar, o con la foto ya puesta, el clic no abre el selector de archivos (para cambiarla: botón «Elegir imagen»)
+    if (tapImg && !e.target.closest('[data-s],.sel-bar')) { const t = tapImg; tapImg = null; if (t.moved || !t.slot || t.slot.classList.contains('has') || !t.slot.matches('.slot')) { e.preventDefault(); e.stopPropagation(); if (!t.moved && t.slot && t.slot.classList.contains('has') && !D._tipImg) { D._tipImg = 1; toast('Imagen seleccionada · arrástrela para moverla · esquina dorada = tamaño · para cambiarla use «Elegir imagen»', 4200); } } } }, true);
   selBox.addEventListener('click', e => { const b = e.target.closest('[data-mv]'); if (!b || !selEl) return; e.stopPropagation(); const [k, L] = lay(selEl);
     if (b.dataset.mv === 'hide') { const hk = 'el:' + k; if (store.hidden[hk]) delete store.hidden[hk]; else store.hidden[hk] = 1; selEl.classList.toggle('el-off', !!store.hidden[hk]); persist(); paintHideBtn(); toast(store.hidden[hk] ? 'Elemento oculto: no sale al presentar (se ve tenue al editar) · «👁 Mostrar» lo devuelve' : 'Elemento visible otra vez', 3600); return; }
     if (b.dataset.mv === 'del') { const f = selEl.dataset.fid; if (f && D.onFreeDelete) { D.onFreeDelete(f); selEl = null; drawSel(); } return; }
