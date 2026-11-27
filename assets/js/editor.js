@@ -406,8 +406,11 @@
       for (const [fid, f] of Object.entries(store.free)) if (f.s === sl.id) { const nf = uid(); store.free[nf] = JSON.parse(JSON.stringify(Object.assign({}, f, { s: id }))); if (store.layout['free:' + fid]) store.layout['free:' + nf] = store.layout['free:' + fid]; if (store.images['free-' + fid] !== undefined) store.images['free-' + nf] = store.images['free-' + fid]; if (f.t === 'chart' && store.charts['fc-' + fid]) store.charts['fc-' + nf] = store.charts['fc-' + fid]; }
       return goReload(D.i + 1);
     }
+    if (kind === 'restaurar') { store.meta.borradas = []; D.persist(); D.toast('Láminas restauradas', 2000); return goReload(D.i); }
     if (kind === 'del') {
-      if (!sl.dataset.extra) { store.hidden[sl.id] = true; D.persist(); D.toast('Lámina de la plantilla ocultada (se puede volver a mostrar en «Láminas»)', 3600); return goReload(Math.max(0, D.i - 1)); }
+      if (D.slides.length <= 1) { D.toast('No se puede eliminar la única lámina'); return; }
+      if (!confirm('¿Eliminar esta lámina de la presentación?\n(Ctrl+Z la devuelve; también «Restaurar láminas eliminadas» en ＋ Insertar)')) return;
+      if (!sl.dataset.extra) { const m = store.meta = store.meta || {}; m.borradas = [...new Set([...(m.borradas || []), sl.id])]; delete store.hidden[sl.id]; for (const [fid, f] of Object.entries(store.free)) if (f.s === sl.id) delete store.free[fid]; D.persist(); D.toast('Lámina eliminada', 2000); return goReload(Math.max(0, D.i - 1)); }
       store.slides[sl.id].removed = true; for (const [fid, f] of Object.entries(store.free)) if (f.s === sl.id) delete store.free[fid];
       return goReload(Math.max(0, D.i - 1));
     }
@@ -445,7 +448,7 @@
     <h5>📊 Gráficos · 15 tipos (luego escriba sus datos)</h5><div class="sub-ins charts">${CH15.map(([k, ic, v]) => `<button data-i="chart" data-kind="${k}"><i>${ic}</i>${v}</button>`).join('')}</div>
     <button data-i="table">▦ Tabla</button>
     <h5>Láminas</h5>
-    <button data-i="empty">＋ Lámina vacía (diseñar desde cero)</button><button data-i="blank">＋ Lámina en blanco con título (clara)</button><button data-i="dark">＋ Lámina en blanco (oscura)</button><button data-i="dup">⧉ Duplicar esta lámina</button>${document.getElementById('r-cia') ? '<button data-i="opt">＋ Lámina con cuadro de OPT (tabla con avance %)</button>' : ''}
+    <button data-i="empty">＋ Lámina vacía (diseñar desde cero)</button><button data-i="blank">＋ Lámina en blanco con título (clara)</button><button data-i="dark">＋ Lámina en blanco (oscura)</button><button data-i="dup">⧉ Duplicar esta lámina</button>${(store.meta && (store.meta.borradas || []).length) ? `<button data-i="restaurar">↺ Restaurar láminas eliminadas (${store.meta.borradas.length})</button>` : ''}${document.getElementById('r-cia') ? '<button data-i="opt">＋ Lámina con cuadro de OPT (tabla con avance %)</button>' : ''}
     <div class="row2"><button data-i="left" title="Mover la lámina a la izquierda">◀ Mover</button><button data-i="right" title="Mover la lámina a la derecha">Mover ▶</button></div>
     <button data-i="del" class="danger">🗑 Eliminar / ocultar esta lámina</button>`;
   document.body.appendChild(menu);
