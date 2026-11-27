@@ -242,7 +242,7 @@
     salute: t => ({ R_shZ: 2.35, R_shX: -.3, R_elZ: 2.3, R_elX: -.1, R_wrY: 1.4, R_curl: 0, R_idx: 0, R_th: .9, hdZ: -.06, hdX: -.04, torX: -.02, brow: .5, mouth: .15 })
   };
   // [acción, segundos, frase]
-  const PLAN = [['wave', 3.4, 'Buenos días con todos los presentes'], ['idle', 1.2], ['point', 4.4, 'Les habla el ingeniero Pablo, de Seguridad'], ['idle', 1.1],
+  const PLAN = [['wave', 3.4, 'Buenos días con todos los presentes'], ['idle', 1.2], ['point', 4.4, 'Hoy vamos a ver el artículo del día'], ['idle', 1.1],
     ['thumbs', 2.8, '¡La seguridad empieza por ti! 👍'], ['idle', 1], ['lookout', 3.4, 'Antes de empezar, identifica los peligros 👀'],
     ['radio', 3.4, 'Reporta todo acto y condición subestándar 📻'], ['idle', 1], ['celebrate', 2.8, '¡Vamos por cero accidentes! 🎉'], ['idle', 1.1],
     ['salute', 2.8, 'Casco, lentes y EPP siempre puestos ⛑️'], ['laugh', 2.4, '¡Trabajar seguro es trabajar feliz! 😄'], ['nod', 2.6, 'Cuídate tú y cuida a tu compañero 🤝'], ['idle', 1.6]];
@@ -281,11 +281,11 @@
     const cv = renderer.domElement;
     cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, r: miner.rotation.y, t: performance.now() }; cv.setPointerCapture(e.pointerId); e.stopPropagation(); });
     cv.addEventListener('pointermove', e => { if (drag) miner.rotation.y = drag.r + (e.clientX - drag.x) * .012; });
-    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; say('¡Hola! Soy el Ing. Pablo 👋'); } drag = null; e.stopPropagation(); });
+    cv.addEventListener('pointerup', e => { if (drag && performance.now() - drag.t < 220 && Math.abs(e.clientX - drag.x) < 6) { forced = 'wave'; at = 0; say('¡Buenos días! 👋'); } drag = null; e.stopPropagation(); });
     cv.addEventListener('click', e => e.stopPropagation());
     addEventListener('mousemove', e => { const r = el.getBoundingClientRect(); look.x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2))); look.y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height * .25)) / (innerHeight / 2))); });
     const sayB = document.createElement('div'); sayB.className = 'mn-say'; sayB.innerHTML = '<span></span>'; el.appendChild(sayB); const sayT = sayB.firstChild;
-    const nm = document.createElement('div'); nm.className = 'mn-name'; nm.innerHTML = '<small>Ing.</small><b>PABLO</b><small>Tu ingeniero de seguridad</small>'; el.appendChild(nm);
+    const nm = document.createElement('div'); nm.className = 'mn-name'; nm.innerHTML = '<b>INGENIERO</b><small>Seguridad</small>'; el.appendChild(nm);
     const frases = (el.dataset.frases || '').split('|').map(x => x.trim()).filter(Boolean); let fi = 0, typing = null;
     const say = txt => { if (!txt) { sayB.classList.remove('on'); return; } if (frases.length) txt = frases[fi++ % frases.length]; typing = { s: txt, n: 0 }; sayT.textContent = ''; sayB.classList.remove('on'); void sayB.offsetWidth; sayB.classList.add('on'); };
     let talking = false, talkPause = false, talkG = 'point', mouthK = 0, talkT = 0, bob = 0;

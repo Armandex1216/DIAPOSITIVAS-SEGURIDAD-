@@ -121,7 +121,7 @@
       const lv = sl.querySelector('.lv'); lv.classList.add('playing'); lv.classList.remove('paused'); lv.querySelector('.lv-play').textContent = '⏸ Pausa';
       const m = miner(sl); m && m.talk && m.talk(true, 'point');
       const rest = cfg().esc.slice(from).flatMap(e => (e.t || '').trim() ? chunks(e.t, e.tono) : []);
-      if (useNeural()) { const first = rest[0] && getAudio(rest[0]).catch(() => null); setSub(sl, '<i>El Ing. Pablo se está preparando…</i>'); prefetch(rest); await first; }
+      if (useNeural()) { const first = rest[0] && getAudio(rest[0]).catch(() => null); setSub(sl, '<i>El ingeniero se está preparando…</i>'); prefetch(rest); await first; }
       else await voicesReady();
       for (let i = from; i < cfg().esc.length; i++) {
         if (!run || run.token !== token) return; run.i = i;
@@ -207,7 +207,7 @@
       lv.addEventListener('keydown', e => e.stopPropagation());
     });
     const refresh = () => slides.forEach(sl => { const lv = sl.querySelector('.lv'); if (!lv) return; const n = cfg().esc.filter(e => (e.t || '').trim()).length;
-      lv.classList.toggle('vacio', !n); if (!run || run.sl !== sl) { showScene(sl, 0); setSub(sl, n ? '<i>Presione ▶ y el Ing. Pablo explicará el decreto</i>' : ''); } });
+      lv.classList.toggle('vacio', !n); if (!run || run.sl !== sl) { showScene(sl, 0); setSub(sl, n ? '<i>Presione ▶ y el ingeniero leerá el decreto</i>' : ''); } });
     refresh();
     setTimeout(() => { if (cfg().esc.some(e => (e.t || '').trim())) prefetch(); }, 2500);
     // al entrar a la lámina Lucho empieza a hablar solo; al salir se calla
@@ -226,7 +226,7 @@
     function openPanel(sl) {
       if (panel) panel.remove(); stop();
       panel = document.createElement('div'); panel.className = 'lp'; panel.setAttribute('data-noedit', '');
-      panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion del Ing. Pablo</b><span>Escriba lo que el Ingeniero dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras el Ingeniero la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
+      panel.innerHTML = `<div class="lp-box"><div class="lp-hd"><b>🎙 Guion del ingeniero</b><span>Escriba lo que el Ingeniero dirá, por partes. A cada parte puede ponerle una imagen (pegar con Ctrl+V, arrastrar o elegir): aparece mientras el Ingeniero la explica.</span><button class="lp-x" title="Cerrar">✕</button></div>
         <div class="lp-cfg"><label>Voz <select class="lp-voz"></select></label><label>Velocidad <input class="lp-vel" type="range" min=".7" max="1.3" step=".05"><em class="lp-velv"></em></label><button class="lp-test">🔊 Probar voz</button></div>
         <div class="lp-warn"></div><div class="lp-list"></div><div class="lp-ft"><button class="lp-add">＋ Agregar parte</button><button class="lp-play">▶ Escuchar todo</button><button class="lp-ok">Listo</button></div>
         <p class="lp-tip">Marcas: <b>*palabra*</b> = la dice con énfasis · <b>[pausa]</b> o <b>…</b> = pausa dramática · <b>¡…!</b> = más energía. Consejo: frases cortas y claras. Escriba los números como se leen si hace falta (por ejemplo «artículo cien»). La <b>voz natural</b> se descarga una vez y queda guardada: luego el Ingeniero habla aunque no haya señal (también en el archivo descargado).</p></div>`;
@@ -238,7 +238,7 @@
       const warn = () => { const w = panel && panel.querySelector('.lp-warn'); if (!w) return; w.style.display = 'none'; };
       voicesReady().then(() => { paintVoices(); warn(); });
       paintVoices(); panel.querySelector('.lp-voz').onchange = e => { C.voz = e.target.value; save(); };
-      panel.querySelector('.lp-test').onclick = async () => { const t = 'Buenos días con todos los presentes. Les habla el ingeniero Pablo, de Seguridad. El día de hoy veremos el artículo del reglamento.';
+      panel.querySelector('.lp-test').onclick = async () => { const t = 'Buenos días con todos los presentes. Hoy vamos a ver el artículo del reglamento.';
         try { SS && SS.cancel(); au.pause(); } catch (e) { }
         if (useNeural()) { const b = panel.querySelector('.lp-test'); b.textContent = '⏳ Cargando voz…'; try { const o = await getAudio(chunks(t, 'charla')[0]); au.onended = null; au.src = o.a; au.play(); }
           catch (e) { D.toast('No se pudo cargar la voz natural (¿sin internet?). Se usará la voz del equipo.', 5000); } b.textContent = '🔊 Probar voz'; return; }
