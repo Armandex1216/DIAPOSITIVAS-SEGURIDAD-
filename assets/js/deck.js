@@ -67,7 +67,7 @@
   // modo proyector: los proyectores lavan los colores y el contraste; esto los compensa (se recuerda en este equipo)
   const setProy = on => { body.classList.toggle('proyector', on); try { localStorage.setItem('deck-proyector', on ? '1' : ''); } catch (e) { } const b = document.querySelector('.ui [data-k=proy]'); if (b) b.classList.toggle('on', on); if (typeof toast === 'function' && setProy._init) toast(on ? '☀ Modo proyector activado: más contraste y nitidez' : 'Modo proyector desactivado'); setProy._init = 1; };
   addEventListener('keydown', e => { if ((e.key === 'l' || e.key === 'L') && !e.ctrlKey && !e.metaKey && !e.altKey && !(document.activeElement && document.activeElement.isContentEditable) && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName)) setProy(!body.classList.contains('proyector')); });
-  const persist = () => { snap(); try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
+  const persist = () => { if (D.strip) D.strip.refrescar(false); snap(); try { localStorage.setItem(LSK, JSON.stringify(store)); } catch (e) { toast('No hay espacio en el navegador: use «Guardar cambios» para no perderlos'); } if (D.onPersist) try { D.onPersist(); } catch (e) { console.error(e); } };
 
   const D = window.DECK = { soloVer: SOLO_VER,
     i: 0, slides, busy: false, frags: [], store, deckId, LSK, $, $$,
@@ -83,7 +83,7 @@
   // al guardar, se quitan los restos de las animaciones (translate/rotate/scale/transform/opacity en línea) y marcas del editor
   D.cleanHTML = h => String(h).replace(/\s*style="([^"]*)"/g, (m, st) => { const keep = st.split(';').map(x => x.trim()).filter(x => x && !/^(translate|rotate|scale|transform|opacity|visibility|will-change|filter)\s*:/i.test(x)); return keep.length ? ` style="${keep.join('; ')};"` : ''; })
     .replace(/\s*class="([^"]*)"/g, (m, c) => { const k = c.split(/\s+/).filter(x => x && !/^(tt-row|is-sel|sel-on)$/.test(x)); return k.length ? ` class="${k.join(' ')}"` : ''; });
-  function fit() { const ed = body.classList.contains('editing') || body.classList.contains('moving'), R = ed ? 128 : 0, T = ed ? 124 : 0, Bm = ed ? 14 : 0, Lm = ed ? 14 : 0;
+  function fit() { const ed = body.classList.contains('editing') || body.classList.contains('moving'), R = ed ? 128 : 0, T = ed ? 124 : 0, Bm = ed ? 168 : 0, Lm = ed ? 14 : 0;
     const s = Math.min((innerWidth - R - Lm) / W, (innerHeight - T - Bm) / H), dx = (Lm - R) / 2, dy = (T - Bm) / 2;
     stage.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${s})`; D.scale = s; if (D.drawSel) D.drawSel(); }
   new MutationObserver(() => { const k = body.classList.contains('editing') + ':' + body.classList.contains('moving'); if (k !== fit._k) { fit._k = k; fit(); } }).observe(body, { attributes: true, attributeFilter: ['class'] });
@@ -219,6 +219,7 @@
     const v = visibleIdx(); const pos = v.indexOf(D.i);
     $('.num', ui).textContent = (pos >= 0 ? pos + 1 : '–') + ' / ' + v.length; prog.style.width = ((pos + 1) / v.length * 100) + '%';
     history.replaceState(null, '', '#' + (D.i + 1));
+    if (D.strip) D.strip.mark();
   }
 
   /* ---------- teclado, clic, gestos ---------- */
@@ -267,6 +268,51 @@
   }
   function toggleFs() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => { }); else document.exitFullscreen(); }
 
+  /* ---------- tira de láminas abajo (como Canva) y botón Presentar ---------- */
+  // Cada miniatura es una copia de la lámina dentro de un shadow DOM (no choca con ids ni con el resto de la app)
+  let sheetAll = null;
+  function hojaEstilos() { if (sheetAll) return sheetAll; let css = '';
+    for (const sh of document.styleSheets) { let rules; try { rules = sh.cssRules; } catch (e) { continue; } const base = sh.href || location.href;
+      for (const r of rules) css += r.cssText.replace(/url\((['"]?)(?!data:|https?:|blob:)([^'")]+)\1\)/g, (m, q, u) => { try { return `url("${new URL(u, base).href}")`; } catch (e) { return m; } }) + '\n'; }
+    css += ':host{all:initial;font-family:Montserrat,sans-serif;color:#1a1917}.th-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;pointer-events:none}.th-stage .slide{position:absolute!important;inset:0;opacity:1!important;visibility:visible!important;transform:none!important;display:block!important}.th-stage [data-a],.th-stage .frag{opacity:1!important;visibility:visible!important}.th-stage .slot-ui,.th-stage .sel-box,.th-stage .mn-tg,.th-stage .fgrip,.th-stage .frz,.th-stage .fm-say,.th-stage .mn-say,.th-stage .slot-off,.th-stage .el-off,.th-stage .box-off,.th-stage .mn-off{display:none!important}';
+    try { sheetAll = new CSSStyleSheet(); sheetAll.replaceSync(css); } catch (e) { sheetAll = null; } return sheetAll; }
+  function miniatura(sl, host) {
+    const c = sl.cloneNode(true); c.classList.add('active'); c.removeAttribute('data-hidden');
+    c.querySelectorAll('[style*="opacity"],[style*="visibility"],[data-a],.frag,.shown,tr').forEach(e => { e.style.opacity = ''; e.style.visibility = ''; if (e.hasAttribute('data-a') || e.tagName === 'TR') { e.style.transform = ''; e.style.translate = ''; e.style.rotate = ''; e.style.scale = ''; } });
+    const orig = $$('canvas', sl), cl = $$('canvas', c);
+    cl.forEach((cv, i) => { const o = orig[i]; const im = document.createElement('img'); im.style.cssText = cv.style.cssText + ';width:100%;height:100%;object-fit:contain'; try { if (o && o.width) im.src = o.toDataURL(); } catch (e) { } cv.replaceWith(im); });
+    c.querySelectorAll('video,iframe,script').forEach(e => e.remove());
+    const sr = host.shadowRoot || host.attachShadow({ mode: 'open' }); const sh = hojaEstilos(); if (sh) sr.adoptedStyleSheets = [sh];
+    sr.innerHTML = ''; const st = document.createElement('div'); st.className = 'th-stage'; st.style.transform = `scale(${host.clientWidth / 1920 || .1})`; st.appendChild(c); sr.appendChild(st);
+  }
+  const strip = document.createElement('div'); strip.className = 'filmstrip'; strip.setAttribute('data-noedit', ''); document.body.appendChild(strip);
+  let stripT = 0;
+  function pintarTira(todas) {
+    if (!body.classList.contains('editing') && !body.classList.contains('moving')) return;
+    if (todas || strip.children.length !== slides.length + 1) {
+      strip.innerHTML = slides.map((sl, i) => `<div class="fs-it ${isHidden(sl) ? 'off' : ''}" data-n="${i}" draggable="true" title="${(sl.dataset.title || '').replace(/"/g, '')}"><div class="fs-th"></div><span class="fs-n">${i + 1}</span>${isHidden(sl) ? '<span class="fs-oc">oculta</span>' : ''}<span class="fs-b"><button data-f="dup" title="Duplicar">⧉</button><button data-f="del" title="Eliminar u ocultar">🗑</button></span></div>`).join('') + '<button class="fs-add" title="Agregar una lámina en blanco después de la actual">＋</button>';
+      const its = $$('.fs-it', strip); let k = 0; const next = () => { const t = performance.now(); while (k < its.length && performance.now() - t < 30) { const it = its[k]; miniatura(slides[+it.dataset.n], $('.fs-th', it)); k++; } if (k < its.length) requestAnimationFrame(next); }; requestAnimationFrame(next);
+    } else { const it = strip.querySelector(`.fs-it[data-n="${D.i}"]`); if (it) miniatura(slides[D.i], $('.fs-th', it)); }
+    strip.mark();
+  }
+  strip.mark = () => { $$('.fs-it', strip).forEach(it => it.classList.toggle('cur', +it.dataset.n === D.i)); const c = strip.querySelector('.fs-it.cur'); if (c) { const r = c.getBoundingClientRect(); if (r.left < 0 || r.right > innerWidth - 130) c.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); } };
+  strip.refrescar = todas => { clearTimeout(stripT); stripT = setTimeout(() => pintarTira(todas), todas ? 50 : 900); };
+  strip.addEventListener('click', e => { const b = e.target.closest('[data-f]'), it = e.target.closest('.fs-it');
+    if (e.target.closest('.fs-add')) { if (D.editor) D.editor.newSlide('blank'); return; }
+    if (!it) return; const n = +it.dataset.n;
+    if (b) { e.stopPropagation(); if (n !== D.i) go(n); setTimeout(() => D.editor && D.editor.newSlide(b.dataset.f), n !== D.i ? 350 : 0); return; }
+    if (n !== D.i) go(n); });
+  strip.addEventListener('dragstart', e => { const it = e.target.closest('.fs-it'); if (it) e.dataTransfer.setData('text/plain', it.dataset.n); });
+  strip.addEventListener('dragover', e => { if (e.target.closest('.fs-it')) e.preventDefault(); });
+  strip.addEventListener('drop', e => { const it = e.target.closest('.fs-it'); if (!it) return; e.preventDefault(); const f = +e.dataTransfer.getData('text/plain'), t = +it.dataset.n; if (moveSlide(f, t)) strip.refrescar(true); });
+  strip.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { strip.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+  D.strip = strip;
+  // Presentar: sale del editor y pone pantalla completa; al salir de pantalla completa vuelve a editar
+  const presBtn = document.createElement('button'); presBtn.className = 'btn-presentar'; presBtn.innerHTML = '▶ Presentar'; presBtn.title = 'Presentar en pantalla completa (Esc para volver a editar)'; document.body.appendChild(presBtn);
+  let desdeEditor = false;
+  presBtn.onclick = () => { desdeEditor = true; if (D.editing()) toggleEdit(); document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => { }); };
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && desdeEditor) { desdeEditor = false; if (!D.editing()) toggleEdit(); } });
+
   /* ---------- edición de textos y cifras ---------- */
   const EDIT_SEL = 'h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]';
   const editablesIn = sl => $$(EDIT_SEL, sl).filter(el => !el.closest('[data-noedit]') && (el.classList.contains('rich') || !el.querySelector(EDIT_SEL)) && !(el.parentElement && el.parentElement.closest('.rich')) && !el.closest('.chartbox') && !el.closest('[data-tbl]') && !el.closest('.free-layer'));
@@ -288,6 +334,7 @@
     if (!on) { commitEdits(); toast('Cambios guardados en este equipo. Para llevarlos a otra PC: «💾 Guardar cambios»'); }
     D.fire(slides[D.i], on ? 'edit' : 'enter');
     if (!on) { resetSlide(slides[D.i]); enterSlide(slides[D.i], .1); }
+    fit(); if (on) strip.refrescar(true);
   }
   document.addEventListener('paste', e => { if (!e.target.isContentEditable) return; e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData('text'); document.execCommand('insertText', false, t); });
   document.addEventListener('blur', e => { if (e.target.isContentEditable) { const sl = e.target.closest('.slide'); if (sl) { if (e.target.hasAttribute('data-count')) syncCount(e.target); commitEdits(sl); D.fire(sl, 'edited'); } } }, true);
@@ -502,6 +549,10 @@
     if (b.dataset.mv === 'hide') { const hk = 'el:' + k; if (store.hidden[hk]) delete store.hidden[hk]; else store.hidden[hk] = 1; selEl.classList.toggle('el-off', !!store.hidden[hk]); persist(); paintHideBtn(); toast(store.hidden[hk] ? 'Elemento oculto: no sale al presentar (se ve tenue al editar) · «👁 Mostrar» lo devuelve' : 'Elemento visible otra vez', 3600); return; }
     if (b.dataset.mv === 'del') { const f = selEl.dataset.fid; if (f && D.onFreeDelete) { D.onFreeDelete(f); selEl = null; drawSel(); } return; }
     if (b.dataset.mv === 'reset') { delete store.layout[k]; applyLayout(selEl, null); } else { L.z = (L.z || 1) + 5; applyLayout(selEl, L); } persist(); drawSel(); D.fire(selEl.closest('.slide'), 'edited'); });
+  // Supr con un elemento de la plantilla seleccionado (imagen, logo o bloque en «Mover»): se quita de la lámina (se puede devolver con «Mostrar»)
+  document.addEventListener('keydown', e => { if (!(e.key === 'Delete' || e.key === 'Backspace') || !selEl || selEl.dataset.fid) return; if (!(D.moving() || (editSel && D.editing()))) return;
+    const a = document.activeElement; if (a && (a.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return;
+    e.preventDefault(); e.stopImmediatePropagation(); const [k] = lay(selEl); store.hidden['el:' + k] = 1; selEl.classList.add('el-off'); persist(); selEl = null; editSel = false; drawSel(); toast('Elemento quitado de la lámina · Deshacer (Ctrl+Z) lo devuelve', 3000); }, true);
   document.addEventListener('keydown', e => { if (!D.moving() || !selEl || !/^Arrow/.test(e.key)) return; e.preventDefault(); e.stopImmediatePropagation(); const [k, L] = lay(selEl), d = e.shiftKey ? 10 : 1;
     if (e.key === 'ArrowLeft') L.x = (L.x || 0) - d; if (e.key === 'ArrowRight') L.x = (L.x || 0) + d; if (e.key === 'ArrowUp') L.y = (L.y || 0) - d; if (e.key === 'ArrowDown') L.y = (L.y || 0) + d; applyLayout(selEl, L); drawSel(); persist(); }, true);
   addEventListener('resize', drawSel);
