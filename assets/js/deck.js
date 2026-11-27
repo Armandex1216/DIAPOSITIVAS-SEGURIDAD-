@@ -224,11 +224,15 @@
 
   /* ---------- teclado, clic, gestos ---------- */
   addEventListener('keydown', e => {
-    if (e.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { if (e.key === 'Escape') e.target.blur(); return; }
+    const k = e.key, ed = D.editing && D.editing();
+    // en el editor (como Canva): Re Pág / Av Pág cambian de lámina aunque esté escribiendo
+    if (ed && (k === 'PageDown' || k === 'PageUp') && !$('.modal.on')) { e.preventDefault(); if (e.target.blur) e.target.blur(); return k === 'PageDown' ? next() : prev(); }
+    if (e.target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { if (k === 'Escape') e.target.blur(); return; }
     if ($('.modal.on')) return;
-    const k = e.key;
-    if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
-    else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
+    if (ed && (k === 'Backspace' || k === 'Delete')) return; // en edición no retrocede de lámina
+    if (ed && k === 'Escape') { if (D.moving()) toggleMove(); else { ov.classList.remove('on'); lb.classList.remove('on'); } return; }
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
     else if (k === 'Home') go(visibleIdx()[0]); else if (k === 'End') go(visibleIdx().slice(-1)[0]);
     else if ((k === 'o' || k === 'O') && !SOLO_VER) toggleOv(); else if (k === 'f' || k === 'F') toggleFs();
     else if ((k === 'e' || k === 'E') && !SOLO_VER) toggleEdit(); else if ((k === 'm' || k === 'M') && !SOLO_VER) toggleMove(); else if ((k === 'p' || k === 'P') && !SOLO_VER) printDeck();
