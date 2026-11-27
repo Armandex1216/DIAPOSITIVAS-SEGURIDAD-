@@ -216,7 +216,7 @@
 
   function addFree(t, extra) {
     const sl = cur(), fid = uid();
-    const L = { text: { x: 160, y: 300, w: 900, h: 0 }, bubble: { x: 640, y: 300, w: 620, h: 340 }, box: { x: 160, y: 760, w: 1600, h: 170 }, img: { x: 1100, y: 260, w: 640, h: 420 }, chart: { x: 160, y: 260, w: 1000, h: 600 }, table: { x: 120, y: 260, w: 1680, h: 0 } }[t];
+    const L = { text: { x: 160, y: 300, w: 900, h: 0 }, bubble: { x: 640, y: 300, w: 620, h: 340 }, box: { x: 160, y: 760, w: 1600, h: 170 }, img: { x: 1100, y: 260, w: 640, h: 420 }, chart: { x: 160, y: 260, w: 1000, h: 600 }, table: { x: 120, y: 260, w: 1680, h: 0 }, miner: { x: 1300, y: 200, w: 520, h: 820 } }[t] || { x: 200, y: 200, w: 600, h: 400 };
     store.free[fid] = Object.assign({ s: sl.id, t }, extra || {}); store.layout['free:' + fid] = { x: L.x, y: L.y, w: L.w, h: L.h || undefined };
     const el = renderFree(fid); D.persist(); setTimeout(() => selectFree(fid), 60);
     if (t === 'chart') { D.fire(sl, 'enter'); setTimeout(() => HC.editData('fc-' + fid), 600); }
