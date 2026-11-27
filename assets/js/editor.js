@@ -31,7 +31,7 @@
     <button data-c="insertUnorderedList" title="Viñetas">•≡</button>
     <button data-c="removeFormat" title="Quitar formato">⌫ Formato</button>
     <span class="sep tb-only"></span>
-    <span class="tb-only tb-g"><button data-t="row+" title="Agregar fila debajo">+ Fila</button><button data-t="row-" title="Quitar esta fila">− Fila</button><button data-t="col+" title="Agregar columna a la derecha">+ Col</button><button data-t="col-" title="Quitar esta columna">− Col</button><span class="fills"><i>Relleno</i><button data-t="fill" data-v="bad" class="sw" style="--c:#e11d1d" title="Rojo (p. ej. fuera de plazo)"></button><button data-t="fill" data-v="warn" class="sw" style="--c:#f6c343" title="Amarillo"></button><button data-t="fill" data-v="blue" class="sw" style="--c:#1f5fa8" title="Azul"></button><button data-t="fill" data-v="ok" class="sw" style="--c:#16a34a" title="Verde"></button><button data-t="fill" data-v="none" class="sw none" title="Sin color">⌀</button><label title="Pintar toda la fila"><input type="checkbox" class="fillrow"> toda la fila</label></span></span>`;
+    <span class="tb-only tb-g"><button data-t="row+" title="Agregar fila debajo">+ Fila</button><button data-t="row-" title="Quitar esta fila">− Fila</button><button data-t="col+" title="Agregar columna a la derecha">+ Col</button><button data-t="col-" title="Quitar esta columna">− Col</button><span class="fills"><i>Relleno</i><button data-t="fill" data-v="bad" class="sw" style="--c:#e11d1d" title="Rojo (p. ej. fuera de plazo)"></button><button data-t="fill" data-v="warn" class="sw" style="--c:#f6c343" title="Amarillo"></button><button data-t="fill" data-v="blue" class="sw" style="--c:#1f5fa8" title="Azul"></button><button data-t="fill" data-v="ok" class="sw" style="--c:#16a34a" title="Verde"></button><button data-t="fill" data-v="none" class="sw none" title="Sin color">⌀</button><label title="Pintar toda la fila"><input type="checkbox" class="fillrow"> toda la fila</label></span></span><button data-c="quitar" class="rt-del" title="Quitar este texto o cuadro de la lámina (Supr con el cuadro seleccionado)">🗑 Quitar</button>`;
   document.body.appendChild(bar);
   let lastEd = null, savedRange = null;
   const activeEd = () => { const a = document.activeElement; return a && a.isContentEditable ? a.closest('[contenteditable="true"]') : null; };
@@ -86,6 +86,7 @@
     if (b.dataset.col) { const cmd = b.closest('[data-pal]').dataset.pal; exec(cmd, b.dataset.col); if (cmd === 'foreColor') $('.bar-c', bar).style.background = b.dataset.col; b.closest('.dd').classList.remove('open'); return; }
     if (b.dataset.c === 'smaller') return fontSize(0, .85);
     if (b.dataset.c === 'bigger') return fontSize(0, 1.18);
+    if (b.dataset.c === 'quitar') return quitarTexto();
     if (b.dataset.c === 'bold') return toggleBold();
     if (b.dataset.c) return exec(b.dataset.c);
     if (b.dataset.t === 'fill') return cellFill(b.dataset.v);
@@ -115,6 +116,12 @@
       const y = +m[3] < 100 ? 2000 + +m[3] : +m[3], d = new Date(y, +m[2] - 1, +m[1]); const row = td.closest('tr'), pc = row && $('td.pc', row);
       if (d < new Date(new Date().toDateString()) && (!pc || parseFloat(pc.textContent) < 100)) td.classList.add('c-bad'); });
   }
+  // quitar el texto que se está editando: si es un cuadro agregado se borra; si es de la plantilla se oculta (se puede devolver con Deshacer)
+  function quitarTexto() { const el = lastEd; if (!el) { D.toast('Haga clic en el texto que quiere quitar'); return; }
+    const fr = el.closest('.free'); if (fr) { const id = fr.dataset.fid; if (typeof selectFree === 'function') selectFree(null); D.onFreeDelete(id); bar.classList.remove('on'); return; }
+    const k = D.textKey(el); if (/:-1$/.test(k)) return; store.hidden['tx:' + k] = 1; el.classList.add('el-off'); el.blur(); bar.classList.remove('on'); D.persist(); D.toast('Texto quitado de la lámina · Ctrl+Z lo devuelve', 2600); }
+  function aplicarTextosQuitados() { const SEL = 'h1,h2,h3,h4,p,li,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]';
+    D.slides.forEach(sl => $$(SEL, sl).forEach(el => { if (el.closest('.free,[data-tbl],.chartbox')) return; let k; try { k = D.textKey(el); } catch (e) { return; } if (store.hidden['tx:' + k]) el.classList.add('el-off'); })); }
   function cellOf() { const s = getSelection(); const n = s.anchorNode && (s.anchorNode.nodeType === 1 ? s.anchorNode : s.anchorNode.parentElement); return (n && n.closest('[data-tbl] td, [data-tbl] th')) || (lastEd && lastEd.closest('[data-tbl] td, [data-tbl] th')); }
   function tableOp(op) {
     const cell = cellOf(); if (!cell) { D.toast('Haga clic dentro de una celda de la tabla'); return; }
@@ -509,10 +516,11 @@
     const paint = () => { b.textContent = store.hidden[k] ? '↺ Poner minero' : '✕ Quitar minero'; m.classList.toggle('mn-off', !!store.hidden[k]); };
     b.onclick = e => { e.stopPropagation(); e.preventDefault(); if (store.hidden[k]) delete store.hidden[k]; else store.hidden[k] = 1; D.persist(); paint(); D.toast(store.hidden[k] ? 'Minero quitado de esta lámina (no sale al presentar)' : 'Minero de vuelta', 2600); };
     m.parentNode.insertBefore(b, m.nextSibling); m._mnBtn = b; const pos = () => { b.style.left = (m.offsetLeft + 10) + 'px'; b.style.top = (m.offsetTop + 10) + 'px'; }; pos(); setTimeout(pos, 1500); paint(); })); }
-  minerosPlantilla();
+  minerosPlantilla(); try { aplicarTextosQuitados(); } catch (e) { }
   const qsE = new URLSearchParams(location.search);
   if (qsE.get('limpia') && body.hasAttribute('data-limpiar') && !store.meta.limpio) { const go = () => setTimeout(limpiarPlantilla, 400); document.readyState === 'complete' ? go() : addEventListener('load', go); }
   // presentación vacía: abre directo en modo edición
-  if (qsE.get('editar') && !D.editing()) setTimeout(() => { const b = document.querySelector('.ui [data-k=edit]'); b && !D.editing() && b.click(); }, 700);
+  // se abre directo en el editor (como Canva); «▶ Presentar» pone la pantalla completa. ?presentar=1 abre en modo presentación
+  if (!qsE.has('presentar') && !D.soloVer && !/\bprint\b/.test(location.search) && !D.editing()) setTimeout(() => { const b = document.querySelector('.ui [data-k=edit]'); b && !D.editing() && b.click(); }, 700);
   D.editor = { addFree, newSlide, renderFree, paintTable, setStyle, selectFree, limpiarPlantilla };
 })();

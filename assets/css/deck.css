@@ -523,3 +523,27 @@ body.editing:not(.moving) .slide .slot.has,body.editing:not(.moving) .slide .mar
 body.editing .slot.has .slot-ui{background:none!important;justify-content:flex-end;padding:14px;pointer-events:none}
 body.editing .slot.has .slot-ui b,body.editing .slot.has .slot-ui span{display:none}
 body.editing .slot.has .slot-ui .slot-btns{pointer-events:auto;background:rgba(26,25,23,.7);padding:6px;border-radius:12px;transform:scale(.8)}
+/* ===== tira de láminas abajo (como Canva) ===== */
+.filmstrip{display:none;position:fixed;left:14px;right:142px;bottom:10px;height:146px;z-index:60;align-items:center;gap:14px;padding:10px 14px;overflow-x:auto;overflow-y:hidden;border-radius:16px;background:rgba(20,19,17,.92);box-shadow:0 10px 30px rgba(0,0,0,.45);scrollbar-width:thin}
+body.editing .filmstrip,body.moving .filmstrip{display:flex}
+body.printing .filmstrip{display:none!important}
+.filmstrip .fs-it{position:relative;flex:none;width:192px;height:108px;border-radius:10px;overflow:hidden;background:#fff;cursor:pointer;outline:3px solid transparent;outline-offset:2px;transition:outline-color .15s,transform .15s;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.filmstrip .fs-it:hover{transform:translateY(-3px)}
+.filmstrip .fs-it.cur{outline-color:#e6a316}
+.filmstrip .fs-it.off .fs-th{opacity:.35}
+.filmstrip .fs-th{position:absolute;inset:0;overflow:hidden}
+.filmstrip .fs-n{position:absolute;left:6px;bottom:6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:rgba(0,0,0,.7);color:#fff;font:800 12px/22px Montserrat,sans-serif;text-align:center}
+.filmstrip .fs-oc{position:absolute;right:6px;top:6px;padding:2px 8px;border-radius:8px;background:#c8102e;color:#fff;font:700 11px Montserrat,sans-serif}
+.filmstrip .fs-b{position:absolute;right:6px;bottom:6px;display:none;gap:4px}
+.filmstrip .fs-it:hover .fs-b{display:flex}
+.filmstrip .fs-b button{width:28px;height:28px;border:0;border-radius:8px;background:rgba(255,255,255,.95);font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.filmstrip .fs-b button:hover{background:#e6a316}
+.filmstrip .fs-add{flex:none;width:108px;height:108px;border:2px dashed #8a8577;border-radius:12px;background:transparent;color:#e6dcc4;font:300 54px/1 Montserrat,sans-serif;cursor:pointer}
+.filmstrip .fs-add:hover{border-color:#e6a316;color:#e6a316}
+/* botón Presentar */
+.btn-presentar{display:none;position:fixed;right:150px;top:12px;z-index:70;padding:11px 22px;border:0;border-radius:12px;background:linear-gradient(135deg,#e6a316,#c39531);color:#1a1917;font:900 16px Montserrat,sans-serif;letter-spacing:.02em;cursor:pointer;box-shadow:0 8px 22px rgba(230,163,22,.45)}
+.btn-presentar:hover{filter:brightness(1.08)}
+body.editing .btn-presentar,body.moving .btn-presentar{display:block}
+body.printing .btn-presentar{display:none!important}
+/* quitar texto */
+.rt-bar .rt-del{background:#fde7ea!important;color:#c8102e!important;font-weight:800}
