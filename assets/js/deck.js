@@ -38,6 +38,8 @@
       if (after && after.parentNode === stage) after.after(sl); else stage.appendChild(sl);
     });
   })();
+  // láminas de la plantilla eliminadas por el usuario (meta.borradas): se quitan de la presentación
+  ((store.meta && store.meta.borradas) || []).forEach(id => { const el = document.getElementById(id); if (el && el.parentNode === stage && $$('.slide', stage).length > 1) el.remove(); });
   /* ---------- orden de las láminas elegido por el usuario (meta.orden) ---------- */
   // Las láminas que no están en la lista (nuevas) quedan justo después de la que tenían antes.
   function applyOrder() {
