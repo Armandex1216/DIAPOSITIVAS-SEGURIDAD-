@@ -242,7 +242,7 @@
     salute: t => ({ R_shZ: 2.35, R_shX: -.3, R_elZ: 2.3, R_elX: -.1, R_wrY: 1.4, R_curl: 0, R_idx: 0, R_th: .9, hdZ: -.06, hdX: -.04, torX: -.02, brow: .5, mouth: .15 })
   };
   // [acción, segundos, frase]
-  const PLAN = [['wave', 3.4, '¡Hola, equipo! Soy el Ing. Pablo 👋'], ['idle', 1.2], ['point', 4.4, 'Hoy aprendemos juntos: ¡atentos al reglamento! ☝️'], ['idle', 1.1],
+  const PLAN = [['wave', 3.4, 'Buenos días con todos los presentes'], ['idle', 1.2], ['point', 4.4, 'Les habla el ingeniero Pablo, de Seguridad'], ['idle', 1.1],
     ['thumbs', 2.8, '¡La seguridad empieza por ti! 👍'], ['idle', 1], ['lookout', 3.4, 'Antes de empezar, identifica los peligros 👀'],
     ['radio', 3.4, 'Reporta todo acto y condición subestándar 📻'], ['idle', 1], ['celebrate', 2.8, '¡Vamos por cero accidentes! 🎉'], ['idle', 1.1],
     ['salute', 2.8, 'Casco, lentes y EPP siempre puestos ⛑️'], ['laugh', 2.4, '¡Trabajar seguro es trabajar feliz! 😄'], ['nod', 2.6, 'Cuídate tú y cuida a tu compañero 🤝'], ['idle', 1.6]];
