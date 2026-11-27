@@ -222,6 +222,6 @@ h1 span{color:#c39531}
   if (hp.get('importar')) { if (hk[0] === 'enviar') loadDecks().finally(() => receive(hp.get('importar'))); else openNew(hk[0] || 'gum', hp.get('importar')); }
 })();
 </script>
-<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&DECK.hablando?setTimeout(go,1500):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&(DECK.hablando||(DECK.editing&&DECK.editing())||(DECK.moving&&DECK.moving())||document.querySelector(".modal.on,.ins-menu.on"))?setTimeout(go,2000):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}))}</script>
 </body>
 </html>

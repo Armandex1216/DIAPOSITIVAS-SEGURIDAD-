@@ -88,13 +88,13 @@
 <script src="assets/lib/chartjs-plugin-datalabels.min.js"></script>
 <script src="assets/js/deck.js?v=20261127a"></script>
 <script src="assets/lib/supabase.min.js?v=2.119"></script>
-<script src="assets/js/cloud.js?v=20261121a"></script>
+<script src="assets/js/cloud.js?v=20261127a"></script>
 <script src="assets/js/charts.js?v=20261118c"></script>
 <script src="assets/js/lucho-voz.js?v=20261117c"></script>
 <script src="assets/js/miner-ref.js?v=20261117c"></script>
 <script src="assets/js/miner3d.js?v=20261117c"></script>
 <script src="assets/js/tpl.js?v=20261117c"></script>
 <script src="assets/js/editor.js?v=20261127b"></script>
-<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&DECK.hablando?setTimeout(go,1500):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+<script>if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){let had=!!navigator.serviceWorker.controller,done=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!done){done=true;const go=()=>window.DECK&&(DECK.hablando||(DECK.editing&&DECK.editing())||(DECK.moving&&DECK.moving())||document.querySelector(".modal.on,.ins-menu.on"))?setTimeout(go,2000):location.reload();go()}});addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
 </body>
 </html>
