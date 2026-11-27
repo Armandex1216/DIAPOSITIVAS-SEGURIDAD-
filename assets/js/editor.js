@@ -21,6 +21,7 @@
     <button data-c="bold" title="Negrita (Ctrl+B)"><b>N</b></button><button data-c="italic" title="Cursiva (Ctrl+I)"><i>K</i></button><button data-c="underline" title="Subrayado (Ctrl+U)"><u>S</u></button><button data-c="strikeThrough" title="Tachado"><s>ab</s></button>
     <span class="sep"></span>
     <button data-c="smaller" title="Achicar letra">A−</button><label class="fs-in" title="Tamaño de letra del texto seleccionado (px)"><input type="number" data-c="px" min="8" max="400" step="1" placeholder="Tam."><span>px</span></label><button data-c="bigger" title="Agrandar letra">A+</button>
+    <select data-c="font" title="Tipo de letra del texto seleccionado (títulos, subtítulos y textos)"><option value="">Letra</option>${["Montserrat", "Poppins", "Bebas Neue", "Anton", "Oswald", "Roboto Slab", "Lobster", "Pacifico", "Arial", "Georgia", "Impact", "Courier New", "Comic Sans MS"].map(n => `<option value="${n}" style="font-family:${n}">${n}</option>`).join("")}</select>
     <select data-c="size" title="Tamaños rápidos"><option value="">Tamaños</option><option value="18">18 · nota</option><option value="24">24 · pequeño</option><option value="32">32 · texto</option><option value="44">44 · subtítulo</option><option value="64">64 · título</option><option value="96">96 · grande</option><option value="140">140 · enorme</option></select>
     <span class="sep"></span>
     <div class="dd"><button data-dd="fc" title="Color de letra"><span class="ic-a">A</span><i class="bar-c" style="background:#d23c3c"></i></button><div class="pal" data-pal="foreColor">${COLORS.map(c => `<i style="background:${c}" data-col="${c}"></i>`).join('')}<label title="Otro color"><input type="color" data-colin="foreColor" value="#c39531">+</label></div></div>
@@ -94,6 +95,7 @@
     const t = e.target;
     if (t.dataset.c === 'size' && t.value) { fontPx(+t.value); t.value = ''; }
     if (t.dataset.c === 'px' && t.value) fontPx(t.value);
+    if (t.dataset.c === 'font' && t.value) { exec('fontName', t.value); t.value = ''; }
     if (t.dataset.colin) { exec(t.dataset.colin, t.value); $('.bar-c', bar).style.background = t.value; }
     if (t.dataset.t === 'fill') { cellFill(t.value); t.value = ''; }
   });
@@ -170,6 +172,11 @@
       return cfg;
     };
   }
+  // el minero 3D se carga solo cuando se necesita (también funciona sin internet: los archivos están en la app)
+  let mineroP = null;
+  function cargarMinero() { if (window.Miner3D && window.THREE) return Promise.resolve(); if (mineroP) return mineroP;
+    const sc = src => new Promise((ok, ko) => { if ([...document.scripts].some(x => x.src.includes(src.split('?')[0]))) return ok(); const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = ko; document.head.appendChild(t); });
+    mineroP = sc('assets/lib/three.min.js').then(() => sc('assets/js/miner-ref.js?v=20261117c')).then(() => sc('assets/js/miner3d.js?v=20261117c')).catch(() => { }); return mineroP; }
   function renderFree(fid) {
     const f = store.free[fid]; if (!f) return; const sl = document.getElementById(f.s); if (!sl) return;
     let el = $(`.free[data-fid="${fid}"]`, sl); if (el) el.remove();
@@ -177,6 +184,9 @@
     if (f.t === 'text') { el.innerHTML = `<div class="ftx">${f.html || 'Escriba aquí'}</div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
     if (f.t === 'img') { el.innerHTML = `<div class="slot cover" data-slot="free-${fid}" data-ph="Pegue o elija una imagen"></div>`; }
     if (f.t === 'chart') { el.innerHTML = `<div class="chartbox"><canvas id="fc-${fid}"></canvas></div>`; }
+    if (f.t === 'miner') { const esc = x => String(x || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;'); el.innerHTML = `<div class="miner fminer" data-miner="${f.pose || 'wave'}" data-model="ref" ${f.santa ? 'data-santa' : ''} data-zoom=".98" data-look="3.55" data-face="-0.32" data-frases="${esc(f.frases)}"></div><button class="fm-say" data-noedit contenteditable="false" title="Cambiar las frases del minero">💬 Frases</button>`;
+      setTimeout(() => cargarMinero().then(() => { const m = $('.fminer', el); try { window.Miner3D && Miner3D.mount(m); } catch (e) { } }), 60);
+      $('.fm-say', el).onclick = ev => { ev.stopPropagation(); const v = prompt('Frases del minero (separe cada frase con | ). Ejemplo: ¡Buenos días!|Si hay riesgo, detente', f.frases || ''); if (v == null) return; f.frases = v; D.persist(); location.reload(); }; }
     if (f.t === 'table') { el.innerHTML = `<table class="t tt" data-tbl ${f.auto ? 'data-auto' : ''}>${f.html}</table>`; }
     if (f.t === 'box') { el.innerHTML = `<div class="fbox" style="background:${f.bg || '#1a1917'}"><div class="ftx">${f.html || 'Comentario'}</div></div>`; const tx = $('.ftx', el); tx.addEventListener('input', () => { f.html = tx.innerHTML; saveSoon(); }); }
     if (f.t === 'viz') { el.innerHTML = `<div class="vizbox" id="vz-${fid}"></div><button class="data-btn viz-ed" data-noedit contenteditable="false">✎ Datos del gráfico</button>`; $('.viz-ed', el).onclick = e => { e.stopPropagation(); vizEdit(fid); }; }
@@ -216,7 +226,7 @@
 
 
   /* ================= lienzo tipo Canva: estilos, nubes, mover y capas ================= */
-  const FONTS = [['', 'Montserrat (de la plantilla)'], ['Montserrat, sans-serif', 'Montserrat'], ['Arial, Helvetica, sans-serif', 'Arial'], ['"Segoe UI", Tahoma, sans-serif', 'Segoe UI'], ['Georgia, "Times New Roman", serif', 'Georgia'], ['"Trebuchet MS", sans-serif', 'Trebuchet'], ['Impact, "Arial Black", sans-serif', 'Impact'], ['"Courier New", monospace', 'Courier'], ['"Comic Sans MS", "Comic Sans", cursive', 'Comic Sans']];
+  const FONTS = [['', 'Montserrat (de la plantilla)'], ['Montserrat, sans-serif', 'Montserrat'], ['Poppins, sans-serif', 'Poppins'], ['"Bebas Neue", Impact, sans-serif', 'Bebas Neue (títulos)'], ['Anton, Impact, sans-serif', 'Anton (impacto)'], ['Oswald, sans-serif', 'Oswald'], ['"Roboto Slab", Georgia, serif', 'Roboto Slab'], ['Lobster, cursive', 'Lobster (elegante)'], ['Pacifico, cursive', 'Pacifico (a mano)'], ['Arial, Helvetica, sans-serif', 'Arial'], ['"Segoe UI", Tahoma, sans-serif', 'Segoe UI'], ['Georgia, "Times New Roman", serif', 'Georgia'], ['"Trebuchet MS", sans-serif', 'Trebuchet'], ['Impact, "Arial Black", sans-serif', 'Impact'], ['"Courier New", monospace', 'Courier'], ['"Comic Sans MS", "Comic Sans", cursive', 'Comic Sans']];
   const CH15 = [['bar', '▮', 'Barras'], ['hbar', '▬', 'Barras horizontales'], ['stack', '▤', 'Barras apiladas'], ['hstack', '☰', 'Apiladas horizontales'], ['stack100', '▥', 'Apiladas al 100 %'], ['line', '⟋', 'Líneas'], ['area', '◭', 'Área'], ['combo', '⫶', 'Barras + línea'], ['donut', '◍', 'Dona'], ['pie', '◕', 'Pastel'], ['gauge', '◠', 'Medidor'], ['polar', '✺', 'Área polar'], ['radar', '⬡', 'Radar'], ['split', '▭', 'Barra de proporción'], ['waffle', '▦', 'Cuadrícula de 100']];
   const chartDef = k => { const u = ['Pallancata', 'Selene', 'Presa'];
     if (['donut', 'pie', 'polar', 'split', 'waffle'].includes(k)) return { labels: ['Opción A', 'Opción B', 'Opción C'], series: [{ name: 'Valores', values: [50, 30, 20] }] };
@@ -226,7 +236,7 @@
     if (['stack', 'hstack', 'stack100'].includes(k)) return { labels: u, series: [{ name: 'Serie 1', values: [12, 8, 15] }, { name: 'Serie 2', values: [4, 6, 3] }] };
     if (k === 'line' || k === 'area') return { labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'], series: [{ name: 'Serie 1', values: [12, 18, 15, 22] }] };
     return { labels: u, series: [{ name: 'Serie 1', values: [12, 8, 15] }] }; };
-  const SHAPES = { globo: 'Globo de diálogo', ovalo: 'Globo ovalado', nube: 'Nube de pensamiento', rect: 'Rectángulo', redondo: 'Rectángulo redondeado', circulo: 'Círculo', etiqueta: 'Etiqueta (flecha)', estrella: 'Explosión' };
+  const SHAPES = { globo: 'Globo de diálogo', ovalo: 'Globo ovalado', nube: 'Nube de pensamiento', rect: 'Rectángulo', redondo: 'Rectángulo redondeado', circulo: 'Círculo', etiqueta: 'Etiqueta (flecha)', estrella: 'Explosión', triangulo: 'Triángulo', rombo: 'Rombo', hexagono: 'Hexágono', estrella5: 'Estrella', flecha: 'Flecha →', flechai: 'Flecha ←', flechaa: 'Flecha ↑', cheuron: 'Paso (cheurón)', cruz: 'Cruz', escudo: 'Escudo', linea: 'Línea' };
   const TAILS = { 'abajo-izq': 'Abajo izquierda', 'abajo-der': 'Abajo derecha', 'arriba-izq': 'Arriba izquierda', 'arriba-der': 'Arriba derecha', izq: 'Izquierda', der: 'Derecha', ninguna: 'Sin cola' };
   const cloudSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 150' preserveAspectRatio='none'><path d='M58 132c-30 2-50-18-44-42-18-10-12-40 12-44 0-24 28-38 50-26 12-20 46-24 62-6 18-14 50-8 56 16 26 0 42 26 30 48 16 16 4 46-22 46-8 18-36 22-50 8-16 14-44 14-58 0-12 8-28 8-36 0z' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' vector-effect='non-scaling-stroke'/></svg>`)}")`;
   const burstSvg = (fill, stroke, sw) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'><polygon points='100,4 118,52 168,22 150,74 198,80 156,108 190,150 138,144 140,196 104,160 70,198 66,148 14,162 46,116 2,88 52,72 30,24 82,48' fill='${fill}' stroke='${stroke}' stroke-width='${sw}' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>`)}")`;
@@ -384,6 +394,7 @@
       for (const k of Object.keys(store.text)) if (k.startsWith(pre)) store.text[id + ':' + k.slice(pre.length)] = store.text[k];
       for (const k of Object.keys(store.layout)) if (k.startsWith(pre)) store.layout[id + ':' + k.slice(pre.length)] = store.layout[k];
       for (const k of Object.keys(store.tables)) if (k.startsWith(pre)) store.tables[id + ':' + k.slice(pre.length)] = store.tables[k];
+      for (const k of Object.keys(store.hidden)) { const m = k.match(/^(el|miner):(.+?):(.+)$/); if (m && m[2] === sl.id) store.hidden[m[1] + ':' + id + ':' + m[3]] = store.hidden[k]; }
       $$('[data-slot]', sl).forEach(s => { const base = s.dataset.slot.split('@')[0]; if (s.closest('.free')) return; if (store.images[s.dataset.slot] !== undefined) store.images[base + '@' + id] = store.images[s.dataset.slot]; else if (s.dataset.src) store.images[base + '@' + id] = s.dataset.src; });
       for (const [fid, f] of Object.entries(store.free)) if (f.s === sl.id) { const nf = uid(); store.free[nf] = JSON.parse(JSON.stringify(Object.assign({}, f, { s: id }))); if (store.layout['free:' + fid]) store.layout['free:' + nf] = store.layout['free:' + fid]; if (store.images['free-' + fid] !== undefined) store.images['free-' + nf] = store.images['free-' + fid]; if (f.t === 'chart' && store.charts['fc-' + fid]) store.charts['fc-' + nf] = store.charts['fc-' + fid]; }
       return goReload(D.i + 1);
@@ -408,6 +419,9 @@
   const hbtn = document.createElement('button'); hbtn.dataset.k = 'tit'; hbtn.textContent = 'H Título'; hbtn.title = 'Agregar un título grande que puede escribir y mover';
   hbtn.onclick = e => { e.stopPropagation(); if (!D.editing()) document.querySelector('.ui [data-k=edit]').click(); setTimeout(() => D.addTitle(), 80); };
   ui && ui.insertBefore(hbtn, tbtn);
+  const dbtn = document.createElement('button'); dbtn.dataset.k = 'dupl'; dbtn.textContent = '⧉ Duplicar'; dbtn.title = 'Duplicar la lámina actual (la copia queda justo después y se edita aparte)';
+  dbtn.onclick = e => { e.stopPropagation(); newSlide('dup'); };
+  ui && ui.insertBefore(dbtn, hbtn);
   const ibtn = document.createElement('button'); ibtn.dataset.k = 'img'; ibtn.textContent = '🖼 Imagen'; ibtn.title = 'Agregar una imagen de su PC (también puede pegarla con Ctrl+V o arrastrarla a la lámina)';
   const iinp = document.createElement('input'); iinp.type = 'file'; iinp.accept = 'image/*'; iinp.multiple = true; iinp.hidden = true; document.body.appendChild(iinp);
   iinp.onchange = () => { [...iinp.files].forEach((f, i) => setTimeout(() => D.addImage(f), i * 120)); iinp.value = ''; };
@@ -420,6 +434,7 @@
     <div class="sub-ins shapes">${Object.entries(SHAPES).map(([k, v]) => `<button data-i="bubble" data-shape="${k}" title="${v}"><i class="sh-${k}"></i>${v}</button>`).join('')}</div>
     <h5>En esta lámina</h5>
     <button data-i="img">🖼 Imagen</button>
+    <h5>🧑‍🏭 Minero animado 3D</h5><div class="sub-ins"><button data-i="miner" data-pose="wave">👋 Saludando</button><button data-i="miner" data-pose="point">👉 Señalando</button><button data-i="miner" data-pose="thumbs">👍 Pulgar arriba</button><button data-i="miner" data-pose="wave" data-santa="1">🎅 Navideño</button></div>
     <h5>📊 Gráficos · 15 tipos (luego escriba sus datos)</h5><div class="sub-ins charts">${CH15.map(([k, ic, v]) => `<button data-i="chart" data-kind="${k}"><i>${ic}</i>${v}</button>`).join('')}</div>
     <button data-i="table">▦ Tabla</button>
     <h5>Láminas</h5>
@@ -436,6 +451,7 @@
     else if (k === 'box') addFree('box', { html: 'Escriba aquí el comentario o conclusión.' });
     else if (k === 'img') addFree('img');
     else if (k === 'chart') { const kind = b.dataset.kind; addFree('chart', { kind, def: chartDef(kind) }); if (kind === 'gauge') { const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: 560, y: 300, w: 800, h: 480 }; D.applyLayout($(`.free[data-fid="${fid}"]`), store.layout['free:' + fid]); D.persist(); } }
+    else if (k === 'miner') { addFree('miner', { pose: b.dataset.pose, santa: !!b.dataset.santa, frases: '¡Hola, equipo!|Si hay riesgo, detente|Trabajemos seguros' }); const fid = Object.keys(store.free).pop(); store.layout['free:' + fid] = { x: 1300, y: 200, w: 520, h: 820 }; D.applyLayout($(`.free[data-fid="${fid}"]`), store.layout['free:' + fid]); D.persist(); D.toast('Minero agregado · muévalo con ✥ · «💬 Frases» cambia lo que dice · Supr lo quita', 4200); }
     else if (k === 'table') addFree('table', { auto: true, html: '<thead><tr><th>Columna 1</th><th>Columna 2</th><th>Columna 3</th><th>Avance</th></tr></thead><tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="pc">0%</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="pc">0%</td></tr></tbody>' });
     else newSlide(k);
   });
@@ -486,6 +502,14 @@
     store.meta.limpio = new Date().toISOString(); D.persist();
     D.toast('Plantilla limpia: escriba en cada «Coloca el título aquí» / «Escribe aquí el texto»', 5200);
   }
+  /* ================= minero de la plantilla: quitar / volver a poner ================= */
+  function minerosPlantilla() { D.slides.forEach(sl => $$('.miner', sl).filter(m => !m.closest('.free')).forEach((m, i) => { const k = 'miner:' + sl.id + ':' + i;
+    m.classList.toggle('mn-off', !!store.hidden[k]); if (m._mnBtn) return;
+    const b = document.createElement('button'); b.className = 'mn-tg'; b.setAttribute('data-noedit', ''); b.contentEditable = 'false';
+    const paint = () => { b.textContent = store.hidden[k] ? '↺ Poner minero' : '✕ Quitar minero'; m.classList.toggle('mn-off', !!store.hidden[k]); };
+    b.onclick = e => { e.stopPropagation(); e.preventDefault(); if (store.hidden[k]) delete store.hidden[k]; else store.hidden[k] = 1; D.persist(); paint(); D.toast(store.hidden[k] ? 'Minero quitado de esta lámina (no sale al presentar)' : 'Minero de vuelta', 2600); };
+    m.parentNode.insertBefore(b, m.nextSibling); m._mnBtn = b; const pos = () => { b.style.left = (m.offsetLeft + 10) + 'px'; b.style.top = (m.offsetTop + 10) + 'px'; }; pos(); setTimeout(pos, 1500); paint(); })); }
+  minerosPlantilla();
   const qsE = new URLSearchParams(location.search);
   if (qsE.get('limpia') && body.hasAttribute('data-limpiar') && !store.meta.limpio) { const go = () => setTimeout(limpiarPlantilla, 400); document.readyState === 'complete' ? go() : addEventListener('load', go); }
   // presentación vacía: abre directo en modo edición
