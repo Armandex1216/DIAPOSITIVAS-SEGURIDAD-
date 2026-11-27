@@ -318,9 +318,15 @@
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && desdeEditor) { desdeEditor = false; if (!D.editing()) toggleEdit(); } });
 
   /* ---------- edición de textos y cifras ---------- */
-  const EDIT_SEL = 'h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]';
+  const EDIT_SEL = 'h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed],[data-tk]';
+  // Todo texto de la plantilla se puede editar: etiquetas, cintillos y textos sueltos (span, div, b…) reciben una clave propia (data-tk),
+  // sin mover las claves de los textos que ya estaban guardados.
+  const AUTO_TX = 'span,div,b,strong,small,em,i,label,a,h5,h6,figcaption,blockquote,u,mark';
+  const NO_AUTO = 'svg,button,select,option,script,style,[data-noedit],.slot,.chartbox,[data-tbl],.free-layer,.free,.vizbox,.miner,.lv,.mn-say,.mn-name,.sel-box,.filmstrip,.nv-hill,.ornaments,.lights,.snow,.ui,.toast';
+  slides.forEach(sl => { let k = 0; $$(AUTO_TX, sl).forEach(el => { if (el.children.length || el.hasAttribute('data-tk') || el.matches('.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]')) return; const t = el.textContent.trim(); if (!t || !/[\p{L}\p{N}]/u.test(t)) return;
+    if (el.closest(NO_AUTO) || (el.parentElement && el.parentElement.closest('h1,h2,h3,h4,p,li,td,th,dt,dd,.edit,.lead,.kick,.pill,.sub,.lbl,.rich,[data-count],[data-ed]'))) return; el.setAttribute('data-tk', 'a' + (k++)); }); });
   const editablesIn = sl => $$(EDIT_SEL, sl).filter(el => !el.closest('[data-noedit]') && (el.classList.contains('rich') || !el.querySelector(EDIT_SEL)) && !(el.parentElement && el.parentElement.closest('.rich')) && !el.closest('.chartbox') && !el.closest('[data-tbl]') && !el.closest('.free-layer'));
-  const keyOf = (sl, el, list) => sl.id + ':' + list.indexOf(el);
+  const keyOf = (sl, el, list) => el.dataset.tk ? sl.id + ':' + el.dataset.tk : sl.id + ':' + list.filter(x => !x.dataset.tk).indexOf(el);
   function loadEdits() {
     slides.forEach(sl => { const list = editablesIn(sl); list.forEach(el => { const k = keyOf(sl, el, list); if (store.text[k] != null) { el.innerHTML = store.text[k]; if (el.classList.contains('rich')) $$('[data-count]', el).forEach(syncCount); } if (el.hasAttribute('data-count')) { if (store.text[k] != null) syncCount(el); el.dataset.orig0 = el.dataset.count; } }); });
   }
